@@ -8,9 +8,10 @@ A simple, professional to-do app for planning your day, tracking what's done, an
 
 **Option B — Put it online (recommended, so you can open it from your phone too).**
 1. In this repository on GitHub, go to **Settings → Pages**.
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-3. Push to this branch (already done) or click **Run workflow** on the "Deploy Daily Planner to GitHub Pages" workflow under the **Actions** tab.
-4. GitHub gives you a URL like `https://<your-username>.github.io/<repo-name>/`. Open that on your phone and laptop.
+2. Under **Build and deployment**, set **Source** to **Deploy from a branch**, pick this branch (`claude/todo-list-app-design-yxtw7c`, or `main` once merged) and folder **/ (root)**, then **Save**. GitHub Pages requires this one manual step the first time — a workflow can't turn Pages on for you.
+3. Wait about a minute, then refresh that Settings page — it shows your live URL, something like `https://<your-username>.github.io/<repo-name>/`. Open that on your phone and laptop.
+
+A workflow (`.github/workflows/deploy-pages.yml`) is included as an alternative: if you'd rather set **Source** to **GitHub Actions** instead, it deploys automatically on every push — pick whichever source you prefer, just not both.
 
 Any static host works the same way (Netlify, Vercel, Cloudflare Pages, your own server) — there's no build step, just upload the files.
 
