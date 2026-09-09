@@ -1,54 +1,130 @@
-# Daily Planner
+# Excel Mastery
 
-A simple, professional to-do app for planning your day, tracking what's done, and automatically carrying unfinished tasks forward. Works on mobile and laptop, installs like a native app, and needs no server or account.
+**From Basics to Business-Ready Excel.** A Next.js course platform with free preview
+lessons, a paywalled full curriculum, Razorpay payments verified server-side, and a
+Google Sheet kept in sync for admin reporting (never used to control access).
 
-## Use it starting today
+Everything in this build runs on free tiers — see [Costs](#costs-all-free-tiers-to-start) below.
 
-**Option A — Open it directly.** Double-click `index.html` (or open it from a file:// URL in your browser). Everything works immediately; your tasks are saved to that browser only.
+## Stack
 
-**Option B — Put it online (recommended, so you can open it from your phone too).**
-1. In this repository on GitHub, go to **Settings → Pages**.
-2. Under **Build and deployment**, set **Source** to **Deploy from a branch**, pick this branch (`claude/todo-list-app-design-yxtw7c`, or `main` once merged) and folder **/ (root)**, then **Save**. GitHub Pages requires this one manual step the first time — a workflow can't turn Pages on for you.
-3. Wait about a minute, then refresh that Settings page — it shows your live URL, something like `https://<your-username>.github.io/<repo-name>/`. Open that on your phone and laptop.
+- **Frontend/Backend:** Next.js 16 (App Router), TypeScript, Tailwind CSS 4 — deployed as one app.
+- **Database/Auth:** Supabase (Postgres + built-in email-OTP auth).
+- **Payments:** Razorpay (order creation + webhook verification).
+- **Email:** Resend (transactional).
+- **Admin reporting:** Google Sheets API via a service account (write-only logging, not access control).
+- **Hosting:** Netlify (chosen over Vercel — Vercel's free Hobby tier disallows commercial use; Netlify's does not).
 
-A workflow (`.github/workflows/deploy-pages.yml`) is included as an alternative: if you'd rather set **Source** to **GitHub Actions** instead, it deploys automatically on every push — pick whichever source you prefer, just not both.
+## How access control works
 
-Any static host works the same way (Netlify, Vercel, Cloudflare Pages, your own server) — there's no build step, just upload the files.
+Postgres is the single source of truth. A user's `profiles.access_status` column
+(`free` / `pending` / `paid`) can **only** be changed by the backend using the Supabase
+service-role key — a database trigger (`protect_access_columns`, in
+`supabase/migrations/0001_init.sql`) silently reverts any attempt to change it from a
+normal user session, so the Supabase client SDK, browser devtools, or a raw REST call
+with the anon key cannot grant access. Every page and API route that serves paid
+content re-checks this column server-side on every request — nothing relies on a
+client-side flag.
 
-## Installing it as an app
+Payment confirmation only ever happens from the Razorpay **webhook**
+(`src/app/api/payment/webhook/route.ts`), verified by HMAC signature. The frontend's
+"payment success" popup is cosmetic — it just triggers a short polling screen while
+the webhook does the actual verification and unlock.
 
-- **iPhone/iPad (Safari):** open the site, tap **Share**, then **Add to Home Screen**.
-- **Android (Chrome):** open the site, tap the menu, then **Install app** (or use the **Install app** button in the sidebar/bottom bar).
-- **Laptop (Chrome/Edge):** open the site, click the **Install app** button in the sidebar, or the install icon in the address bar.
+## One-time setup (all free tiers)
 
-Once installed it opens in its own window with its own icon, and keeps working offline.
+### 1. Supabase (database + auth)
 
-## Letting other people use it
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Project Settings → API: copy the **Project URL**, **anon public key**, and
+   **service_role key** into your `.env.local` (copy `.env.example` first).
+3. SQL Editor → paste the contents of `supabase/migrations/0001_init.sql` and run it.
+4. Authentication → Providers → Email: make sure "Email OTP" / "Confirm email" is on.
+5. **Important:** Authentication → Email Templates → "Magic Link" — Supabase's default
+   template only includes a clickable link. This app asks users to type in a 6-digit
+   code instead, so edit the template to include `{{ .Token }}` somewhere in the body
+   (e.g. "Your code is: **{{ .Token }}**"). Without this edit, users won't have a code
+   to type in.
+6. Free tier note: a Supabase project **pauses after 7 days with zero API activity**.
+   Harmless once you have regular visitors; if the site sits untouched for a week
+   before your first users arrive, just click "Resume" in the Supabase dashboard.
 
-Share the link (or this repository) with anyone. Each person who opens it — on their own phone, laptop, or browser — gets **their own private Daily Planner**. There are no accounts and no shared server: every device stores its own tasks locally (in the browser's storage), so nobody sees anyone else's list.
+### 2. Razorpay (payments)
 
-Because data lives on-device, keep in mind:
-- Clearing browser data/cache on a device erases that device's tasks.
-- Tasks don't sync between two different devices for the same person — each install is independent.
-- There's no cloud backup. If that becomes a problem later, the natural next step is adding a small backend with real accounts.
+1. Sign up at [razorpay.com](https://razorpay.com) (Indian business/PAN required for
+   live payments; test mode works immediately without one).
+2. Settings → API Keys → generate keys → copy `Key Id` / `Key Secret` into `.env.local`.
+3. Settings → Webhooks → Add a webhook:
+   - URL: `https://<your-site>/api/payment/webhook`
+   - Active events: `payment.captured`, `order.paid`
+   - Copy the generated **webhook secret** into `.env.local`.
+4. Set `COURSE_PRICE_INR` in `.env.local` to your price (whole rupees).
+5. No monthly fee — Razorpay only takes a percentage of each successful transaction.
 
-## What it does
+### 3. Resend (email)
 
-- Add tasks for today, tomorrow, or any specific date, with Low/Medium/High priority and an optional due time + reminder notification.
-- Tick a task to move it from Pending to Completed (and back).
-- Edit, delete, or reschedule any task to a different day.
-- Automatic carry-forward: unfinished tasks roll into the next day on their own — even across multiple days if you don't open the app for a while — and are flagged **Carried forward** with priority automatically raised to High.
-- A bell icon shows an end-of-day check-in with what's still pending and a one-tap "Carry forward now".
-- Dashboard with today's date, total/pending/completed/high-priority/carried-forward counts, and a completion-percentage ring.
-- Responsive layout: a sidebar on laptop, a bottom tab bar with a one-tap add button on mobile.
+1. Sign up at [resend.com](https://resend.com) (free: 3,000 emails/month).
+2. API Keys → create one → copy into `RESEND_API_KEY`.
+3. For now, `EMAIL_FROM` can stay as the default `onboarding@resend.dev` shared sender.
+   Once you have your own domain, verify it in Resend and switch `EMAIL_FROM` to
+   `Excel Mastery <hello@yourdomain.com>` for better deliverability.
 
-## Notes on reminders
+### 4. Google Sheets (admin reporting)
 
-Due-time reminders use the browser's Notification API. They fire while the app (or its installed window) is open in the background, but — like any web app — cannot wake up a fully closed browser. Grant notification permission when prompted (toggling "Due time & reminder" on a task asks for it).
+1. In [Google Cloud Console](https://console.cloud.google.com), create a project (free).
+2. Enable the **Google Sheets API**.
+3. IAM & Admin → Service Accounts → create one → Keys → Add Key → JSON. Download it.
+4. From the JSON, copy `client_email` → `GOOGLE_SERVICE_ACCOUNT_EMAIL`, and `private_key`
+   → `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (keep the `\n` sequences exactly as in the file).
+5. Create a Google Sheet for tracking. Share it with the service account's email
+   (the `client_email` above) as an **Editor** — this is the only access it gets.
+6. Copy the Sheet's ID from its URL (`https://docs.google.com/spreadsheets/d/<SHEET_ID>/edit`)
+   into `GOOGLE_SHEET_ID`.
 
-## Files
+### 5. Deploy to Netlify (free)
 
-- `index.html`, `styles.css`, `app.js` — the app itself (no build step, no dependencies).
-- `manifest.webmanifest`, `service-worker.js` — make it installable and usable offline.
-- `icons/` — the app logo and icons.
-- `.github/workflows/deploy-pages.yml` — deploys to GitHub Pages automatically on push.
+1. Push this repo to GitHub (already done if you're reading this from the repo).
+2. In [Netlify](https://netlify.com), "Add new site" → "Import an existing project" →
+   pick this repo and branch. Netlify auto-detects Next.js.
+3. Site settings → Environment variables → add every variable from `.env.example`
+   with your real values.
+4. Deploy. You'll get a free `https://your-site.netlify.app` URL — good enough to launch
+   on with zero domain cost. Add a custom domain later under Domain settings whenever
+   you're ready to pay for one (~₹500–1,500/year).
+5. Update the Razorpay webhook URL (step 2.3 above) to point at your live Netlify URL.
+
+## Local development
+
+```bash
+npm install
+cp .env.example .env.local   # then fill in real values
+npm run dev
+```
+
+## Curriculum content
+
+`src/lib/curriculum.ts` holds every module/lesson in the required order (Basics →
+Formatting → Data Cleaning → Formulas/Functions → Analysis → PivotTables →
+Reports/Dashboards → Advanced Excel → Power Query/Power Pivot → Automation), each
+marked `isFree` or locked. Content is currently **placeholder text** — replace each
+lesson's `body` (and add a `videoId` for an unlisted YouTube video) with real material
+as it's written. No other code needs to change to add real content.
+
+## Reconciliation job (optional, for later)
+
+`GET /api/cron/reconcile-sheets` retries any Google Sheets writes that failed (e.g. a
+brief Sheets API outage) — it never affects user access. Wire it to a scheduled job
+(Netlify Scheduled Functions, or any external cron hitting the URL) with header
+`Authorization: Bearer <CRON_SECRET>`. Not required for launch; the site works
+correctly without it, this just keeps the admin sheet fully caught up.
+
+## Costs (all free tiers to start)
+
+| Item | Free tier | Upgrade later when |
+|---|---|---|
+| Hosting (Netlify) | Yes, unrestricted for commercial use | Traffic/build-minutes exceed the free tier |
+| Database (Supabase) | Yes (500MB, 50k MAU) | You need more storage/no auto-pause |
+| Email (Resend) | Yes (3,000/month) | You exceed that volume |
+| Video (YouTube Unlisted) | Yes | You want real download/embed protection (e.g. Bunny.net) |
+| Payments (Razorpay) | No fixed fee, ~2%+GST per transaction | N/A — scales with revenue automatically |
+| Domain | Not free (~₹500–1,500/year) | Whenever you want a custom domain instead of `*.netlify.app` |
