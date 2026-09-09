@@ -31,6 +31,14 @@ Payment confirmation only ever happens from the Razorpay **webhook**
 "payment success" popup is cosmetic — it just triggers a short polling screen while
 the webhook does the actual verification and unlock.
 
+## Setting it up
+
+**→ Follow [SETUP.md](./SETUP.md).** It's a step-by-step checklist that tells you exactly which
+value to copy from each dashboard into which setting, in the right order, including the two steps
+that are easy to miss (the Supabase email template and the Razorpay webhook).
+
+The reference below covers the same ground in less detail.
+
 ## One-time setup (all free tiers)
 
 ### 1. Supabase (database + auth)
@@ -103,12 +111,22 @@ npm run dev
 
 ## Curriculum content
 
-`src/lib/curriculum.ts` holds every module/lesson in the required order (Basics →
-Formatting → Data Cleaning → Formulas/Functions → Analysis → PivotTables →
-Reports/Dashboards → Advanced Excel → Power Query/Power Pivot → Automation), each
-marked `isFree` or locked. Content is currently **placeholder text** — replace each
-lesson's `body` (and add a `videoId` for an unlisted YouTube video) with real material
-as it's written. No other code needs to change to add real content.
+Each module is a separate file in `src/content/` (`01-basics.ts` through
+`10-automation.ts`), assembled by `src/lib/curriculum.ts` in the required order:
+Basics → Formatting → Data Cleaning → Formulas/Functions → Analysis → PivotTables →
+Reports/Dashboards → Advanced Excel → Power Query/Power Pivot → Automation.
+
+All 32 items are written with real training content — workplace scenarios, step-by-step
+instructions, tips, exercises with solutions, interactive quizzes, shortcut tables and
+cheat sheets. Edit any module file directly to change wording; the shape of each content
+type is defined in `src/lib/content-types.ts`.
+
+To attach a video to a lesson, add `videoId: "abc123"` (the id from an unlisted YouTube
+URL) to that lesson object. The player only renders when a video id is present, so
+lessons work as text-only until you record them.
+
+Lessons marked `isFree: true` are readable without payment — currently the first three
+in Module 1. Change the flag to move the paywall.
 
 ## Reconciliation job (optional, for later)
 

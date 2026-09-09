@@ -4,6 +4,7 @@ import { findLesson } from "@/lib/curriculum";
 import { getCurrentProfile } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import LessonCompleteToggle from "@/components/LessonCompleteToggle";
+import LessonBody from "@/components/LessonBody";
 import { COURSE_PRICE_INR } from "@/lib/razorpay";
 
 export default async function LessonPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -71,7 +72,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
         </div>
       )}
 
-      <div className="mt-6 prose max-w-none text-ink-700 whitespace-pre-wrap">{lesson.body}</div>
+      <LessonBody content={lesson.content} />
 
       {current && (
         <div className="mt-8">

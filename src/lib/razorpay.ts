@@ -1,7 +1,7 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
 
-export const COURSE_PRICE_INR = Number(process.env.COURSE_PRICE_INR ?? "999");
+export const COURSE_PRICE_INR = Number(process.env.COURSE_PRICE_INR ?? "299");
 
 export function getRazorpayClient() {
   return new Razorpay({

@@ -1,0 +1,222 @@
+# Excel Mastery — Setup Checklist
+
+Follow this in order. Each step tells you exactly which value to copy and where to paste it.
+
+**You will never send these values to anyone, including in a chat.** They go into the Netlify
+dashboard and nowhere else. Anyone who has them can charge cards or read your customer data.
+
+You'll collect 13 values in total. Keep them in a private note as you go — you'll paste them all
+into Netlify in Step 5.
+
+---
+
+## Step 1 — Supabase (your database and login system)
+
+1. Go to [supabase.com](https://supabase.com) and sign in with **Excelmastery26@gmail.com**.
+2. Click **New project**. Name it `excel-mastery`. Choose the region closest to your customers
+   (Mumbai / South Asia). Set a database password and save it in your private note.
+3. Wait about two minutes for the project to finish setting up.
+4. Go to **Project Settings** (gear icon) → **API**. Copy these three values:
+
+   | Copy this | Into this env var |
+   |---|---|
+   | Project URL | `NEXT_PUBLIC_SUPABASE_URL` |
+   | `anon` `public` key | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+   | `service_role` `secret` key | `SUPABASE_SERVICE_ROLE_KEY` |
+
+   ⚠️ The `service_role` key bypasses all security rules. It goes only into Netlify — never into
+   the website code, never into an email, never into a chat.
+
+5. Go to **SQL Editor** → **New query**. Open the file `supabase/migrations/0001_init.sql` from
+   this repository, copy its entire contents, paste into the editor, and click **Run**. You should
+   see "Success. No rows returned." This creates your tables and the security rules that stop
+   anyone unlocking the course without paying.
+
+6. **This step is easy to miss and the login will not work without it.** Go to **Authentication**
+   → **Emails** → **Magic Link** template. The default template only contains a clickable link,
+   but this site asks people to type a 6-digit code. Edit the template body to include the code —
+   add a line like:
+
+   ```
+   Your Excel Mastery login code is: {{ .Token }}
+   ```
+
+   Click **Save**.
+
+---
+
+## Step 2 — Razorpay (payments)
+
+Start in **Test mode** — you can build and test everything before your account is fully approved.
+There's a toggle at the top of the Razorpay dashboard.
+
+1. Go to [razorpay.com](https://razorpay.com), sign in, and make sure the dashboard says **Test Mode**.
+2. Go to **Account & Settings** → **API Keys** → **Generate Test Key**.
+3. Copy both values (the secret is shown only once — copy it now):
+
+   | Copy this | Into this env var |
+   |---|---|
+   | Key Id (starts `rzp_test_`) | `RAZORPAY_KEY_ID` |
+   | Key Secret | `RAZORPAY_KEY_SECRET` |
+
+4. **The webhook comes later** (Step 6), because it needs your live website address, which you
+   won't have until after deployment. For now, put any placeholder text in
+   `RAZORPAY_WEBHOOK_SECRET` so the site builds.
+
+5. Set `COURSE_PRICE_INR` to `299`.
+
+---
+
+## Step 3 — Resend (emails)
+
+1. Go to [resend.com](https://resend.com) and sign in.
+2. Go to **API Keys** → **Create API Key**. Name it `excel-mastery`, permission **Sending access**.
+3. Copy the key (shown once) into `RESEND_API_KEY`.
+4. Set `EMAIL_FROM` to `Excel Mastery <onboarding@resend.dev>` for now. This is Resend's shared
+   test sender and works immediately. Once you own a domain, verify it in Resend and change this
+   to your own address — emails will land in inboxes far more reliably.
+
+---
+
+## Step 4 — Google Sheets (your admin tracking sheet)
+
+This is the sheet where every registration and payment gets logged automatically.
+
+1. Create a new Google Sheet in the Excelmastery26 account. Name it `Excel Mastery — Registrations`.
+2. Rename the first tab (bottom-left) to exactly **Registrations** — capital R, no spaces. The code
+   looks for this exact name.
+3. From the sheet's web address, copy the long ID between `/d/` and `/edit` into `GOOGLE_SHEET_ID`.
+   Example: `docs.google.com/spreadsheets/d/`**`1a2b3c4d5e6f7g8h`**`/edit`
+4. Go to [console.cloud.google.com](https://console.cloud.google.com) and sign in.
+5. Create a new project called `excel-mastery`.
+6. Search for **Google Sheets API** in the top search bar, open it, and click **Enable**.
+7. Go to **APIs & Services** → **Credentials** → **Create Credentials** → **Service account**.
+   Name it `sheets-writer` and click through to create it.
+8. Click the service account you just created → **Keys** tab → **Add Key** → **Create new key** →
+   choose **JSON** → **Create**. A `.json` file downloads.
+9. Open that JSON file in Notepad. Find these two values:
+
+   | Copy this from the JSON | Into this env var |
+   |---|---|
+   | `"client_email"` (ends `.iam.gserviceaccount.com`) | `GOOGLE_SERVICE_ACCOUNT_EMAIL` |
+   | `"private_key"` (the long block starting `-----BEGIN PRIVATE KEY-----`) | `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` |
+
+   Copy the private key **exactly as it appears**, including the `\n` sequences. Don't reformat it.
+
+10. Go back to your Google Sheet, click **Share**, paste the `client_email` address, give it
+    **Editor** access, and untick "Notify people". Without this the sheet stays empty and nothing
+    will tell you why.
+
+11. Set `CRON_SECRET` to any long random string you invent — for example a password-manager
+    generated one. It just protects an internal maintenance URL.
+
+---
+
+## Step 5 — Deploy to Netlify
+
+1. Go to [netlify.com](https://netlify.com), sign in with GitHub.
+2. **Add new site** → **Import an existing project** → **GitHub** → authorise → pick the
+   `Repo1AppBuild` repository.
+3. Set the branch to `claude/excel-mastery-platform-y3f2ms` (or `main` once this is merged).
+   Netlify detects Next.js automatically — leave the build settings alone.
+4. Before deploying, click **Add environment variables** and enter all 13 values you collected:
+
+   ```
+   NEXT_PUBLIC_SUPABASE_URL
+   NEXT_PUBLIC_SUPABASE_ANON_KEY
+   SUPABASE_SERVICE_ROLE_KEY
+   RAZORPAY_KEY_ID
+   RAZORPAY_KEY_SECRET
+   RAZORPAY_WEBHOOK_SECRET
+   COURSE_PRICE_INR
+   RESEND_API_KEY
+   EMAIL_FROM
+   GOOGLE_SERVICE_ACCOUNT_EMAIL
+   GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+   GOOGLE_SHEET_ID
+   CRON_SECRET
+   ```
+
+5. Click **Deploy**. It takes 2–4 minutes. You'll get an address like
+   `https://excel-mastery-abc123.netlify.app`. Write it down — you need it in the next step.
+
+---
+
+## Step 6 — Connect the payment webhook
+
+This is the step that actually unlocks the course after someone pays. Skip it and payments will
+succeed but nobody will get access.
+
+1. In Razorpay (still Test Mode), go to **Account & Settings** → **Webhooks** → **Add New Webhook**.
+2. **Webhook URL**: your Netlify address followed by `/api/payment/webhook` — for example
+   `https://excel-mastery-abc123.netlify.app/api/payment/webhook`
+3. **Secret**: invent a long random string. Copy it.
+4. **Active Events**: tick `payment.captured` and `order.paid`. Leave everything else unticked.
+5. Click **Create Webhook**.
+6. Go back to Netlify → **Site configuration** → **Environment variables**, and replace the
+   placeholder `RAZORPAY_WEBHOOK_SECRET` with the secret from step 3.
+7. Go to **Deploys** → **Trigger deploy** → **Clear cache and deploy site**. Environment variable
+   changes only take effect on a fresh deploy.
+
+---
+
+## Step 7 — Test the whole flow end to end
+
+Do this before showing anyone the site.
+
+1. Open your Netlify address. Click through a free lesson — it should work with no login.
+2. Click a locked lesson. It should show the lock screen, not the content.
+3. Click **Unlock Full Course** → register with a real email you can check.
+4. You should receive a 6-digit code by email. (No code? Step 1.6 wasn't done.)
+5. Enter the code — you should land on your dashboard.
+6. Click **Pay and Unlock**. Razorpay's test checkout opens. Use test card
+   `4111 1111 1111 1111`, any future expiry date, any CVV, and OTP `1234` if prompted.
+7. Within a few seconds the page should redirect and the whole course should be unlocked.
+8. Check three things:
+   - Your Google Sheet has a new row with name, email, mobile, payment ID and status `paid`
+   - You received the welcome email
+   - Opening a previously locked lesson now shows the full content
+
+If the payment succeeds but nothing unlocks, the webhook is the cause — recheck Step 6, especially
+that you redeployed after changing the secret.
+
+---
+
+## Step 8 — Before taking real money
+
+1. **Fill in your business details.** Open `src/lib/business.ts` and replace every value marked
+   `TO BE FILLED` — your legal business name, registered address, and support phone number. These
+   appear on your Terms, Privacy, Refund and Contact pages, and Razorpay checks them.
+2. **Complete Razorpay KYC.** In the Razorpay dashboard, submit your business documents (PAN, bank
+   account, address proof). Approval usually takes 2–4 working days. Razorpay will check that your
+   site has visible Terms, Privacy, Refund and Contact pages — it does, at `/terms`, `/privacy`,
+   `/refund-policy` and `/contact`.
+3. **Switch to Live mode.** Once approved, toggle to Live Mode in Razorpay, generate **live** API
+   keys, create a **new webhook** pointed at the same URL (live and test webhooks are separate),
+   and update `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` and `RAZORPAY_WEBHOOK_SECRET` in Netlify.
+   Redeploy.
+4. **Do one real transaction yourself** with a real card for ₹299, confirm it unlocks, then refund
+   it from the Razorpay dashboard. This is the only way to be certain live mode works.
+
+---
+
+## Optional — a custom domain
+
+The `.netlify.app` address works fine and costs nothing. When you want your own domain:
+
+1. Buy one (₹500–1,500/year) from any registrar.
+2. Netlify → **Domain management** → **Add a domain** → follow the DNS instructions.
+3. Verify the domain in Resend and change `EMAIL_FROM` to your own address.
+4. Update the Razorpay webhook URL to the new domain.
+
+---
+
+## If something goes wrong
+
+| Symptom | Cause |
+|---|---|
+| No login code arrives | Supabase email template missing `{{ .Token }}` (Step 1.6) |
+| Payment succeeds, course stays locked | Webhook not set up, or site not redeployed after adding the secret (Step 6) |
+| Google Sheet stays empty | Sheet not shared with the service account email, or tab not named `Registrations` |
+| Build fails on Netlify | A missing or misspelled environment variable — check the deploy log, it names the one it wants |
+| Site was fine, now errors | Supabase free projects pause after 7 days of no activity. Open the Supabase dashboard and click Resume |
