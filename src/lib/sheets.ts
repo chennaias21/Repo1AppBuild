@@ -27,7 +27,7 @@ interface SheetRecord {
   email: string;
   mobile: string;
   registrationDate: string;
-  paymentStatus: "none" | "pending" | "paid" | "failed";
+  paymentStatus: "none" | "pending" | "paid" | "failed" | "refunded";
   paymentId: string;
   paymentDate: string;
   accessStatus: string;

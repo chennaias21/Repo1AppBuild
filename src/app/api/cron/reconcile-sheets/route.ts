@@ -50,7 +50,7 @@ export async function GET(request: Request) {
         email: authUser.user.email,
         mobile: profile.mobile ?? "",
         registrationDate: profile.created_at,
-        paymentStatus: (payment?.status as "paid" | "failed" | undefined) ?? "none",
+        paymentStatus: (payment?.status as "paid" | "failed" | "refunded" | undefined) ?? "none",
         paymentId: payment?.razorpay_payment_id ?? "",
         paymentDate: payment?.verified_at ?? "",
         accessStatus: profile.access_status,

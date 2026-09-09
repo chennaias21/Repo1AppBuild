@@ -20,6 +20,10 @@ export async function POST(request: Request) {
   const event = JSON.parse(rawBody);
   const eventType = event.event as string;
 
+  if (eventType === "refund.processed") {
+    return handleRefund(event);
+  }
+
   if (eventType !== "payment.captured" && eventType !== "order.paid") {
     // Acknowledge anything we don't act on so Razorpay stops retrying it.
     return NextResponse.json({ received: true });
@@ -96,6 +100,71 @@ export async function POST(request: Request) {
     },
     payment.user_id,
     "payment_confirmed"
+  );
+
+  return NextResponse.json({ received: true });
+}
+
+/**
+ * Revokes course access when a refund completes, so a refunded customer doesn't
+ * keep the content. Razorpay sends this whether the refund was issued from the
+ * dashboard or via API.
+ */
+async function handleRefund(event: Record<string, unknown>) {
+  const payload = event.payload as
+    | { refund?: { entity?: { payment_id?: string } } }
+    | undefined;
+  const refundedPaymentId = payload?.refund?.entity?.payment_id;
+
+  if (!refundedPaymentId) {
+    return NextResponse.json({ error: "Missing payment id" }, { status: 400 });
+  }
+
+  const admin = createAdminClient();
+
+  const { data: payment } = await admin
+    .from("payments")
+    .select("id, user_id, status")
+    .eq("razorpay_payment_id", refundedPaymentId)
+    .single();
+
+  if (!payment) {
+    return NextResponse.json({ error: "Unknown payment" }, { status: 404 });
+  }
+
+  if (payment.status === "refunded") {
+    return NextResponse.json({ received: true, alreadyProcessed: true });
+  }
+
+  const now = new Date().toISOString();
+
+  await admin.from("payments").update({ status: "refunded" }).eq("id", payment.id);
+
+  await admin
+    .from("profiles")
+    .update({ access_status: "free", access_granted_at: null })
+    .eq("id", payment.user_id);
+
+  const { data: authUser } = await admin.auth.admin.getUserById(payment.user_id);
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("full_name, mobile, created_at")
+    .eq("id", payment.user_id)
+    .single();
+
+  await syncRegistrationToSheet(
+    {
+      name: profile?.full_name ?? "",
+      email: authUser?.user?.email ?? "",
+      mobile: profile?.mobile ?? "",
+      registrationDate: profile?.created_at ?? "",
+      paymentStatus: "refunded",
+      paymentId: refundedPaymentId,
+      paymentDate: now,
+      accessStatus: "free",
+    },
+    payment.user_id,
+    "payment_refunded"
   );
 
   return NextResponse.json({ received: true });

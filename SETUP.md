@@ -47,10 +47,15 @@ into Netlify in Step 5.
 
 ## Step 2 — Razorpay (payments)
 
-Start in **Test mode** — you can build and test everything before your account is fully approved.
-There's a toggle at the top of the Razorpay dashboard.
+Your KYC is approved, so both Test and Live modes are available. **Use Test mode for now.**
+You'll switch to Live in Step 8, once you've confirmed the whole flow works — that way your first
+real transaction isn't also your first test.
 
-1. Go to [razorpay.com](https://razorpay.com), sign in, and make sure the dashboard says **Test Mode**.
+There's a Test/Live toggle at the top of the Razorpay dashboard. Everything is separate between
+the two modes: different API keys, different webhooks, different transaction history. Nothing you
+do in Test mode touches real money or appears in your live records.
+
+1. Go to [razorpay.com](https://razorpay.com), sign in, and switch the toggle to **Test Mode**.
 2. Go to **Account & Settings** → **API Keys** → **Generate Test Key**.
 3. Copy both values (the secret is shown only once — copy it now):
 
@@ -64,6 +69,11 @@ There's a toggle at the top of the Razorpay dashboard.
    `RAZORPAY_WEBHOOK_SECRET` so the site builds.
 
 5. Set `COURSE_PRICE_INR` to `299`.
+
+6. While you're here, switch to **Live Mode** briefly and check **Account & Settings** →
+   **Configuration** → **Payment Methods**. Make sure **UPI** is enabled — for a ₹299 purchase in
+   India, UPI is how most people will want to pay, and leaving it off will cost you sales. Cards
+   and netbanking should be on too. Then switch back to Test Mode.
 
 ---
 
@@ -147,11 +157,17 @@ This is the sheet where every registration and payment gets logged automatically
 This is the step that actually unlocks the course after someone pays. Skip it and payments will
 succeed but nobody will get access.
 
+⚠️ Test and Live modes have **completely separate webhooks**. Setting one up here does not create
+the other. You'll create the Live webhook in Step 8 — forgetting it is the single most common way
+a launch goes wrong, because payments then succeed while nobody gets access.
+
 1. In Razorpay (still Test Mode), go to **Account & Settings** → **Webhooks** → **Add New Webhook**.
 2. **Webhook URL**: your Netlify address followed by `/api/payment/webhook` — for example
    `https://excel-mastery-abc123.netlify.app/api/payment/webhook`
 3. **Secret**: invent a long random string. Copy it.
-4. **Active Events**: tick `payment.captured` and `order.paid`. Leave everything else unticked.
+4. **Active Events**: tick `payment.captured`, `order.paid`, and `refund.processed`. Leave
+   everything else unticked. (`refund.processed` is what automatically removes course access when
+   you refund someone.)
 5. Click **Create Webhook**.
 6. Go back to Netlify → **Site configuration** → **Environment variables**, and replace the
    placeholder `RAZORPAY_WEBHOOK_SECRET` with the secret from step 3.
@@ -182,21 +198,43 @@ that you redeployed after changing the secret.
 
 ---
 
-## Step 8 — Before taking real money
+## Step 8 — Go live
 
-1. **Fill in your business details.** Open `src/lib/business.ts` and replace every value marked
-   `TO BE FILLED` — your legal business name, registered address, and support phone number. These
-   appear on your Terms, Privacy, Refund and Contact pages, and Razorpay checks them.
-2. **Complete Razorpay KYC.** In the Razorpay dashboard, submit your business documents (PAN, bank
-   account, address proof). Approval usually takes 2–4 working days. Razorpay will check that your
-   site has visible Terms, Privacy, Refund and Contact pages — it does, at `/terms`, `/privacy`,
-   `/refund-policy` and `/contact`.
-3. **Switch to Live mode.** Once approved, toggle to Live Mode in Razorpay, generate **live** API
-   keys, create a **new webhook** pointed at the same URL (live and test webhooks are separate),
-   and update `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` and `RAZORPAY_WEBHOOK_SECRET` in Netlify.
-   Redeploy.
-4. **Do one real transaction yourself** with a real card for ₹299, confirm it unlocks, then refund
-   it from the Razorpay dashboard. This is the only way to be certain live mode works.
+Do this only after Step 7 passed completely in Test mode. Your KYC is already approved, so there's
+nothing to wait for.
+
+1. **Fill in your business details first.** Open `src/lib/business.ts` and replace every value
+   marked `TO BE FILLED` — your legal business name (exactly as registered with Razorpay), your
+   registered address, and a support phone number. These appear on your Terms, Privacy, Refund and
+   Contact pages. Commit and push the change, and Netlify will redeploy automatically.
+
+2. **Generate live API keys.** In Razorpay, switch the toggle to **Live Mode**, then
+   **Account & Settings** → **API Keys** → **Generate Live Key**. The Key Id now starts
+   `rzp_live_` instead of `rzp_test_`. Copy both values — the secret is shown only once.
+
+3. **Create the live webhook.** Still in Live Mode, go to **Account & Settings** → **Webhooks** →
+   **Add New Webhook**. This is a *new* webhook, not an edit of your test one:
+   - URL: the same `https://your-site/api/payment/webhook`
+   - Secret: invent a new long random string (it can differ from the test one)
+   - Active Events: `payment.captured`, `order.paid`, and `refund.processed`
+
+4. **Update Netlify.** Site configuration → Environment variables. Replace all three:
+   `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` — with the live values from
+   steps 2 and 3. Then **Deploys** → **Trigger deploy** → **Clear cache and deploy site**.
+   Environment changes only take effect on a fresh deploy.
+
+5. **Do one real transaction.** Register with a different email than your admin one, pay the real
+   ₹299 (UPI is quickest), and confirm: the course unlocks, the welcome email arrives, and a row
+   appears in your Google Sheet with status `paid`.
+
+6. **Refund that transaction** from the Razorpay dashboard → Transactions → find it → Refund.
+   Note that Razorpay's fee on the original transaction is typically not returned — treat the
+   couple of rupees as the cost of knowing your payment flow genuinely works.
+
+7. **Confirm the refund revoked access.** Within a few seconds of the refund completing, that test
+   account should lose course access automatically, and the Google Sheet row should change to
+   `refunded`. This is handled by the `refund.processed` webhook event — if access doesn't drop,
+   check you ticked that event when creating the webhook.
 
 ---
 

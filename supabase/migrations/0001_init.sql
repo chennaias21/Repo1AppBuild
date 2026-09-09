@@ -82,7 +82,7 @@ create table if not exists public.payments (
   razorpay_payment_id text,
   amount_paise integer not null,
   currency text not null default 'INR',
-  status text not null default 'created' check (status in ('created', 'paid', 'failed')),
+  status text not null default 'created' check (status in ('created', 'paid', 'failed', 'refunded')),
   created_at timestamptz not null default now(),
   verified_at timestamptz
 );
