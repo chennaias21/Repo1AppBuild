@@ -12,36 +12,99 @@ into Netlify in Step 5.
 
 ## Step 1 — Supabase (your database and login system)
 
-1. Go to [supabase.com](https://supabase.com) and sign in with **Excelmastery26@gmail.com**.
-2. Click **New project**. Name it `excel-mastery`. Choose the region closest to your customers
-   (Mumbai / South Asia). Set a database password and save it in your private note.
-3. Wait about two minutes for the project to finish setting up.
-4. Go to **Project Settings** (gear icon) → **API**. Copy these three values:
+Supabase stores your customers, their payments, and their progress. This is the longest step —
+about 15 minutes. Take it slowly; nothing here can break anything.
 
-   | Copy this | Into this env var |
-   |---|---|
-   | Project URL | `NEXT_PUBLIC_SUPABASE_URL` |
-   | `anon` `public` key | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
-   | `service_role` `secret` key | `SUPABASE_SERVICE_ROLE_KEY` |
+### 1a. Create your account
 
-   ⚠️ The `service_role` key bypasses all security rules. It goes only into Netlify — never into
-   the website code, never into an email, never into a chat.
+1. Open [supabase.com](https://supabase.com) in your browser.
+2. Click **Start your project** (top right).
+3. Click **Continue with GitHub** if you have a GitHub account, or **Continue with Email**
+   and use **Excelmastery26@gmail.com**.
+4. If you used email, Supabase sends you a confirmation email. Open it and click the link. You
+   must do this before you can create anything.
 
-5. Go to **SQL Editor** → **New query**. Open the file `supabase/migrations/0001_init.sql` from
-   this repository, copy its entire contents, paste into the editor, and click **Run**. You should
-   see "Success. No rows returned." This creates your tables and the security rules that stop
-   anyone unlocking the course without paying.
+### 1b. Create an organisation
 
-6. **This step is easy to miss and the login will not work without it.** Go to **Authentication**
-   → **Emails** → **Magic Link** template. The default template only contains a clickable link,
-   but this site asks people to type a 6-digit code. Edit the template body to include the code —
-   add a line like:
+The first time you sign in, Supabase asks you to create an *organisation* before a project.
+If it takes you straight to project creation instead, skip to 1c.
 
-   ```
-   Your Excel Mastery login code is: {{ .Token }}
-   ```
+1. **Name**: `Excel Mastery`
+2. **Type**: Personal
+3. **Plan**: **Free** — make sure this is selected. It won't ask for a card.
+4. Click **Create organisation**.
 
-   Click **Save**.
+### 1c. Create the project
+
+1. Click **New project**.
+2. **Name**: `excel-mastery`
+3. **Database Password**: click **Generate a password**, then copy it into your private note.
+   You won't need it for this setup, but it cannot be recovered later — only reset.
+4. **Region**: choose **South Asia (Mumbai)** — closest to your customers, so the site feels faster.
+5. **Pricing plan**: Free.
+6. Click **Create new project**.
+7. Wait. Provisioning takes 2–3 minutes and the screen shows a progress indicator. Don't close
+   the tab. When it's done you'll land on the project dashboard.
+
+### 1d. Copy your three keys
+
+⚠️ **Supabase changed the names of these keys recently, and different projects show different
+labels.** Both namings are listed below — you'll see one set or the other.
+
+1. In the left sidebar, click the **gear icon** (Project Settings) at the bottom.
+2. Click **API Keys** (older projects: **API**).
+3. You're looking for three values:
+
+   | What you need | Older label | Newer label | Goes into |
+   |---|---|---|---|
+   | Your project's web address | **Project URL** | **Project URL** | `NEXT_PUBLIC_SUPABASE_URL` |
+   | The safe, public key | **anon** / **public** | **publishable** | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+   | The powerful, private key | **service_role** / **secret** | **secret** | `SUPABASE_SERVICE_ROLE_KEY` |
+
+4. The Project URL looks like `https://abcdefghijkl.supabase.co`. If you can't see it under API
+   Keys, look under **Project Settings → General → Project URL**, or **Data API**.
+5. The two keys are long strings. Click the copy icon beside each. The private one is hidden
+   behind a **Reveal** button — that's the right one.
+
+   ⚠️ The private key bypasses every security rule on your database. It goes only into Netlify in
+   Step 5 — never into the website code, never into an email, never into a chat with anyone
+   (including me).
+
+**Check before moving on:** you should now have three values saved in your private note — one
+starting `https://`, and two long keys.
+
+### 1e. Create your tables
+
+This creates the tables that hold customers and payments, plus the security rules that stop
+anyone unlocking the course without paying.
+
+1. In the left sidebar, click **SQL Editor** (icon looks like a database or terminal).
+2. Click **New query** (or the **+** at the top).
+3. Open this file in another tab:
+   [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql)
+4. Click the **Copy raw file** button on GitHub (or select all the text and copy it). You need the
+   **entire** file — every line from `create extension` at the top to the last line.
+5. Paste it into the big empty box in the Supabase SQL Editor.
+6. Click **Run** (bottom right, or press Ctrl+Enter).
+
+**What success looks like:** a green message saying *"Success. No rows returned"*. That is
+correct — this command creates tables rather than returning data, so "no rows" is expected.
+
+**If you see a red error:**
+
+| Error mentions | What it means | Fix |
+|---|---|---|
+| `already exists` | You ran it twice | Harmless — your tables are fine, carry on |
+| `syntax error at or near` | Only part of the file was pasted | Clear the box, copy the whole file again, re-run |
+| `permission denied` | You're in the wrong editor | Make sure you're in **SQL Editor**, not Table Editor |
+
+**Check before moving on:** click **Table Editor** in the sidebar. You should see five tables
+listed: `profiles`, `payments`, `lesson_progress`, `achievements`, `sheets_sync_log`. If they're
+there, Step 1 is done.
+
+> **Note:** there is no email template to edit. The sign-in email Supabase sends by default works
+> as-is — your customers get a "click here to sign in" link. There is one more Supabase setting
+> (telling it your website address), but that needs your live URL, so it's in Step 6.
 
 ---
 
@@ -174,6 +237,19 @@ a launch goes wrong, because payments then succeed while nobody gets access.
 7. Go to **Deploys** → **Trigger deploy** → **Clear cache and deploy site**. Environment variable
    changes only take effect on a fresh deploy.
 
+### Now tell Supabase your website address
+
+Without this, the sign-in link in your customers' email will send them to the wrong place and
+nobody will be able to log in.
+
+8. Go back to Supabase → your project → **Authentication** (sidebar) → **URL Configuration**.
+9. **Site URL**: your Netlify address with no trailing slash, e.g.
+   `https://excel-mastery-abc123.netlify.app`
+10. **Redirect URLs**: click **Add URL** and enter your address followed by `/**`, e.g.
+    `https://excel-mastery-abc123.netlify.app/**`
+    (Those two asterisks matter — they permit every page on your site.)
+11. Click **Save**.
+
 ---
 
 ## Step 7 — Test the whole flow end to end
@@ -182,9 +258,11 @@ Do this before showing anyone the site.
 
 1. Open your Netlify address. Click through a free lesson — it should work with no login.
 2. Click a locked lesson. It should show the lock screen, not the content.
-3. Click **Unlock Full Course** → register with a real email you can check.
-4. You should receive a 6-digit code by email. (No code? Step 1.6 wasn't done.)
-5. Enter the code — you should land on your dashboard.
+3. Click **Unlock Full Course** → register with your name, mobile, and a real email you can check.
+4. You should receive an email with a sign-in link within a minute. (Nothing? Check spam first.
+   Still nothing — see the troubleshooting table at the bottom.)
+5. Click the link **on the same device you registered on**. You should land on your dashboard,
+   already signed in, with your name shown at the top.
 6. Click **Pay and Unlock**. Razorpay's test checkout opens. Use test card
    `4111 1111 1111 1111`, any future expiry date, any CVV, and OTP `1234` if prompted.
 7. Within a few seconds the page should redirect and the whole course should be unlocked.
@@ -245,16 +323,21 @@ The `.netlify.app` address works fine and costs nothing. When you want your own 
 1. Buy one (₹500–1,500/year) from any registrar.
 2. Netlify → **Domain management** → **Add a domain** → follow the DNS instructions.
 3. Verify the domain in Resend and change `EMAIL_FROM` to your own address.
-4. Update the Razorpay webhook URL to the new domain.
+4. Update the Razorpay webhook URL to the new domain (both test and live webhooks).
+5. Update Supabase → **Authentication** → **URL Configuration** with the new Site URL and
+   Redirect URL, or logins will break on the new domain.
 
 ---
 
 ## If something goes wrong
 
-| Symptom | Cause |
+| Symptom | Cause and fix |
 |---|---|
-| No login code arrives | Supabase email template missing `{{ .Token }}` (Step 1.6) |
+| No sign-in email arrives | Check spam first. Supabase's built-in email is rate-limited to a few per hour on the free plan — wait, or connect Resend as a custom SMTP provider under Authentication → Emails |
+| Sign-in link says "expired or already used" | Links are single-use and last about an hour. Request a fresh one. Note that some corporate email scanners "click" links automatically, which uses them up |
+| Sign-in link goes to localhost or a wrong page | Site URL and Redirect URLs not set in Supabase → Authentication → URL Configuration (Step 6.8–6.11) |
 | Payment succeeds, course stays locked | Webhook not set up, or site not redeployed after adding the secret (Step 6) |
-| Google Sheet stays empty | Sheet not shared with the service account email, or tab not named `Registrations` |
+| Refund doesn't remove access | `refund.processed` wasn't ticked when creating the webhook |
+| Google Sheet stays empty | Sheet not shared with the service account email as Editor, or the tab isn't named exactly `Registrations` |
 | Build fails on Netlify | A missing or misspelled environment variable — check the deploy log, it names the one it wants |
 | Site was fine, now errors | Supabase free projects pause after 7 days of no activity. Open the Supabase dashboard and click Resume |

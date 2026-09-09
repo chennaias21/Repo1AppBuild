@@ -39,7 +39,7 @@ export default function PrivacyPage() {
           bullets: [
             "Razorpay — to process payments securely.",
             "Supabase — to store your account and progress data.",
-            "Resend — to deliver transactional emails such as your login code and welcome guide.",
+            "Resend — to deliver transactional emails such as your sign-in link and welcome guide.",
             "Google Sheets — an internal administrative record of registrations and payment status, accessible only to us.",
             "We may also disclose information where required by law.",
           ],
@@ -55,7 +55,7 @@ export default function PrivacyPage() {
           heading: "5. How we protect it",
           bullets: [
             "All traffic to this website is encrypted over HTTPS.",
-            "Passwords are not used or stored — we authenticate using one-time codes sent to your email.",
+            "Passwords are not used or stored — we authenticate using single-use sign-in links sent to your email.",
             "Course access is verified on our server for every request; it cannot be granted by anything happening in your browser.",
             "Access to our administrative records is restricted to authorised personnel.",
           ],

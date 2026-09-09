@@ -9,7 +9,7 @@ Everything in this build runs on free tiers — see [Costs](#costs-all-free-tier
 ## Stack
 
 - **Frontend/Backend:** Next.js 16 (App Router), TypeScript, Tailwind CSS 4 — deployed as one app.
-- **Database/Auth:** Supabase (Postgres + built-in email-OTP auth).
+- **Database/Auth:** Supabase (Postgres + passwordless email sign-in links).
 - **Payments:** Razorpay (order creation + webhook verification).
 - **Email:** Resend (transactional).
 - **Admin reporting:** Google Sheets API via a service account (write-only logging, not access control).
@@ -34,8 +34,8 @@ the webhook does the actual verification and unlock.
 ## Setting it up
 
 **→ Follow [SETUP.md](./SETUP.md).** It's a step-by-step checklist that tells you exactly which
-value to copy from each dashboard into which setting, in the right order, including the two steps
-that are easy to miss (the Supabase email template and the Razorpay webhook).
+value to copy from each dashboard into which setting, in the right order, including the steps that
+are easy to miss (the Supabase URL configuration and the Razorpay webhook).
 
 The reference below covers the same ground in less detail.
 
@@ -44,16 +44,13 @@ The reference below covers the same ground in less detail.
 ### 1. Supabase (database + auth)
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. Project Settings → API: copy the **Project URL**, **anon public key**, and
-   **service_role key** into your `.env.local` (copy `.env.example` first).
+2. Project Settings → API Keys: copy the **Project URL**, the **anon/publishable key**, and
+   the **service_role/secret key** into your `.env.local` (copy `.env.example` first).
 3. SQL Editor → paste the contents of `supabase/migrations/0001_init.sql` and run it.
-4. Authentication → Providers → Email: make sure "Email OTP" / "Confirm email" is on.
-5. **Important:** Authentication → Email Templates → "Magic Link" — Supabase's default
-   template only includes a clickable link. This app asks users to type in a 6-digit
-   code instead, so edit the template to include `{{ .Token }}` somewhere in the body
-   (e.g. "Your code is: **{{ .Token }}**"). Without this edit, users won't have a code
-   to type in.
-6. Free tier note: a Supabase project **pauses after 7 days with zero API activity**.
+4. Authentication → URL Configuration: set **Site URL** to your deployed address and add
+   `<your-address>/**` to **Redirect URLs**. Sign-in links won't work without this.
+   No email template editing is needed — the flow uses Supabase's default email.
+5. Free tier note: a Supabase project **pauses after 7 days with zero API activity**.
    Harmless once you have regular visitors; if the site sits untouched for a week
    before your first users arrive, just click "Resume" in the Supabase dashboard.
 
@@ -64,7 +61,7 @@ The reference below covers the same ground in less detail.
 2. Settings → API Keys → generate keys → copy `Key Id` / `Key Secret` into `.env.local`.
 3. Settings → Webhooks → Add a webhook:
    - URL: `https://<your-site>/api/payment/webhook`
-   - Active events: `payment.captured`, `order.paid`
+   - Active events: `payment.captured`, `order.paid`, `refund.processed`
    - Copy the generated **webhook secret** into `.env.local`.
 4. Set `COURSE_PRICE_INR` in `.env.local` to your price (whole rupees).
 5. No monthly fee — Razorpay only takes a percentage of each successful transaction.

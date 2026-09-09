@@ -53,7 +53,9 @@ create trigger protect_access_columns_trigger
   for each row
   execute function public.protect_access_columns();
 
--- Auto-create a profile row whenever a new auth user is created (e.g. after OTP sign-up).
+-- Auto-create a profile row whenever a new auth user is created.
+-- Name and mobile are captured on the sign-in form and travel as user metadata,
+-- so they survive the user leaving the page to open the emailed sign-in link.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -61,7 +63,12 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id) values (new.id)
+  insert into public.profiles (id, full_name, mobile)
+  values (
+    new.id,
+    nullif(new.raw_user_meta_data ->> 'full_name', ''),
+    nullif(new.raw_user_meta_data ->> 'mobile', '')
+  )
   on conflict (id) do nothing;
   return new;
 end;
