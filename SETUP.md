@@ -5,7 +5,7 @@ Follow this in order. Each step tells you exactly which value to copy and where 
 **You will never send these values to anyone, including in a chat.** They go into the Netlify
 dashboard and nowhere else. Anyone who has them can charge cards or read your customer data.
 
-You'll collect 13 values in total. Keep them in a private note as you go — you'll paste them all
+You'll collect 12 values in total. Keep them in a private note as you go — you'll paste them all
 into Netlify in Step 5.
 
 ---
@@ -153,35 +153,80 @@ do in Test mode touches real money or appears in your live records.
 
 ## Step 4 — Google Sheets (your admin tracking sheet)
 
-This is the sheet where every registration and payment gets logged automatically.
+Every registration, payment and refund gets written to a Google Sheet you own, so you always have
+a plain-English record of who bought what. No Google Cloud account needed — the Sheet does the
+work itself using a small script.
 
-1. Create a new Google Sheet in the Excelmastery26 account. Name it `Excel Mastery — Registrations`.
-2. Rename the first tab (bottom-left) to exactly **Registrations** — capital R, no spaces. The code
-   looks for this exact name.
-3. From the sheet's web address, copy the long ID between `/d/` and `/edit` into `GOOGLE_SHEET_ID`.
-   Example: `docs.google.com/spreadsheets/d/`**`1a2b3c4d5e6f7g8h`**`/edit`
-4. Go to [console.cloud.google.com](https://console.cloud.google.com) and sign in.
-5. Create a new project called `excel-mastery`.
-6. Search for **Google Sheets API** in the top search bar, open it, and click **Enable**.
-7. Go to **APIs & Services** → **Credentials** → **Create Credentials** → **Service account**.
-   Name it `sheets-writer` and click through to create it.
-8. Click the service account you just created → **Keys** tab → **Add Key** → **Create new key** →
-   choose **JSON** → **Create**. A `.json` file downloads.
-9. Open that JSON file in Notepad. Find these two values:
+### 4a. Make the Sheet
 
-   | Copy this from the JSON | Into this env var |
-   |---|---|
-   | `"client_email"` (ends `.iam.gserviceaccount.com`) | `GOOGLE_SERVICE_ACCOUNT_EMAIL` |
-   | `"private_key"` (the long block starting `-----BEGIN PRIVATE KEY-----`) | `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` |
+1. Go to [sheets.google.com](https://sheets.google.com), signed in as **Excelmastery26@gmail.com**,
+   and click **Blank spreadsheet**.
+2. Name it `Excel Mastery — Registrations` (click "Untitled spreadsheet" at the top left).
 
-   Copy the private key **exactly as it appears**, including the `\n` sequences. Don't reformat it.
+You don't need to add any column headings — the script creates them for you on the first
+registration.
 
-10. Go back to your Google Sheet, click **Share**, paste the `client_email` address, give it
-    **Editor** access, and untick "Notify people". Without this the sheet stays empty and nothing
-    will tell you why.
+### 4b. Invent your secret
 
-11. Set `CRON_SECRET` to any long random string you invent — for example a password-manager
-    generated one. It just protects an internal maintenance URL.
+Think of a long random phrase — for example `excel-mastery-sheet-7734-kappa-river`. It doesn't
+need to be memorable, just hard to guess. Write it in your private note as
+`SHEETS_WEBHOOK_SECRET`. You'll paste it in two places, and they must match exactly.
+
+### 4c. Add the script
+
+1. In your new Sheet, click **Extensions** → **Apps Script**. A new tab opens with a code editor.
+2. It contains a few lines of sample code (`function myFunction() {}`). Select all of it and
+   delete it, so the editor is empty.
+3. Open [`google-sheet-script/Code.gs`](./google-sheet-script/Code.gs) from this repository, copy
+   the **entire** file, and paste it into the empty editor.
+4. Find line 15, which reads:
+
+   ```
+   const SHARED_SECRET = 'PASTE_YOUR_SECRET_HERE';
+   ```
+
+   Replace `PASTE_YOUR_SECRET_HERE` with your secret from 4b, keeping the quote marks:
+
+   ```
+   const SHARED_SECRET = 'excel-mastery-sheet-7734-kappa-river';
+   ```
+
+5. Click the **save icon** (💾) or press Ctrl+S.
+
+### 4d. Publish the script
+
+1. Click **Deploy** (blue button, top right) → **New deployment**.
+2. Click the **gear icon** beside "Select type" and choose **Web app**.
+3. Fill in:
+   - **Description**: `Excel Mastery receiver`
+   - **Execute as**: **Me (Excelmastery26@gmail.com)**
+   - **Who has access**: **Anyone** ← this must be "Anyone", not "Anyone with Google account".
+     It doesn't make your Sheet public; the script only accepts requests carrying your secret.
+4. Click **Deploy**.
+5. Google asks you to authorise it. Click **Authorize access** → choose your account → you'll see
+   a warning screen saying "Google hasn't verified this app". That's expected, because you wrote
+   the script yourself a minute ago. Click **Advanced** → **Go to Excel Mastery — Registrations
+   (unsafe)** → **Allow**.
+6. Copy the **Web app URL** it shows you. It looks like
+   `https://script.google.com/macros/s/AKfy.../exec`. Save it in your note as
+   `SHEETS_WEBHOOK_URL`.
+
+### 4e. Check it works
+
+Paste that Web app URL into a new browser tab and press Enter. You should see:
+
+```
+{"ok":true,"message":"Excel Mastery sheet receiver is running."}
+```
+
+If you see that, Step 4 is done. If you get an error page instead, the most common cause is
+**Who has access** not being set to **Anyone** — go back to Deploy → Manage deployments, edit it,
+and fix that setting.
+
+### 4f. One last value
+
+Set `CRON_SECRET` to any other long random string you invent. It just protects an internal
+maintenance URL and you'll never type it again.
 
 ---
 
@@ -192,7 +237,7 @@ This is the sheet where every registration and payment gets logged automatically
    `Repo1AppBuild` repository.
 3. Set the branch to `claude/excel-mastery-platform-y3f2ms` (or `main` once this is merged).
    Netlify detects Next.js automatically — leave the build settings alone.
-4. Before deploying, click **Add environment variables** and enter all 13 values you collected:
+4. Before deploying, click **Add environment variables** and enter all 12 values you collected:
 
    ```
    NEXT_PUBLIC_SUPABASE_URL
@@ -204,9 +249,8 @@ This is the sheet where every registration and payment gets logged automatically
    COURSE_PRICE_INR
    RESEND_API_KEY
    EMAIL_FROM
-   GOOGLE_SERVICE_ACCOUNT_EMAIL
-   GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
-   GOOGLE_SHEET_ID
+   SHEETS_WEBHOOK_URL
+   SHEETS_WEBHOOK_SECRET
    CRON_SECRET
    ```
 
@@ -338,6 +382,6 @@ The `.netlify.app` address works fine and costs nothing. When you want your own 
 | Sign-in link goes to localhost or a wrong page | Site URL and Redirect URLs not set in Supabase → Authentication → URL Configuration (Step 6.8–6.11) |
 | Payment succeeds, course stays locked | Webhook not set up, or site not redeployed after adding the secret (Step 6) |
 | Refund doesn't remove access | `refund.processed` wasn't ticked when creating the webhook |
-| Google Sheet stays empty | Sheet not shared with the service account email as Editor, or the tab isn't named exactly `Registrations` |
+| Google Sheet stays empty | `SHEETS_WEBHOOK_SECRET` in Netlify doesn't exactly match `SHARED_SECRET` in the Apps Script, or the deployment's access isn't set to "Anyone" |
 | Build fails on Netlify | A missing or misspelled environment variable — check the deploy log, it names the one it wants |
 | Site was fine, now errors | Supabase free projects pause after 7 days of no activity. Open the Supabase dashboard and click Resume |

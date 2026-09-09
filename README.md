@@ -12,7 +12,7 @@ Everything in this build runs on free tiers — see [Costs](#costs-all-free-tier
 - **Database/Auth:** Supabase (Postgres + passwordless email sign-in links).
 - **Payments:** Razorpay (order creation + webhook verification).
 - **Email:** Resend (transactional).
-- **Admin reporting:** Google Sheets API via a service account (write-only logging, not access control).
+- **Admin reporting:** a Google Apps Script Web App bound to your tracking Sheet (write-only logging, not access control).
 - **Hosting:** Netlify (chosen over Vercel — Vercel's free Hobby tier disallows commercial use; Netlify's does not).
 
 ## How access control works
@@ -76,15 +76,15 @@ The reference below covers the same ground in less detail.
 
 ### 4. Google Sheets (admin reporting)
 
-1. In [Google Cloud Console](https://console.cloud.google.com), create a project (free).
-2. Enable the **Google Sheets API**.
-3. IAM & Admin → Service Accounts → create one → Keys → Add Key → JSON. Download it.
-4. From the JSON, copy `client_email` → `GOOGLE_SERVICE_ACCOUNT_EMAIL`, and `private_key`
-   → `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (keep the `\n` sequences exactly as in the file).
-5. Create a Google Sheet for tracking. Share it with the service account's email
-   (the `client_email` above) as an **Editor** — this is the only access it gets.
-6. Copy the Sheet's ID from its URL (`https://docs.google.com/spreadsheets/d/<SHEET_ID>/edit`)
-   into `GOOGLE_SHEET_ID`.
+No Google Cloud project or service account needed — the Sheet receives writes itself via a
+bound Apps Script.
+
+1. Create a Google Sheet for tracking.
+2. Extensions → Apps Script, replace the sample code with `google-sheet-script/Code.gs`, and set
+   `SHARED_SECRET` at the top to a long random string.
+3. Deploy → New deployment → Web app, **Execute as: Me**, **Who has access: Anyone**. Authorise it.
+4. Copy the Web app URL into `SHEETS_WEBHOOK_URL`, and the same secret into
+   `SHEETS_WEBHOOK_SECRET`.
 
 ### 5. Deploy to Netlify (free)
 

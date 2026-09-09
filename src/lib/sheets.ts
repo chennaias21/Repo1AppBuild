@@ -1,26 +1,4 @@
-import { google } from "googleapis";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-const SHEET_TAB = "Registrations";
-const HEADER = [
-  "Name",
-  "Email",
-  "Mobile",
-  "Registration Date",
-  "Payment Status",
-  "Payment ID",
-  "Payment Date",
-  "Course Access Status",
-];
-
-function getAuth() {
-  const privateKey = (process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ?? "").replace(/\\n/g, "\n");
-  return new google.auth.JWT({
-    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    key: privateKey,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
-}
 
 interface SheetRecord {
   name: string;
@@ -34,61 +12,46 @@ interface SheetRecord {
 }
 
 /**
- * Admin reporting only — this is a one-way write from the backend for HR/admin
- * visibility. The Sheet is never read back to decide access; Postgres stays
- * the source of truth. Failures are logged, not thrown, so a Sheets outage
- * never blocks registration or payment.
+ * Admin reporting only — a one-way write to the tracking Sheet for HR/admin
+ * visibility. The Sheet is never read back to decide access; Postgres stays the
+ * source of truth. Failures are logged, not thrown, so a Sheets outage never
+ * blocks registration or payment.
+ *
+ * Delivery goes through a Google Apps Script Web App bound to the Sheet (see
+ * google-sheet-script/Code.gs), which avoids needing a Google Cloud project or
+ * service-account credentials.
  */
-export async function syncRegistrationToSheet(record: SheetRecord, userId: string, eventType: string) {
-  try {
-    const sheets = google.sheets({ version: "v4", auth: getAuth() });
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID!;
+export async function syncRegistrationToSheet(
+  record: SheetRecord,
+  userId: string,
+  eventType: string
+) {
+  const admin = createAdminClient();
+  const url = process.env.SHEETS_WEBHOOK_URL;
 
-    const existing = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: `${SHEET_TAB}!A:H`,
+  if (!url) {
+    await admin.from("sheets_sync_log").insert({
+      user_id: userId,
+      event_type: eventType,
+      status: "failed",
+      error: "SHEETS_WEBHOOK_URL is not set",
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret: process.env.SHEETS_WEBHOOK_SECRET, record }),
     });
 
-    const rows = existing.data.values ?? [];
-    if (rows.length === 0) {
-      await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range: `${SHEET_TAB}!A1`,
-        valueInputOption: "RAW",
-        requestBody: { values: [HEADER] },
-      });
+    const result = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+
+    if (!response.ok || !result?.ok) {
+      throw new Error(result?.error ?? `Sheet script returned ${response.status}`);
     }
 
-    const emailColumnIndex = rows.findIndex((row, i) => i > 0 && row[1] === record.email);
-    const rowValues = [
-      record.name,
-      record.email,
-      record.mobile,
-      record.registrationDate,
-      record.paymentStatus,
-      record.paymentId,
-      record.paymentDate,
-      record.accessStatus,
-    ];
-
-    if (emailColumnIndex > 0) {
-      const rowNumber = emailColumnIndex + 1;
-      await sheets.spreadsheets.values.update({
-        spreadsheetId,
-        range: `${SHEET_TAB}!A${rowNumber}:H${rowNumber}`,
-        valueInputOption: "RAW",
-        requestBody: { values: [rowValues] },
-      });
-    } else {
-      await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range: `${SHEET_TAB}!A1`,
-        valueInputOption: "RAW",
-        requestBody: { values: [rowValues] },
-      });
-    }
-
-    const admin = createAdminClient();
     await admin.from("sheets_sync_log").insert({
       user_id: userId,
       event_type: eventType,
@@ -96,7 +59,6 @@ export async function syncRegistrationToSheet(record: SheetRecord, userId: strin
       synced_at: new Date().toISOString(),
     });
   } catch (error) {
-    const admin = createAdminClient();
     await admin.from("sheets_sync_log").insert({
       user_id: userId,
       event_type: eventType,
