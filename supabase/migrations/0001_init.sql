@@ -32,14 +32,20 @@ create policy "profiles: user can update own row"
 -- access-control columns unless the request is running as service_role —
 -- so the payment gate cannot be bypassed via the Supabase client SDK, browser
 -- devtools, or a direct REST call with the anon key.
+-- Deliberately NOT security definer: this function only rewrites NEW, so it
+-- needs no elevated rights, and running as the invoker means current_user
+-- reports the caller's real Postgres role. That works with both the legacy
+-- service_role JWT and the newer sb_secret_... keys, whereas the JWT claim
+-- alone would not.
 create or replace function public.protect_access_columns()
 returns trigger
 language plpgsql
-security definer
 set search_path = public
 as $$
 begin
-  if auth.role() <> 'service_role' then
+  if current_user not in ('service_role', 'postgres', 'supabase_admin')
+     and coalesce(auth.role(), '') <> 'service_role'
+  then
     new.access_status := old.access_status;
     new.access_granted_at := old.access_granted_at;
   end if;
