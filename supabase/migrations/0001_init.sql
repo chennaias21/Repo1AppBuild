@@ -17,10 +17,12 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "profiles: user can read own row" on public.profiles;
 create policy "profiles: user can read own row"
   on public.profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "profiles: user can update own row" on public.profiles;
 create policy "profiles: user can update own row"
   on public.profiles for update
   using (auth.uid() = id)
@@ -102,6 +104,7 @@ create table if not exists public.payments (
 
 alter table public.payments enable row level security;
 
+drop policy if exists "payments: user can read own rows" on public.payments;
 create policy "payments: user can read own rows"
   on public.payments for select
   using (auth.uid() = user_id);
@@ -123,14 +126,17 @@ create table if not exists public.lesson_progress (
 
 alter table public.lesson_progress enable row level security;
 
+drop policy if exists "progress: user can read own rows" on public.lesson_progress;
 create policy "progress: user can read own rows"
   on public.lesson_progress for select
   using (auth.uid() = user_id);
 
+drop policy if exists "progress: user can insert own rows" on public.lesson_progress;
 create policy "progress: user can insert own rows"
   on public.lesson_progress for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "progress: user can update own rows" on public.lesson_progress;
 create policy "progress: user can update own rows"
   on public.lesson_progress for update
   using (auth.uid() = user_id)
@@ -149,6 +155,7 @@ create table if not exists public.achievements (
 
 alter table public.achievements enable row level security;
 
+drop policy if exists "achievements: user can read own rows" on public.achievements;
 create policy "achievements: user can read own rows"
   on public.achievements for select
   using (auth.uid() = user_id);
