@@ -40,10 +40,13 @@ export async function syncRegistrationToSheet(
   }
 
   try {
+    // Apps Script can be slow to wake from cold. Cap the wait so a sluggish
+    // Sheet can never hold up the request that triggered this.
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ secret: process.env.SHEETS_WEBHOOK_SECRET, record }),
+      signal: AbortSignal.timeout(8000),
     });
 
     const result = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;

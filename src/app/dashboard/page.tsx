@@ -4,6 +4,7 @@ import { getCurrentProfile } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { CURRICULUM, allLessons, totalLessonCount } from "@/lib/curriculum";
 import { COURSE_PRICE_INR } from "@/lib/razorpay";
+import RecordRegistration from "@/components/RecordRegistration";
 
 export default async function DashboardPage() {
   const current = await getCurrentProfile();
@@ -35,6 +36,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="container-page py-12">
+      <RecordRegistration />
       <h1 className="text-3xl font-bold">
         Welcome back{current.profile.full_name ? `, ${current.profile.full_name.split(" ")[0]}` : ""}
       </h1>
