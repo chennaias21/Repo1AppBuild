@@ -1,0 +1,252 @@
+---
+id: "7.2"
+module: 7
+lesson: 2
+slug: "flash-fill-duplicates"
+title: "Flash Fill and Removing Duplicates Safely"
+shortTitle: "Flash Fill & Duplicates"
+stage: "Advanced"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Reshape text by showing Excel one example instead of writing a formula"
+  - "Find duplicates before deleting them, and know which copy survives"
+  - "Deduplicate on a combination of columns rather than one"
+keys: ["Ctrl+E", "Alt+A+M"]
+datasets: ["Messy_HR_Data", "Recruitment_Pipeline"]
+starterFile: "starter/07-02-flashfill-duplicates.xlsx"
+solutionFile: "solution/07-02-flashfill-duplicates.xlsx"
+functions: ["COUNTIF", "COUNTIFS", "UNIQUE"]
+excelVersion: "all"
+shotCount: 3
+prev: "7.1"
+next: "7.3"
+videoUrl: null
+---
+
+## Why this matters
+
+Two tools, both one keystroke, both able to save an hour — and one of them can destroy data permanently if you use it carelessly. Flash Fill reshapes text without a formula. Remove Duplicates deletes rows without telling you which ones.
+
+## How it works
+
+### Flash Fill — <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd>
+
+Type the result you want in the first cell of a blank column. Press <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd>. Excel infers the pattern and fills the rest.
+
+<Shot id="7.2.1" />
+
+It handles things that would take nested `LEFT`/`MID`/`FIND`:
+
+| Source | You type | Flash Fill produces |
+|---|---|---|
+| `Anil Kumar` | `Anil` | first names |
+| `Anil Kumar` | `A. Kumar` | initial + surname |
+| `MUM-E1001` | `E1001` | codes without the prefix |
+| `anil kumar` | `anil.kumar@co.com` | email addresses |
+| `9876543210` | `98765 43210` | formatted phone numbers |
+| `12-03-2021` | `Mar-2021` | reformatted dates |
+
+**It's a one-time operation, not a formula.** The results are static values. Change the source and they don't update — which is fine for a cleaning pass and wrong for anything ongoing.
+
+<Callout type="warning">
+Flash Fill guesses. On inconsistent data it guesses wrong, silently, for some rows only. Type **two or three examples** before pressing <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd> when the pattern varies, and always scan the output. A single example on 500 mixed-format rows is how you get 480 right and 20 quietly wrong.
+</Callout>
+
+### Remove Duplicates
+
+**Data → Remove Duplicates** (<Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>M</Kbd>). You tick which columns define a duplicate.
+
+Two things about it that matter more than the mechanics:
+
+**It keeps the first occurrence and deletes the rest.** You don't choose. If the later row has the more recent data, you lose it.
+
+**The column selection decides everything.** Tick only `Name` and two different people called Rahul Shah become one. Tick `EmpID` and `Date` and you catch genuine double-entries while keeping legitimate repeat rows.
+
+<Shot id="7.2.2" />
+
+<Callout type="tip">
+**Find duplicates before you delete any.** `=COUNTIF($A$2:$A$500,A2)>1` flags every row involved, or use formula-based conditional formatting from Lesson 6.6. Look at what you're about to lose, then decide. Remove Duplicates is not undoable once you've saved.
+</Callout>
+
+For a combination, `COUNTIFS`:
+
+<FormulaBlock>
+```
+=COUNTIFS($A$2:$A$500,A2,$B$2:$B$500,B2)>1
+```
+</FormulaBlock>
+
+That flags rows sharing both values — the same employee on the same date, rather than the same employee at all.
+
+## Do it
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Code | Full Name | |
+| **2** | MUM-E1001 | Anil Kumar | |
+| **3** | PUN-E1002 | Meera Nair | |
+| **4** | BLR-E1003 | Rahul Shah | |
+
+### Flash Fill
+
+1. In **C2** type `Anil`. Press <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd>. First names fill down.
+2. In **D2** type `A. Kumar`. <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd>. Initial-and-surname format.
+3. In **E2** type `anil.kumar@company.com`. <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd>. Email addresses, lowercased.
+4. In **F2** type `E1001`. <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd>. Codes without the location prefix.
+
+5. Now change B2 to `Anil Sharma`. **C2 still says Anil and D2 still says A. Kumar.** Static values, not formulas.
+
+### Where it guesses wrong
+
+6. Add `Dr. Priya Ravi Shankar` to B5 and `MUM-E10045` to A5.
+7. Re-run the first-name Flash Fill from C2. Row 5 likely returns `Dr.` — the pattern "text before the first space" is technically correct and wrong in intent.
+8. Fix it: type the correct answer in C5 manually, then press <Kbd>Ctrl</Kbd>+<Kbd>E</Kbd> again. Excel learns from the correction.
+
+### Duplicates — find first
+
+9. Change A4 to `MUM-E1001`, creating a duplicate.
+10. In **H2**: `=COUNTIF($A$2:$A$5,A2)>1`. Fill down. Two rows show TRUE.
+11. Look at those two rows. Which one has the data you want to keep?
+
+12. **Now** run <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>M</Kbd>, tick only `Code`, OK. Excel reports how many were removed and keeps the **first**.
+
+### The combination case
+
+13. Undo. Build an attendance-style dataset: EmpID and Date columns where the same person legitimately appears on several dates.
+14. `=COUNTIF` on EmpID alone flags every one of their rows — a false positive.
+15. `=COUNTIFS($A$2:$A$20,A2,$B$2:$B$20,B2)>1` flags only the true double-entries.
+
+<Shot id="7.2.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `E` | Flash Fill — infers the pattern from your examples | Reshaping text where writing the formula would take longer than showing one example | Type `A. Kumar`, press Ctrl+E |
+| `Alt` + `A` + `M` | Opens Remove Duplicates | **After** you've flagged and reviewed the duplicates, never before | Tick the columns that define a duplicate |
+| `Ctrl` + `Z` | Undo | The moment a Remove Duplicates result looks wrong — it stops working after a save | Recovering deleted rows |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Removing duplicates before reviewing them** | Rows gone; you can't tell which, and can't recover after saving | Flag with `COUNTIF` first, look, then delete |
+| Ticking too few columns | Two different people with the same name merged into one | Tick the combination that genuinely defines a duplicate |
+| Ticking every column | Near-identical rows survive because one field differs by a space | Clean first (Lesson 7.1), then deduplicate |
+| Assuming the newest row survives | Excel keeps the **first**, always | Sort so the row you want is first, or extract deliberately |
+| One Flash Fill example on varied data | Most rows right, some silently wrong | Give two or three examples; scan the output |
+| Expecting Flash Fill to update | It's a one-time fill of static values | Use a formula for anything ongoing |
+| Flash Fill on a column with gaps | It stops at the first blank | Fill the gaps or work in blocks |
+
+</MistakeTable>
+
+<Callout type="story">
+**Naresh, Recruitment Coordinator.** His candidate tracker had grown to 1,400 rows across three recruiters. He ran Remove Duplicates on the Candidate Name column to tidy it, and it reported 212 duplicates removed.
+
+Two of those "duplicates" were different candidates who happened to share a name. More importantly, most of the rest were the *same* candidate legitimately appearing at multiple pipeline stages — applied, screened, interviewed. He had just deleted the entire interview history for 210 candidates and kept only the earliest row for each.
+
+He noticed a week later when his time-to-hire report showed nothing past the screening stage. The file had been saved several times; undo was long gone. He rebuilt from the ATS export.
+
+**Remove Duplicates keeps the first occurrence and deletes the rest, and it does not ask which you meant.** Flag with `COUNTIFS` on the real key combination, look at what you'd lose, and only then delete.
+</Callout>
+
+## Practice
+
+<Exercise id="7.2.e1">
+
+<Scenario>
+A recruitment pipeline export needs reshaping and deduplicating — and the duplicates are not what they first appear.
+</Scenario>
+
+<Dataset name="Recruitment_Pipeline" starter="starter/07-02-flashfill-duplicates.xlsx">
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | ReqID | Candidate | Stage | StageDate |
+| **2** | LNK-R1001 | Anil Kumar | Applied | 02-Sep-2026 |
+| **3** | LNK-R1001 | Anil Kumar | Screened | 05-Sep-2026 |
+| **4** | REF-R1002 | Meera Nair | Applied | 03-Sep-2026 |
+| **5** | NAU-R1003 | Rahul Shah | Applied | 04-Sep-2026 |
+| **6** | REF-R1002 | Meera Nair | Applied | 03-Sep-2026 |
+| **7** | LNK-R1004 | Dr. Priya Ravi | Applied | 06-Sep-2026 |
+
+</Dataset>
+
+<Task>
+
+1. Use Flash Fill to extract the three-letter source (`LNK`, `REF`, `NAU`) from ReqID into column F.
+2. Use Flash Fill to build a first-name column in G. Check row 7 — is `Dr. Priya Ravi` handled correctly? Fix it and re-run.
+3. In H2, flag duplicates on **Candidate alone** using `COUNTIF`. How many rows are flagged?
+4. In I2, flag duplicates on the **combination** of ReqID, Stage and StageDate using `COUNTIFS`. How many now?
+5. Which flagging is correct, and why does the difference matter?
+6. Run Remove Duplicates on the correct column combination. How many rows are removed?
+
+</Task>
+
+<Expected>
+Step 3: 4 rows flagged (both Anil rows, both Meera rows) · Step 4: 2 rows flagged (the two identical Meera rows only) · Step 6: 1 row removed
+</Expected>
+
+<Solution>
+
+```
+F2: type LNK → Ctrl+E
+G2: type Anil → Ctrl+E  (then correct row 7 manually and press Ctrl+E again)
+
+H2: =COUNTIF($B$2:$B$7,B2)>1
+I2: =COUNTIFS($A$2:$A$7,A2,$C$2:$C$7,C2,$D$2:$D$7,D2)>1
+
+Step 6: Alt+A+M → tick ReqID, Stage and StageDate only → OK
+```
+
+</Solution>
+
+<Why>
+
+**Step 5 is the whole lesson.** `COUNTIF` on Candidate flags four rows, but Anil's two rows are *legitimate* — he applied and was then screened, which is exactly what a pipeline tracker should record. Deleting one would destroy his progression history. Only Meera's two identical rows are a genuine double-entry.
+
+That difference is what happened to Naresh: deduplicating on name alone deleted 210 candidates' entire stage histories. **The key that defines a duplicate is a judgement about the data, not a default** — and `COUNTIFS` on the real combination is how you check your judgement before acting on it.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "7.2.q1",
+    type: "mcq",
+    question: "When Remove Duplicates finds two matching rows, which one survives?",
+    options: ["The one with the most recent date", "The first occurrence", "The last occurrence", "Excel asks you to choose"],
+    correct: 1,
+    explanation: "Excel keeps the first occurrence and deletes the rest, with no prompt. If your later row holds the more recent or more complete data, you lose it. Sort so the row you want is first, or extract the rows you want deliberately rather than deleting. And once you've saved, undo won't recover them."
+  },
+  {
+    id: "7.2.q2",
+    type: "truefalse",
+    question: "Flash Fill results update automatically when the source data changes.",
+    correct: false,
+    explanation: "Flash Fill performs a one-time fill of static values — change the source and the results stay as they were. That's appropriate for a cleaning pass but wrong for anything ongoing, where you need a formula. Worth remembering when a Flash Fill column looks stale months later."
+  },
+  {
+    id: "7.2.q3",
+    type: "decision",
+    question: "An attendance sheet has one row per employee per day. Some employees appear 20 times legitimately. How do you find genuine double-entries?",
+    options: [
+      "COUNTIFS on the combination of EmpID and Date",
+      "COUNTIF on EmpID alone",
+      "Remove Duplicates ticking only EmpID",
+      "Sort by EmpID and scan visually"
+    ],
+    correct: 0,
+    explanation: "A genuine duplicate here is the same person on the same day, so the key is the combination — =COUNTIFS($A$2:$A$500,A2,$B$2:$B$500,B2)>1. Options 2 and 3 treat every legitimate repeat as a duplicate, which on a real attendance file would flag or delete nearly every row. Defining the right key is a judgement about what the data means, and getting it wrong is how Naresh deleted 210 candidates' stage histories."
+  }
+]

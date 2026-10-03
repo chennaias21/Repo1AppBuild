@@ -1,0 +1,259 @@
+---
+id: "8.7"
+module: 8
+lesson: 7
+slug: "power-query-basics"
+title: "Power Query Basics — Import, Transform, Refresh"
+shortTitle: "Power Query"
+stage: "Business-Ready"
+durationMin: 15
+access: "paid"
+objectives:
+  - "Import a file and clean it in Power Query instead of by hand"
+  - "Record a transformation once so next month is one click"
+  - "Combine twelve monthly files into one table automatically"
+keys: ["Alt+A+PN", "Ctrl+Alt+F5"]
+datasets: ["Messy_HR_Data", "Sales_Transactions"]
+starterFile: "starter/08-07-power-query.xlsx"
+solutionFile: "solution/08-07-power-query.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 3
+prev: "8.6"
+next: "8.8"
+videoUrl: null
+---
+
+## Why this matters
+
+Everything in Module 7 cleaned data **once**. Power Query records the cleaning as a set of steps and replays them on demand — so next month's export is cleaned in one click instead of twenty minutes. If you repeat any data preparation monthly, this single feature will save you more time than everything else in this course combined.
+
+## How it works
+
+Power Query sits between your source file and your worksheet: you import, apply steps, and load the result.
+
+```
+Source file  →  Power Query steps  →  Worksheet Table  →  Pivots & charts
+   (raw)          (recorded)            (clean)
+```
+
+**Data → Get Data** (<Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>P</Kbd>+<Kbd>N</Kbd>) to start.
+
+<Shot id="8.7.1" />
+
+The editor has a **data preview** in the middle, an **Applied Steps** list on the right, and a ribbon of transformations. Every click becomes a step you can later delete, reorder or edit.
+
+**That list is the whole point.** It's a recorded recipe, not a one-time edit.
+
+### The transformations you'll use constantly
+
+| Task | Where |
+|---|---|
+| Promote first row to headers | Home → Use First Row as Headers |
+| Remove unwanted columns | Right-click a column → Remove |
+| Change a column's data type | Click the type icon beside the header |
+| Trim and clean text | Transform → Format → Trim / Clean |
+| Split a column | Transform → Split Column → By Delimiter |
+| Remove duplicates | Right-click a column → Remove Duplicates |
+| Filter out rows | The filter dropdown, like AutoFilter |
+| Add a calculated column | Add Column → Custom Column |
+| Unpivot wide data into tall | Select the columns → Transform → Unpivot |
+
+<Callout type="tip">
+**Set data types explicitly, as the first thing after promoting headers.** Power Query guesses, and its guess for a date column in an ambiguous format can be wrong for every row. Click each type icon and choose deliberately — this is the same DMY/MDY problem as Text to Columns in Lesson 7.1.
+</Callout>
+
+### Unpivot — the one that feels like magic
+
+A report with months across the columns is unusable in a pivot table. Select the month columns, **Transform → Unpivot Columns**, and Power Query turns them into two columns: Attribute and Value. Wide becomes tall, and tall is what pivots need.
+
+<Shot id="8.7.2" />
+
+By hand on twelve months that's an hour. Here it's two clicks, and it re-runs next month.
+
+### Loading and refreshing
+
+**Close & Load** puts the result in a new worksheet as a Table; **Close & Load To** lets you pick the destination, or load as Connection Only if a pivot is the only consumer. Then <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>F5</Kbd> re-runs every query and pivot.
+
+### From Folder — the real payoff
+
+**Get Data → From Folder** points at a folder rather than a file. Power Query reads **every** file in it and stacks them into one table.
+
+Drop next month's export into the folder, refresh, and it's included. Twelve monthly files become one dataset with no copy-paste at all.
+
+<Callout type="warning">
+Every file in the folder must have the **same structure** — same columns, same order, same names. One file with an extra column or a renamed header will error or produce blanks. Keep the folder clean: source files only, no summaries, no temporary copies.
+</Callout>
+
+## Do it
+
+### Import and clean
+
+1. **Data → Get Data → From File → From Workbook.** Choose a messy HR export.
+2. Select the sheet in the Navigator → **Transform Data** (not Load — you want the editor).
+3. **Home → Use First Row as Headers** if the headers aren't detected.
+4. Click each column's **type icon** and set it: `EmpID` Text, `DOJ` Date, `CTC` Whole Number.
+5. Select the Dept column → **Transform → Format → Trim**, then **Clean**.
+6. Right-click `Notes` (or any unwanted column) → **Remove**.
+7. Filter the Status column to exclude blanks.
+8. **Add Column → Custom Column**: name it `Annual Cost`, formula `= [CTC] * 12`.
+
+9. Look at **Applied Steps** — eight entries. Click any one to see the data at that point. Delete a step and the rest re-run.
+10. **Home → Close & Load.** The clean data arrives as a Table on a new sheet.
+
+### Prove the refresh
+
+11. Open the source file and add three rows. Save and close it.
+12. Back in your workbook, press <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>F5</Kbd>. **All eight cleaning steps re-run on the new rows.**
+
+<Shot id="8.7.4" />
+
+### Unpivot
+
+13. Import a wide table — regions down, twelve month columns across.
+14. Select the twelve month columns → **Transform → Unpivot Columns**.
+15. Rename `Attribute` to `Month` and `Value` to `Revenue`.
+16. Close & Load. You now have a tall table a pivot can use.
+
+### From Folder
+
+17. Put three identically structured monthly CSVs in one folder.
+18. **Get Data → From Folder** → select it → **Combine & Transform**.
+19. All three stack into one table with a `Source.Name` column showing which file each row came from.
+20. Add a fourth file to the folder and refresh.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `A` + `P` + `N` | Get Data menu | Starting any import | Then From File or From Folder |
+| `Ctrl` + `Alt` + `F5` | Refreshes every query and pivot | The monthly update — one keystroke re-runs all cleaning | After replacing the source file |
+| `Alt` + `A` + `Q` + `Q` | Opens the Queries & Connections pane | Finding and editing an existing query | Double-click a query to reopen the editor |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| Clicking **Load** instead of **Transform Data** | Raw data imported with no cleaning steps | Transform Data opens the editor |
+| **Letting Power Query guess data types** | Dates wrong for every row in an ambiguous format | Set each type explicitly, right after promoting headers |
+| Source file moved or renamed | The query errors on refresh | Keep sources in a fixed folder; edit the path in Source settings |
+| Mixed structures in a From Folder import | Errors or blank columns | Every file must have identical columns |
+| Cleaning the loaded output by hand | Your edits are wiped on the next refresh | Do all cleaning inside the query |
+| Deleting the wrong Applied Step | Later steps break, because they referenced it | Steps are sequential — check dependencies before deleting |
+| Forgetting to refresh | Last month's data, looking current | <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>F5</Kbd> as a reflex |
+
+</MistakeTable>
+
+<Callout type="story">
+**Gopal, MIS Manager.** Twelve regional workbooks arrived monthly, each needing the same treatment: promote headers, trim the region names, fix text dates, remove two columns, then paste into a master. Roughly three hours a month, every month, for two years.
+
+He rebuilt it as a From Folder query with eleven applied steps. The regions now drop their files into a shared folder and he presses <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>F5</Kbd>. **Under a minute.**
+
+The first month it failed: one region had renamed a column from `Revenue` to `Total Revenue`, and the query errored. That's the real cost of this approach — it requires the source structure to stay consistent, which means telling the people who send you files not to change the headers. He sent a template and the problem stopped.
+
+**Power Query trades twenty minutes of monthly manual work for a one-time setup plus a dependency on consistent inputs.** That's almost always the right trade, but the dependency is real and worth stating to whoever supplies your data.
+</Callout>
+
+## Practice
+
+<Exercise id="8.7.e1">
+
+<Scenario>
+Turn a monthly manual cleaning routine into a one-click refresh, then combine multiple files.
+</Scenario>
+
+<Dataset name="Messy_HR_Data" starter="starter/08-07-power-query.xlsx">
+
+A source workbook whose export deliberately has: a title row above the headers, trailing spaces in `Dept`, text dates in `DOJ`, text-numbers in `CTC`, an unwanted `Notes` column, and some blank rows.
+
+Plus three identically structured monthly sales CSVs in a folder.
+
+</Dataset>
+
+<Task>
+
+1. Import the messy export using **Transform Data**, not Load.
+2. Remove the title row and promote the real headers.
+3. Set every column's data type explicitly. Why not let Power Query guess the date column?
+4. Trim and clean the `Dept` column. Remove the `Notes` column. Filter out the blank rows.
+5. Add a custom column `Annual Cost` = CTC × 12.
+6. Close & Load. How many Applied Steps did you end up with?
+7. Add three rows to the source file, save it, then refresh. Did all your steps re-run?
+8. Now edit the loaded Table directly — change a department name in the output. Refresh again. What happened to your edit, and why?
+9. Import the folder of three CSVs with **Combine & Transform**. Add a fourth file and refresh.
+10. Break it: rename one column in the fourth file and refresh. What error appears?
+
+</Task>
+
+<Expected>
+Step 6: roughly eight steps · Step 7: yes, all steps re-run on the new rows · Step 8: the edit is wiped — the refresh replaces the output entirely · Step 10: a column-not-found error
+</Expected>
+
+<Solution>
+
+```
+2. Home → Remove Rows → Remove Top Rows → 1
+   Home → Use First Row as Headers
+3. Click each type icon: EmpID → Text · DOJ → Date · CTC → Whole Number
+4. Select Dept → Transform → Format → Trim, then Clean
+   Right-click Notes → Remove
+   Status filter dropdown → untick (blank)
+5. Add Column → Custom Column → name Annual Cost, formula = [CTC] * 12
+9. Get Data → From Folder → select folder → Combine & Transform
+```
+
+</Solution>
+
+<Why>
+
+**Step 8 is the rule that catches everyone.** A refresh doesn't merge — it discards the loaded output and rebuilds it from the source through your steps. Any manual edit to the output table is gone. So the discipline is absolute: **all cleaning happens inside the query, never on the loaded result.** If you find yourself wanting to fix something in the output, that's a missing step in the query.
+
+**Step 3's warning matters because Power Query guesses silently.** Given `03/04/2026` it picks DMY or MDY based on your locale and applies that to every row — so an ambiguous date column can be wrong throughout with no error and no visible symptom. Setting the type explicitly, immediately after promoting headers, is the same defence as choosing the order in Text to Columns.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "8.7.q1",
+    type: "mcq",
+    question: "You manually correct a department name in the Table that Power Query loaded, then refresh the query. What happens to your correction?",
+    options: [
+      "It is preserved — Power Query merges changes",
+      "It is discarded; the refresh rebuilds the output from the source through the recorded steps",
+      "The refresh fails with a conflict warning",
+      "It is preserved only if the workbook has been saved"
+    ],
+    correct: 1,
+    explanation: "A refresh replaces the loaded output entirely, re-running every Applied Step against the current source. Manual edits to the output are silently lost. The rule is absolute: all cleaning belongs inside the query. If you want to fix something in the output, that's a step missing from the query — add it there instead."
+  },
+  {
+    id: "8.7.q2",
+    type: "truefalse",
+    question: "A From Folder import can combine files with different column layouts, matching them by header name.",
+    correct: false,
+    explanation: "Every file must have the same columns in the same order with the same names. One file with a renamed or extra column will error or produce blanks — which is exactly what happened to Gopal when a region changed \"Revenue\" to \"Total Revenue\". The practical consequence is that this approach creates a dependency on whoever supplies your files, so send them a template and tell them not to change the headers."
+  },
+  {
+    id: "8.7.q3",
+    type: "decision",
+    question: "A monthly report needs the same twenty minutes of cleaning every time — trim, fix dates, remove two columns, drop blanks. Do it by hand or build a query?",
+    options: [
+      "Build a Power Query with the steps recorded once",
+      "Do it by hand — twenty minutes is quicker than learning the tool",
+      "Record a macro of the manual cleaning steps instead",
+      "Write formulas on a working sheet that reference the raw paste"
+    ],
+    correct: 0,
+    explanation: "Twenty minutes monthly is four hours a year, and the query replaces it with one keystroke. Option 4 is a genuine alternative and works well for lighter cleaning, but it needs the raw paste to land in exactly the same shape each time. A macro (option 3) records clicks rather than a data pipeline and breaks when row counts change. The real cost of Power Query is the dependency on consistent source structure — worth accepting, but worth stating to whoever sends you the file."
+  }
+]

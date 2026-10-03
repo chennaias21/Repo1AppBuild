@@ -1,0 +1,243 @@
+---
+id: "3.4"
+module: 3
+lesson: 4
+slug: "rounding-functions"
+title: "ROUND, ROUNDUP, ROUNDDOWN, INT and ABS"
+shortTitle: "Rounding Functions"
+stage: "Intermediate"
+durationMin: 9
+access: "paid"
+objectives:
+  - "Round the value, not just the display"
+  - "Choose between ROUND, ROUNDUP, CEILING, MROUND and INT deliberately"
+  - "Stop the penny discrepancies that make finance reject a report"
+keys: ["Alt+H+0", "Ctrl+Shift+~"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/03-04-rounding.xlsx"
+solutionFile: "solution/03-04-rounding.xlsx"
+functions: ["ROUND", "ROUNDUP", "ROUNDDOWN", "INT", "TRUNC", "MROUND", "CEILING", "FLOOR", "ABS", "MOD"]
+excelVersion: "all"
+shotCount: 4
+prev: "3.3"
+next: "3.5"
+videoUrl: null
+---
+
+## Why this matters
+
+Lesson 2.4 established that formatting changes only the display. `ROUND` changes the actual value. When a total must exactly match the sum of its displayed parts — a payroll register, an invoice, a statutory filing — you need `ROUND`, and formatting will never do it. One payroll manager forced a manual adjustment every month for two years because of this.
+
+## How it works
+
+| Function | Does | Example |
+|---|---|---|
+| `ROUND(n,d)` | Standard rounding | `=ROUND(2.567,2)` → 2.57 |
+| `ROUNDUP(n,d)` | Always away from zero | `=ROUNDUP(2.001,2)` → 2.01 |
+| `ROUNDDOWN(n,d)` | Always toward zero | `=ROUNDDOWN(2.999,2)` → 2.99 |
+| `INT(n)` | Down to the next whole number | `=INT(2.9)` → 2 · `=INT(-2.1)` → **−3** |
+| `TRUNC(n)` | Chops the decimals off | `=TRUNC(-2.1)` → **−2** |
+| `MROUND(n,m)` | Nearest multiple of m | `=MROUND(47,5)` → 45 |
+| `CEILING(n,m)` | Up to the next multiple | `=CEILING(47,5)` → 50 |
+| `FLOOR(n,m)` | Down to the previous multiple | `=FLOOR(47,5)` → 45 |
+| `ABS(n)` | Removes the sign | `=ABS(-450)` → 450 |
+| `MOD(n,d)` | The remainder after division | `=MOD(137,12)` → 5 |
+
+### The `d` argument
+
+| `d` | Rounds to |
+|---|---|
+| `2` | Two decimal places |
+| `0` | Whole number |
+| `-2` | Nearest hundred |
+| `-3` | Nearest thousand — useful for salary reporting |
+
+### INT versus TRUNC
+
+They differ **only on negatives**, and the difference bites. `INT(-2.1)` gives **−3** because INT always goes down. `TRUNC(-2.1)` gives **−2** because it just discards the decimal.
+
+On positive numbers they're identical, which is exactly why the difference goes unnoticed until a negative value appears — a data error, a reversal, an adjustment.
+
+<Shot id="3.4.1" />
+
+<Callout type="warning">
+**Round at the point of calculation, not at the end.** `=ROUND(B2*0.12,0)` per row, then SUM — not `=ROUND(SUM(...),0)`. The first gives a register that reconciles line by line; the second doesn't, and that's the discrepancy finance sends back.
+</Callout>
+
+<Callout type="tip">
+`CEILING` for anything you must not under-supply — cartons, licences, seats, vans, interviewers. `FLOOR` for anything you must not over-promise — available stock, remaining leave. **Whenever a fraction means "you still need another whole one", the answer is never `ROUND`.**
+</Callout>
+
+## Do it
+
+1. In A1:A6 enter: `2.567` · `2.001` · `2.999` · `-2.1` · `47` · `-450`
+2. In B1: `=ROUND(A1,2)` → 2.57
+3. B2: `=ROUNDUP(A2,2)` → 2.01 · B3: `=ROUNDDOWN(A3,2)` → 2.99
+4. B4: `=INT(A4)` → **−3**. In C4: `=TRUNC(A4)` → **−2**. Note the difference.
+5. B5: `=MROUND(A5,5)` → 45 · C5: `=CEILING(A5,5)` → **50** · D5: `=FLOOR(A5,5)` → 45
+6. B6: `=ABS(A6)` → 450
+
+<Shot id="3.4.2" />
+
+### Prove formatting isn't rounding
+
+7. In E1 and E2 both type `2.567`. Format both to 2 decimals — both show `2.57`.
+8. In E3: `=E1+E2` → displays **5.13**, because the true total is 5.134.
+9. In F1 and F2: `=ROUND(2.567,2)`. In F3: `=F1+F2` → **5.14**.
+
+**5.13 versus 5.14.** Two cells. Now scale that to a 400-row payroll register.
+
+<Shot id="3.4.3" />
+
+### Rounding to bands
+
+10. `=ROUND(647832,-3)` → **648,000** (nearest thousand)
+11. `=MROUND(647832,5000)` → **650,000** (nearest 5,000 — salary banding)
+12. `=CEILING(647832,25000)` → **650,000** (next band up)
+
+### The indivisible-unit problem
+
+13. 137 units must ship in cartons of 12. `=ROUNDUP(137/12,0)` → **12 cartons**.
+14. `=MOD(137,12)` → **5** — the last carton holds 5 units.
+15. Now try `=ROUND(137/12,0)` → **11**. Eleven cartons hold 132 units, leaving 5 undelivered.
+
+<Shot id="3.4.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `H` + `0` | Increase displayed decimals | **Before trusting a total** — reveals the hidden precision behind a formatted figure | Two cells showing 100 that sum to 201 |
+| `Ctrl` + `Shift` + `~` | General format | Seeing the full stored value with no mask | Diagnosing a reconciliation gap |
+| `F9` on part of a formula | Evaluates that piece | Checking what a calculation returns before rounding | Select `B2*0.12`, press F9 |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Formatting instead of rounding** | Totals don't reconcile; finance rejects it | `ROUND` the values |
+| Rounding only the total | Individual lines don't add to the total | Round each line |
+| `INT` on negatives expecting truncation | −2.1 becomes −3, not −2 | `TRUNC` if you want truncation |
+| `ROUND` where you need `CEILING` | Eleven vans for twelve vans' worth of packages | Fractions of an indivisible unit always round up |
+| `ROUNDUP` everywhere "to be safe" | Systematically overstates every total | Standard `ROUND` unless the business rule says otherwise |
+| Rounding intermediate steps | Error compounds across a long calculation | Round once, at the output |
+
+</MistakeTable>
+
+<Callout type="story">
+**Deepa, Payroll Manager.** Monthly PF register, 340 employees. Her file calculated `=B2*0.12` and formatted to zero decimals. The register total and the sum of the individual lines differed by between ₹3 and ₹11 **every single month.**
+
+The statutory filing requires exact reconciliation. Every month she manually adjusted one employee's figure to force the total to match — which meant one person's record was wrong in the official filing, every month, for two years.
+
+Adding `ROUND(...,0)` to one formula and filling it down fixed it permanently.
+
+**If a number will be reported, filed or reconciled against, round the value — not the display.**
+</Callout>
+
+## Practice
+
+<Exercise id="3.4.e1">
+
+<Scenario>
+Build a payroll deduction sheet that reconciles exactly.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/03-04-rounding.xlsx">
+
+| | A | B |
+|---|---|---|
+| **1** | Employee | Basic |
+| **2** | Anil Kumar | 45333 |
+| **3** | Meera Nair | 38777 |
+| **4** | Rahul Shah | 41341 |
+| **5** | Sneha Rao | 52169 |
+| **6** | Kabir Menon | 47555 |
+
+Rates: **E1** `PF %` = `12%` · **E2** `ESI %` = `0.75%` · **E3** `Prof Tax` = `200`
+
+</Dataset>
+
+<Task>
+
+1. In C2, calculate PF as basic × PF%, **unrounded**. Fill down.
+2. In D2, the same thing **rounded to whole rupees**. Fill down.
+3. Total both columns. Format column C to zero decimals — does the displayed column reconcile with its displayed total?
+4. In F2, total deductions: rounded PF + rounded ESI + professional tax.
+5. In G2, round each basic to the nearest 1,000 for a banding report.
+6. In H2, round each basic **up** to the nearest 5,000 to get the band ceiling.
+7. In I2, the absolute difference between the banded figure and the actual basic.
+8. A shipping question: 137 units ship in cartons of 12. How many cartons, and how many units in the last one? Which function for each?
+9. Someone's tenure calculates as −0.3 years (a data error). Compare `INT` and `TRUNC` on it. Which would you use for a gratuity eligibility check, and why?
+
+</Task>
+
+<Expected>
+Row 4 (41,341): PF unrounded = 4,960.92, rounded = 4,961 · C total = 32,255.28 · D total = 32,255 · Step 8: 12 cartons, 5 units in the last · Step 9: `INT` → −1, `TRUNC` → 0
+</Expected>
+
+<Solution>
+
+```
+C2: =B2*$E$1
+D2: =ROUND(B2*$E$1,0)
+F2: =D2+ROUND(B2*$E$2,0)+$E$3
+G2: =ROUND(B2,-3)
+H2: =CEILING(B2,5000)
+I2: =ABS(G2-B2)
+
+Step 8: cartons  =ROUNDUP(137/12,0)   → 12
+        last one =MOD(137,12)          → 5
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 is the exercise's core.** Whether the displayed column reconciles depends entirely on which way each value happened to round — sometimes it works, sometimes it's off by a rupee, and you cannot predict which. That unpredictability is the real problem: a register that reconciles this month and not next month is worse than one that never does, because you stop checking.
+
+`=ROUND(B2*$E$1,0)` makes it deterministic. The stored value *is* the whole rupee figure, so the total is by definition the sum of what's shown.
+
+**Step 9 exposes why INT and TRUNC aren't interchangeable.** A tenure of −0.3 years is a data error, probably a joining date in the future. `INT` returns **−1** (always rounds toward negative infinity); `TRUNC` returns **0**. Feed either into a gratuity eligibility check and they behave very differently. On positive numbers they're identical, which is exactly why this surfaces only when something has already gone wrong.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "3.4.q1",
+    type: "mcq",
+    question: "What does =ROUND(4567.89,-2) return?",
+    options: ["4567.89", "4600", "4567", "4500"],
+    correct: 1,
+    explanation: "A negative num_digits rounds to the left of the decimal point: −1 to the nearest ten, −2 to the nearest hundred, −3 to the nearest thousand. 4567.89 to the nearest hundred is 4,600. This is genuinely useful for salary banding and for reporting figures where false precision would mislead."
+  },
+  {
+    id: "3.4.q2",
+    type: "truefalse",
+    question: "Formatting a cell to zero decimal places and using =ROUND(value,0) produce the same stored result.",
+    correct: false,
+    explanation: "Formatting changes only what's displayed; the cell still holds the full-precision value, and every formula referencing it uses that. ROUND changes the stored value itself. The practical consequence is that a column of formatted values can display figures that don't add up to the displayed total — which is exactly the penny discrepancy that made Deepa's filing fail reconciliation for two years."
+  },
+  {
+    id: "3.4.q3",
+    type: "decision",
+    question: "You need to know how many delivery vans are required for 2,340 packages when each van holds 400. Which function?",
+    options: [
+      "ROUNDUP or CEILING",
+      "ROUND — 5.85 rounds to 6 anyway",
+      "ROUNDDOWN, to avoid over-provisioning",
+      "INT, since vans must be whole numbers"
+    ],
+    correct: 0,
+    explanation: "ROUND happens to give 6 here because .85 rounds up — but consider 2,140 packages: 5.35 vans, and ROUND gives 5. Five vans carry 2,000 packages, leaving 140 undelivered. Whenever a fractional result means \"you still need another whole one\", the answer is always ROUNDUP or CEILING, never ROUND. The same logic applies to cartons, licences, seats and interviewers; use ROUNDDOWN or FLOOR for the reverse case, like how many complete units you can make from available stock."
+  }
+]

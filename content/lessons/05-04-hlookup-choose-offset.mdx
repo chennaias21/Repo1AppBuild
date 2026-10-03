@@ -1,0 +1,283 @@
+---
+id: "5.4"
+module: 5
+lesson: 4
+slug: "hlookup-choose-offset"
+title: "HLOOKUP, CHOOSE, OFFSET and INDIRECT"
+shortTitle: "HLOOKUP, CHOOSE, OFFSET"
+stage: "Intermediate"
+durationMin: 11
+access: "paid"
+objectives:
+  - "Look up across a row instead of down a column"
+  - "Use CHOOSE to turn a number into one of several values"
+  - "Know what OFFSET and INDIRECT do, and why to be careful with them"
+keys: ["F9", "F4"]
+datasets: ["Sales_Transactions"]
+starterFile: "starter/05-04-other-lookups.xlsx"
+solutionFile: "solution/05-04-other-lookups.xlsx"
+functions: ["HLOOKUP", "CHOOSE", "OFFSET", "INDIRECT"]
+excelVersion: "all"
+shotCount: 3
+prev: "5.3"
+next: "5.5"
+videoUrl: null
+---
+
+## Why this matters
+
+Four functions you'll meet in other people's workbooks. Two are genuinely useful, two are worth understanding mainly so you can recognise them and — often — replace them. Knowing which is which saves you from inheriting a fragile file and making it worse.
+
+## How it works
+
+### HLOOKUP — sideways VLOOKUP
+
+Same four arguments, but it searches the **first row** of a range and returns from a row below.
+
+<FormulaBlock>
+```
+=HLOOKUP("Q3", $B$1:$E$5, 3, 0)
+         │     │           │  │
+         │     │           │  └── exact match
+         │     │           └───── 3rd ROW of the range
+         │     └───────────────── the block, with labels across the top row
+         └───────────────────────  what to find, in row 1
+```
+</FormulaBlock>
+
+<Shot id="5.4.1" />
+
+It carries every VLOOKUP weakness: a positional row index that breaks when rows are inserted, and no ability to look upwards. Use it when data genuinely runs across — monthly columns are the common case — and prefer INDEX MATCH otherwise.
+
+### CHOOSE — a number into a value
+
+<FormulaBlock>
+```
+=CHOOSE(2, "Low", "Medium", "High")   →  "Medium"
+        │   └── the options, numbered 1, 2, 3
+        └────── which one to return
+```
+</FormulaBlock>
+
+Genuinely handy when a number already carries meaning. Fiscal quarter from a month number, for instance:
+
+<FormulaBlock>
+```
+=CHOOSE(MONTH(A2),"Q4","Q4","Q4","Q1","Q1","Q1","Q2","Q2","Q2","Q3","Q3","Q3")
+```
+</FormulaBlock>
+
+That maps an Indian fiscal year (April–March) in one formula. A nested IF would need eleven levels.
+
+<Callout type="tip">
+`CHOOSE` also pairs with `WEEKDAY`: `=CHOOSE(WEEKDAY(A2,2),"Mon","Tue","Wed","Thu","Fri","Sat","Sun")`. And with `RANDBETWEEN` for picking a random option from a fixed list.
+</Callout>
+
+### OFFSET — a moving reference
+
+<FormulaBlock>
+```
+=OFFSET($A$1, 3, 2)        →  the cell 3 rows down and 2 columns right of A1 = C4
+=OFFSET($A$1, 3, 2, 5, 1)  →  a 5-row, 1-column range starting at C4
+```
+</FormulaBlock>
+
+It returns a *reference* calculated at runtime, which makes rolling ranges possible.
+
+<Callout type="warning">
+`OFFSET` is **volatile**: it recalculates on every change anywhere in the workbook, whether or not anything it depends on moved. A few are fine. A few hundred makes a file noticeably slow, and the cause is very hard to find later. `INDEX` returns a reference too and is not volatile — prefer it wherever it can do the job.
+</Callout>
+
+### INDIRECT — a reference built from text
+
+<FormulaBlock>
+```
+=INDIRECT("B"&A1)        if A1 holds 7, this reads B7
+=INDIRECT(A1&"!B5")      if A1 holds "March", this reads March!B5
+```
+</FormulaBlock>
+
+The second form is why people use it — pulling the same cell from whichever sheet is named in a dropdown.
+
+It's also volatile, it **breaks silently if a sheet is renamed**, and it can't reference a closed workbook. Treat it as a last resort.
+
+<Shot id="5.4.2" />
+
+## Do it
+
+A revenue grid with quarters across the top.
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | Region | Q1 | Q2 | Q3 | Q4 |
+| **2** | North | 4200000 | 4650000 | 5100000 | 4890000 |
+| **3** | South | 3800000 | 3920000 | 4100000 | 4350000 |
+| **4** | East | 2900000 | 3150000 | 3300000 | 3080000 |
+| **5** | West | 5100000 | 5400000 | 5250000 | 5800000 |
+
+1. Put `Q3` in **G1**.
+2. **G2** — North's Q3 revenue via HLOOKUP: `=HLOOKUP($G$1,$B$1:$E$5,2,0)` → `5100000`
+
+   Row 2 of the range is North. Change the `2` to `5` for West.
+3. Change G1 to `Q1`. The answer follows the label.
+
+4. **G4** — the same answer with INDEX MATCH, to compare:
+   `=INDEX($B$2:$E$5,MATCH("North",$A$2:$A$5,0),MATCH($G$1,$B$1:$E$1,0))`
+
+   Longer, but the region is now a *label* rather than a hard-coded row number — so inserting a region row can't break it.
+
+### CHOOSE
+
+5. Put a date in **G6**, say `15-Jul-2026`.
+6. **G7** — the fiscal quarter:
+   `=CHOOSE(MONTH($G$6),"Q4","Q4","Q4","Q1","Q1","Q1","Q2","Q2","Q2","Q3","Q3","Q3")` → `Q2`
+7. **G8** — the weekday name: `=CHOOSE(WEEKDAY($G$6,2),"Mon","Tue","Wed","Thu","Fri","Sat","Sun")`
+
+### OFFSET, and why to replace it
+
+8. **G10**: `=OFFSET($A$1,3,2)` → `3300000`, the value in C4.
+9. **G11** — the same thing with INDEX: `=INDEX($A$1:$E$5,4,3)` → `3300000`
+10. Identical result. G11 isn't volatile, so it only recalculates when something it depends on actually changes.
+
+<Shot id="5.4.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F9` on a nested part | Evaluates just that piece | Seeing what `MONTH()` returned before `CHOOSE` picked from the list | Select `MONTH($G$6)` → `7` |
+| `F4` | Locks the range | Every lookup table, and the anchor cell in `OFFSET` | Select `B1:E5`, press F4 |
+| `Ctrl` + `[` | Jumps to the cells referenced | Finding out what an inherited `OFFSET` or `INDIRECT` actually points at | Click the formula, press Ctrl+[ |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| `HLOOKUP` row index counted from the sheet | Wrong row returned | Count from the first row of *your range* |
+| Inserting a row inside an `HLOOKUP` range | Wrong data, silently | INDEX MATCH with a label instead of a number |
+| **Hundreds of `OFFSET` formulas** | The file becomes slow and nobody knows why | Replace with `INDEX` — same job, not volatile |
+| `INDIRECT` after a sheet rename | `#REF!` with no clue which sheet | Avoid it; use a proper structure or Power Query |
+| `INDIRECT` to a closed workbook | `#REF!` | It cannot do this at all |
+| `CHOOSE` index out of range | `#VALUE!` | The index must be between 1 and the number of options |
+| `CHOOSE` with a decimal index | Silently truncates — 2.7 becomes 2 | Wrap in `ROUND` if that's not what you want |
+
+</MistakeTable>
+
+<Callout type="story">
+**Gopal, MIS Manager.** He inherited a consolidation workbook that took ninety seconds to recalculate after any edit. Twelve monthly sheets, one summary. Typing a single number meant waiting.
+
+He pressed `Ctrl` + `` ` `` and found roughly 900 formulas built on `OFFSET` and `INDIRECT` — the previous owner had used `INDIRECT("'"&$A5&"'!B12")` to pull each month's figures by sheet name, and `OFFSET` for rolling twelve-month ranges.
+
+Both functions are volatile. Every edit anywhere triggered all 900 to recalculate, whether or not anything they referenced had changed.
+
+He replaced the `OFFSET` formulas with `INDEX` — same results, not volatile — and the `INDIRECT` cross-sheet pulls with a single Power Query append. Recalculation dropped to under two seconds.
+
+**`OFFSET` and `INDIRECT` are not wrong, but they are expensive, and the cost is invisible until the file is unusable.** If a workbook is mysteriously slow, show formulas and search for those two names first.
+</Callout>
+
+## Practice
+
+<Exercise id="5.4.e1">
+
+<Scenario>
+A regional revenue grid needing a sideways lookup, a fiscal-quarter converter, and a non-volatile replacement for an inherited OFFSET.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/05-04-other-lookups.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | Region | Q1 | Q2 | Q3 | Q4 |
+| **2** | North | 4200000 | 4650000 | 5100000 | 4890000 |
+| **3** | South | 3800000 | 3920000 | 4100000 | 4350000 |
+| **4** | East | 2900000 | 3150000 | 3300000 | 3080000 |
+| **5** | West | 5100000 | 5400000 | 5250000 | 5800000 |
+
+Inputs: **H1** = `Q3` · **H2** = `South` · **H3** = `15-Jul-2026`
+
+</Dataset>
+
+<Task>
+
+1. **I1** — South's revenue for the quarter in H1, using `HLOOKUP`.
+2. **I2** — the same answer using a two-way `INDEX MATCH` that takes the region from H2 rather than a hard-coded row number.
+3. Insert a new row between rows 3 and 4. Which of I1 and I2 is still correct?
+4. Undo. **I4** — the fiscal quarter of the date in H3, using `CHOOSE` on an April–March year.
+5. **I5** — the weekday name of H3, using `CHOOSE` and `WEEKDAY`.
+6. **I6** — the value in C4, using `OFFSET` anchored at A1.
+7. **I7** — the same value using `INDEX`. Explain in one line why I7 is the better formula.
+8. **I8** — the total revenue for the region named in H2, using `INDEX` with `0` as the column argument.
+
+</Task>
+
+<Expected>
+I1 = 4,100,000 · I2 = 4,100,000 · Step 3: I1 now wrong, I2 still correct · I4 `Q2` · I5 `Wed` · I6 and I7 both 3,300,000 · I8 = 16,170,000 for South
+</Expected>
+
+<Solution>
+
+```
+I1: =HLOOKUP($H$1,$B$1:$E$5,3,0)
+I2: =INDEX($B$2:$E$5,MATCH($H$2,$A$2:$A$5,0),MATCH($H$1,$B$1:$E$1,0))
+I4: =CHOOSE(MONTH($H$3),"Q4","Q4","Q4","Q1","Q1","Q1","Q2","Q2","Q2","Q3","Q3","Q3")
+I5: =CHOOSE(WEEKDAY($H$3,2),"Mon","Tue","Wed","Thu","Fri","Sat","Sun")
+I6: =OFFSET($A$1,3,2)
+I7: =INDEX($A$1:$E$5,4,3)
+I8: =SUM(INDEX($B$2:$E$5,MATCH($H$2,$A$2:$A$5,0),0))
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 is the comparison that matters.** `HLOOKUP`'s `3` is a position. Insert a row above South and South is now row 4 of the range, but the formula still fetches row 3 — which is now East's figures. It returns 3,300,000, a real number from a real region, with nothing to indicate it's the wrong one.
+
+The `INDEX MATCH` version asks "which row is South in?" every time it calculates, so the insert is irrelevant. That's the general principle across this whole module: **a formula that references a label survives restructuring; a formula that references a position doesn't.**
+
+**Step 7's answer:** `OFFSET` is volatile, `INDEX` isn't. Both return a reference computed at runtime, and both give 3,300,000 here. But `OFFSET` recalculates on every change anywhere in the workbook — so a hundred of them means a hundred recalculations for every keystroke, and nothing in the formula hints at that cost. `INDEX` recalculates only when something it depends on changes. There is essentially no situation where `OFFSET` does something `INDEX` can't, so the volatility buys you nothing.
+
+**Step 8 reuses the `INDEX(...,row,0)` trick from Lesson 5.3.** Passing `0` as the column argument returns the whole row as a range, which `SUM` then totals. Combined with `MATCH` for the row, you get "total for whichever region is selected" — one formula that follows a dropdown, no helper columns.
+
+**On step 4:** the twelve-item list looks clumsy but it's honest — an April-start fiscal year has no arithmetic shortcut that stays readable. A nested IF would need eleven levels; `CHOOSE` states the mapping plainly, so anyone reviewing it can see the fiscal calendar at a glance.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "5.4.q1",
+    type: "mcq",
+    question: "Why should you generally replace OFFSET with INDEX?",
+    options: [
+      "OFFSET doesn't work in Excel 365",
+      "OFFSET is volatile — it recalculates on every change anywhere in the workbook, making files slow",
+      "OFFSET cannot return a range, only a single cell",
+      "INDEX is easier to type"
+    ],
+    correct: 1,
+    explanation: "OFFSET recalculates whenever anything in the workbook changes, regardless of whether its own inputs moved. A handful is harmless; several hundred makes a file slow to the point of being unusable, and nothing in the formula hints at the cause. INDEX returns a reference computed at runtime just as OFFSET does, handles ranges just as well, and is not volatile — so there's rarely a reason to accept the cost."
+  },
+  {
+    id: "5.4.q2",
+    type: "truefalse",
+    question: "INDIRECT can pull a value from a specific cell in a workbook that is currently closed.",
+    correct: false,
+    explanation: "INDIRECT requires the source workbook to be open — against a closed file it returns #REF!. It also breaks silently if a referenced sheet is renamed, and it's volatile. Those three limitations together make it a last resort; for combining data across sheets or files, Power Query (Lesson 10.5) is the right tool."
+  },
+  {
+    id: "5.4.q3",
+    type: "formula",
+    question: "A date is in A2. Write a formula returning the fiscal quarter for an April-to-March financial year, so April falls in Q1 and January falls in Q4.",
+    accept: ["=CHOOSE(MONTH(A2),\"Q4\",\"Q4\",\"Q4\",\"Q1\",\"Q1\",\"Q1\",\"Q2\",\"Q2\",\"Q2\",\"Q3\",\"Q3\",\"Q3\")"],
+    explanation: "MONTH returns 1 to 12, and CHOOSE maps each number to a label — so positions 1, 2 and 3 (January to March) give Q4, while positions 4, 5 and 6 (April to June) give Q1. Listing all twelve looks verbose but it states the fiscal calendar explicitly, which makes it reviewable. A nested IF would need eleven levels to do the same thing."
+  }
+]

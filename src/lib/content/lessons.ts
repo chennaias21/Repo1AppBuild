@@ -4,7 +4,9 @@ import path from "node:path";
 import matter from "gray-matter";
 import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
-import type { ReactElement } from "react";
+import { createElement, type ReactElement } from "react";
+import { SubmitCard } from "@/components/lesson/project";
+import { SITE } from "@/lib/site";
 import { mdxComponents, slugify } from "@/components/lesson/mdx";
 import type { QuizQuestion } from "@/lib/quiz";
 
@@ -123,19 +125,30 @@ export function withoutSolution(body: string): string {
 export async function loadDocument(
   dir: "lessons" | "projects",
   file: string,
-  options: { hideSolution?: boolean } = {}
+  options: { hideSolution?: boolean; reviewIncluded?: boolean } = {}
 ): Promise<LoadedDocument | null> {
   const raw = readFile(dir, file);
   if (!raw) return null;
 
-  const body = options.hideSolution ? withoutSolution(raw.body) : raw.body;
+  // A bare backtick key (<Kbd>`</Kbd>) opens inline code in MDX and breaks compilation, so write it as an expression.
+  const fixed = raw.body.replace(/<Kbd>`<\/Kbd>/g, '<Kbd>{"`"}</Kbd>');
+  const body = options.hideSolution ? withoutSolution(fixed) : fixed;
   const { quiz, rest } = extractQuiz(body);
   // If the author did not place <Quiz /> themselves, render it at the end under "## Quiz".
   const source = quiz && !/<Quiz\b/.test(rest) ? `${rest.trimEnd()}\n\n<Quiz />\n` : rest;
 
   const { content } = await compileMDX({
     source,
-    components: mdxComponents,
+    components: {
+      ...mdxComponents,
+      Submit: () =>
+        createElement(SubmitCard, {
+          projectId: raw.frontmatter.id,
+          projectTitle: raw.frontmatter.title,
+          supportEmail: SITE.supportEmail,
+          reviewIncluded: Boolean(options.reviewIncluded),
+        }),
+    },
     options: { scope: { quiz: quiz ?? [] }, mdxOptions: { remarkPlugins: [remarkGfm] } },
   });
 

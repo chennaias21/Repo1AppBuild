@@ -1,0 +1,257 @@
+---
+id: "2.3"
+module: 2
+lesson: 3
+slug: "data-entry-autofill"
+title: "Entering Data Accurately, AutoFill and Series"
+shortTitle: "Data Entry & AutoFill"
+stage: "Beginner"
+durationMin: 11
+access: "free"
+objectives:
+  - "Enter data fast using the right keys"
+  - "Generate series with AutoFill instead of typing"
+  - "Structure a dataset so Modules 6 to 8 work smoothly"
+keys: ["Ctrl+Enter", "Alt+Down"]
+datasets: ["Attendance_Register"]
+starterFile: "starter/02-03-data-entry.xlsx"
+solutionFile: "solution/02-03-data-entry.xlsx"
+functions: ["TEXT"]
+excelVersion: "all"
+shotCount: 5
+prev: "2.2"
+next: "2.4"
+videoUrl: null
+---
+
+## Why this matters
+
+Data entry looks too basic to teach. It isn't — the habits you form here decide whether pivot tables work first time later. And two keystrokes in this lesson will save you an hour a week for the rest of your career.
+
+## How it works
+
+### The entry keys
+
+| Key | Does |
+|---|---|
+| `Enter` | Confirm, move down |
+| `Tab` | Confirm, move right |
+| `Esc` | Cancel what you're typing |
+| `F2` | Edit in place instead of retyping |
+| `Alt` + `Enter` | New line **inside** a cell |
+| **`Ctrl` + `Enter`** | **Fill every selected cell with what you typed** |
+
+That last one is the underused gem. Select 50 cells, type `Present`, press <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd> — all 50 fill at once. It works on non-adjacent selections and on filtered ranges, filling only the visible rows.
+
+**Another trick:** select a range *first*, then type. Tab moves across the columns and wraps automatically to the next row. You never navigate manually and never type outside the range.
+
+<Shot id="2.3.1" />
+
+### AutoFill
+
+The small square at the bottom-right of a selection is the **fill handle**. Drag it and Excel continues the pattern.
+
+| Start with | Drag gives |
+|---|---|
+| `5` | `5, 5, 5` — copies |
+| `5` and `10` | `15, 20, 25` — Excel worked out the step |
+| `Jan` | `Feb, Mar, Apr` — built-in list |
+| `E1001` | `E1002, E1003` — increments the number inside text |
+| A formula | Copies with references adjusting |
+
+**Double-click the fill handle** and it fills down automatically to match the adjacent column's length. On 5,000 rows that's one click instead of a thirty-second drag.
+
+<Callout type="tip">
+`Alt` + `↓` in any column shows a dropdown of every value already used in it. Pick from the list rather than retyping, and `Sales` / `sales` / `Sales ` inconsistencies simply stop happening. Free, no setup, and it's the cheapest data-quality tool in Excel.
+</Callout>
+
+### The six structure rules
+
+Break these and Module 7's pivot tables will fight you:
+
+1. **One header row**, directly above the data
+2. **One record per row** — no "Anil / Meera" in a single cell
+3. **One piece of information per cell** — split `Anil Kumar - Sales`
+4. **No blank rows or columns** inside the data
+5. **No totals inside the data block** — a total row gets filtered and counted as a record
+6. **Consistent values** — `Sales`, `sales` and `Sales ` are three different departments to Excel
+
+<Callout type="warning">
+Rule 5 catches people because a total row beneath the data looks natural. But filters include it, pivot tables treat it as a record, and `Ctrl+Shift+↓` selects it. Put totals above the header row, on another sheet, or use a Table's own Total Row (Lesson 6.1), which is filter-aware.
+</Callout>
+
+## Do it
+
+### Range-locked entry
+
+1. Select **A2:C6** — three columns, five rows.
+2. Type `E1001`, <Kbd>Tab</Kbd>, `Anil`, <Kbd>Tab</Kbd>, `Sales`, <Kbd>Tab</Kbd>.
+3. The cursor jumps automatically to **A3**. You never left the range.
+
+### Fill handle
+
+4. In A1 type `1`, A2 type `2`. Select both, drag the handle to A10 → 1 through 10.
+5. In B1 type `Jan`. Drag to B12 → Jan through Dec.
+6. In C1 type `E1001`. Drag to C10 → E1001 through E1010.
+
+<Shot id="2.3.2" />
+
+7. With names in A2:A5000, put a formula in B2 and **double-click** the fill handle. It fills to B5000 instantly.
+
+<Shot id="2.3.3" />
+
+### Ctrl+Enter
+
+8. Select **D2:D51**. Type `Present`. Press <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>. All fifty fill at once.
+9. Now <Kbd>Ctrl</Kbd>-click three non-adjacent cells, type `Absent`, press <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>. Same behaviour.
+
+<Shot id="2.3.4" />
+
+### Custom lists and Alt+↓
+
+10. **File → Options → Advanced → Edit Custom Lists.** Add: `Present`, `Absent`, `Half Day`, `Leave`, `WFH`. Click Add, OK.
+11. Type `Present` in a cell and drag the handle — the full list appears.
+12. In another cell in that column, press <Kbd>Alt</Kbd>+<Kbd>↓</Kbd>. Existing entries appear. Pick one.
+
+<Shot id="2.3.5" />
+
+### Weekday dates only
+
+13. In A1 type `01-Sep-2026`. **Home → Fill → Series** → Date, **Weekday**, step 1, stop `30-Sep-2026`.
+14. You get only working days — weekends skipped.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `Enter` | Fills every selected cell with your entry | Setting many cells to one value — works on filtered ranges too | Select 50 cells, type `Present`, press it |
+| `Alt` + `↓` | Dropdown of existing entries in the column | Keeping text values consistent without any setup | Pick `Sales` rather than retyping it |
+| Double-click the fill handle | Fills down to match the adjacent column | Any long dataset — instant, and can't overshoot | 5,000 rows in one click |
+| `Ctrl` + `D` | Fills down from the cell above | Copying a value or formula into a selection | Select B2:B100 with B2 filled, press it |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Total row inside the data block** | It gets filtered, sorted and counted as a record | Totals above the header, or a Table's Total Row |
+| Two header rows | Pivot tables can't identify the header | One row only |
+| Blank row inside data | Ranges stop short; pivots read part of the data | Delete blank rows; use formatting for visual separation |
+| Typing department names by hand each time | `Sales`, `sales`, `Sales ` become three categories | `Alt+↓`, or data validation (Lesson 6.7) |
+| Dragging the handle on 5,000 rows | Slow, easy to overshoot | Double-click it |
+| `Anil Kumar - Sales` in one cell | Can't filter by department | Two columns |
+| One number and dragging, expecting a series | It copies instead | Give two cells, or hold `Ctrl` while dragging |
+
+</MistakeTable>
+
+<Callout type="story">
+**Tanvi, Admin Executive.** She maintained a visitor log — date, name, company, purpose, in-time, out-time. Twelve months, about 4,000 rows, typed entirely by hand.
+
+When her manager asked for visits by company, the pivot table returned **340 distinct companies**. The real number was 61. The rest were variants: `Infosys`, `infosys`, `Infosys Ltd`, `Infosys ` with a trailing space, `INFOSYS`.
+
+Cleaning it took two days. Preventing it would have taken ten minutes — a custom list, `Alt+↓` for entry, or a validation dropdown.
+
+**Every hour you don't spend on entry discipline costs roughly a day of cleaning later.** That ratio holds remarkably well.
+</Callout>
+
+## Practice
+
+<Exercise id="2.3.e1">
+
+<Scenario>
+Build an attendance register skeleton for five employees across ten working days.
+</Scenario>
+
+<Dataset name="Attendance_Register" starter="starter/02-03-data-entry.xlsx">
+
+Headers in row 1: `EmpID` | `Name` | `Date` | `Status` | `In Time`
+
+</Dataset>
+
+<Task>
+
+1. In A2, type `E1001` and use the fill handle to create E1001 to E1005 in A2:A6.
+2. You need each employee repeated for ten days — 50 rows total. Select A2:A6, copy, then select A7:A51 and paste.
+3. In C2:C6, enter `01-Sep-2026` using <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd> so all five fill at once.
+4. Create a custom list: `Present`, `Absent`, `Half Day`, `Leave`, `WFH`.
+5. Select D2:D51, type `Present`, and press <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd> to mark everyone present by default.
+6. Change a few to `Absent` using <Kbd>Alt</Kbd>+<Kbd>↓</Kbd> rather than typing.
+7. In E2, enter `09:00`. Does it right-align? What does that tell you?
+8. In F2, add a `Day` column using `=TEXT(C2,"ddd")` and double-click the fill handle.
+9. Check your structure against the six rules. Is there a total row anywhere? Any blank rows?
+
+</Task>
+
+<Expected>
+Step 7: it right-aligns, confirming Excel read it as a time rather than text · Step 8: `Mon`, `Tue`, etc. · Step 9: no total row inside the data, no blank rows
+</Expected>
+
+<Solution>
+
+```
+Step 3: select C2:C6 → type 01-Sep-2026 → Ctrl+Enter
+Step 4: File → Options → Advanced → Edit Custom Lists → type the five → Add → OK
+Step 5: select D2:D51 → type Present → Ctrl+Enter
+Step 8: =TEXT(C2,"ddd")
+```
+
+</Solution>
+
+<Why>
+
+**Step 7 is your type check, and it costs nothing.** If `09:00` had landed left-aligned, Excel read it as text — and every hours-worked calculation you build later would return `#VALUE!`. Catching it at entry takes a glance; catching it after you've built the tracker costs an afternoon.
+
+**Step 8 is more useful than it looks.** A weekday column lets you filter to weekends and spot anyone marked `Present` on a Sunday — one of the most common attendance data errors, and invisible without it. Note the result is *text*, so don't try date arithmetic on it.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "2.3.q1",
+    type: "mcq",
+    question: "You have 5,000 rows of names in column A and one formula in B2. What's the fastest way to copy that formula down to B5000?",
+    options: [
+      "Drag the fill handle down 5,000 rows",
+      "Double-click the fill handle",
+      "Copy B2, select B3:B5000, paste",
+      "Use the Series dialog"
+    ],
+    correct: 1,
+    explanation: "Double-clicking the fill handle fills down automatically, stopping where the adjacent column stops — instant, and it can't overshoot or fall short. Option 3 also works and is the right fallback when the adjacent column has gaps, since the double-click would stop at the first one."
+  },
+  {
+    id: "2.3.q2",
+    type: "scenario",
+    question: "Your visitor log's pivot table shows 340 distinct company names, but you know there are only about 60 real companies. What caused this?",
+    options: [
+      "The pivot table needs refreshing",
+      "Free-text entry created typos, trailing spaces and capitalisation variants, each becoming its own category",
+      "The company column is formatted as text rather than General",
+      "The pivot is counting rows rather than unique values"
+    ],
+    correct: 1,
+    explanation: "Excel compares text literally, so \"Infosys\", \"infosys\" and \"Infosys \" with a trailing space are three separate categories. Two preventions: Alt+↓ while typing shows existing entries to pick from (free, no setup, but relies on discipline), and data validation with a dropdown makes anything else impossible to enter — which is the proper fix."
+  },
+  {
+    id: "2.3.q3",
+    type: "decision",
+    question: "You need to mark 200 filtered rows as \"Approved\" in the Status column. Type it once and copy-paste down, or something else?",
+    options: [
+      "Select the visible cells, type it once, and press Ctrl+Enter",
+      "Copy-paste down the filtered range",
+      "Clear the filter first, then fill down",
+      "Use the fill handle on the filtered rows"
+    ],
+    correct: 0,
+    explanation: "Ctrl+Enter respects the filter reliably, filling only the visible rows. Copy-paste on a filtered range behaves inconsistently and, depending on how you paste, can write into the hidden rows underneath — silently changing records you deliberately filtered out. That's a data-corruption bug that's very hard to notice and harder to trace afterwards."
+  }
+]

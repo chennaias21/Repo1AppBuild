@@ -50,7 +50,7 @@ export default function Home() {
           </div>
           <div className="mx-auto w-full max-w-sm rounded-3xl border border-line bg-surface p-8 shadow-card" aria-hidden="true">
             <Staircase filled={4} className="h-48 w-full text-ink" />
-            <p className="mt-4 text-center text-sm font-semibold text-muted">Four stages. One clear path.</p>
+            <p className="mt-4 text-center text-sm font-semibold text-muted">One clear path, step by step.</p>
           </div>
         </div>
       </section>
@@ -177,7 +177,12 @@ export default function Home() {
           {TIERS.map((t) => (
             <div key={t.id} className={`rounded-2xl border bg-surface p-6 ${t.featured ? "border-2 border-accent" : "border-line"}`}>
               <h3 className="text-lg font-bold text-heading">{t.name}</h3>
-              <p className="mt-2 text-3xl font-bold">{formatRupees(effectivePricePaise(t))}</p>
+              <p className="mt-2">
+                <span className="text-3xl font-bold">{formatRupees(effectivePricePaise(t))}</span>
+                {effectivePricePaise(t) !== t.pricePaise && (
+                  <span className="ml-2 text-muted line-through"><span className="sr-only">Regular price </span>{formatRupees(t.pricePaise)}</span>
+                )}
+              </p>
               <p className="mt-3 text-sm text-muted">{t.blurb}</p>
             </div>
           ))}

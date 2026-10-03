@@ -12,8 +12,6 @@ import LessonSidebar, { type SidebarModule } from "@/components/lesson/LessonSid
 import OnThisPage from "@/components/lesson/OnThisPage";
 import PrimaryAction from "@/components/lesson/PrimaryAction";
 import { TIERS, formatRupees } from "@/lib/tiers";
-import fs from "node:fs";
-import path from "node:path";
 
 interface Params {
   module: string;
@@ -61,8 +59,6 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   const frontmatter = readFrontmatter("lessons", lesson.file);
   const doc = locked ? null : await loadDocument("lessons", lesson.file);
 
-  const starterExists =
-    frontmatter?.starterFile && fs.existsSync(path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "files", frontmatter.starterFile));
 
   return (
     <div className="container-page grid gap-8 py-8 pb-32 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_13rem]">
@@ -106,17 +102,6 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
           </section>
         )}
 
-        {starterExists && !locked && (
-          <p className="mt-6">
-            <a
-              href={`/files/${frontmatter!.starterFile}`}
-              download
-              className="inline-flex items-center gap-2 rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-tint"
-            >
-              Download the practice file ↓
-            </a>
-          </p>
-        )}
 
         <div className="mt-8">
           {locked ? (

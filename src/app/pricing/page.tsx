@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { TIERS, INTRO_OFFER, formatRupees, effectivePricePaise, type Tier } from "@/lib/tiers";
+import { TIERS, INTRO_OFFER, effectivePricePaise, type Tier } from "@/lib/tiers";
 import { COURSE } from "@/lib/curriculum";
 import { BUSINESS } from "@/lib/business";
-import BuyButton from "@/components/BuyButton";
+import PricingCards from "@/components/PricingCards";
 import { getEntitlement } from "@/lib/access";
 
 export const metadata: Metadata = { title: "Pricing" };
@@ -20,7 +20,7 @@ const ROWS: { label: string; value: (t: Tier) => React.ReactNode }[] = [
   { label: `All ${COURSE.totalLessons} lessons, quizzes and practice files`, value: () => <Check yes /> },
   { label: "Access", value: (t) => (t.accessMonths ? `${t.accessMonths} months` : "Lifetime") },
   { label: "Capstone projects", value: (t) => (t.projects === "full" ? "Full, with walkthroughs" : "Briefs and data") },
-  { label: "Certificate you can verify online", value: (t) => <Check yes={t.certificate} /> },
+  { label: "Certificate of completion", value: (t) => <Check yes={t.certificate} /> },
   { label: "Email support", value: (t) => <Check yes={t.support !== "none"} /> },
   { label: "Instructor feedback on 2 projects", value: (t) => <Check yes={t.instructorReviews > 0} /> },
   { label: "Course updates", value: (t) => <Check yes={t.updates} /> },
@@ -38,44 +38,18 @@ export default async function PricingPage() {
         </p>
       </header>
 
-      <div className="mt-12 grid gap-6 lg:grid-cols-3">
-        {TIERS.map((t) => {
-          const price = effectivePricePaise(t);
-          const discounted = price !== t.pricePaise;
-          return (
-            <section
-              key={t.id}
-              aria-labelledby={`tier-${t.id}`}
-              className={`flex flex-col rounded-2xl border bg-surface p-7 shadow-card ${t.featured ? "border-2 border-accent" : "border-line"}`}
-            >
-              {t.featured && <p className="mb-3 text-xs font-bold uppercase tracking-wider text-accent">Best value</p>}
-              <h2 id={`tier-${t.id}`} className="text-2xl font-bold text-heading">{t.name}</h2>
-              <p className="mt-4">
-                <span className="text-4xl font-bold text-ink">{formatRupees(price)}</span>
-                {discounted && <span className="ml-2 text-lg text-muted line-through">{formatRupees(t.pricePaise)}</span>}
-              </p>
-              {discounted && INTRO_OFFER && <p className="mt-1 text-sm font-semibold text-accent">{INTRO_OFFER.label}</p>}
-              <p className="mt-4 flex-1 text-[0.97rem]">{t.blurb}</p>
-              <div className="mt-6">
-                {e.hasAccess ? (
-                  <Link href="/dashboard" className="block rounded-xl border-2 border-primary px-6 py-3 text-center font-semibold text-primary">
-                    Go to your dashboard
-                  </Link>
-                ) : e.signedIn ? (
-                  <BuyButton tier={t.id} label={`Get ${t.name}`} featured={t.featured} />
-                ) : (
-                  <Link
-                    href="/login?next=/pricing"
-                    className={`block rounded-xl px-6 py-3 text-center font-semibold hover:brightness-110 ${t.featured ? "bg-cta text-cta-ink" : "border-2 border-primary text-primary"}`}
-                  >
-                    Sign in to get {t.name}
-                  </Link>
-                )}
-              </div>
-            </section>
-          );
-        })}
-      </div>
+      <PricingCards
+        mode={e.hasAccess ? "owned" : e.signedIn ? "signedIn" : "anon"}
+        cards={TIERS.map((t) => ({
+          id: t.id,
+          name: t.name,
+          blurb: t.blurb,
+          featured: Boolean(t.featured),
+          pricePaise: effectivePricePaise(t),
+          regularPaise: effectivePricePaise(t) !== t.pricePaise ? t.pricePaise : null,
+          launchLabel: effectivePricePaise(t) !== t.pricePaise ? INTRO_OFFER?.label ?? null : null,
+        }))}
+      />
 
       <div className="mt-14 overflow-x-auto rounded-2xl border border-line" role="region" aria-label="Plan comparison" tabIndex={0}>
         <table className="w-full min-w-[40rem] border-collapse text-left">

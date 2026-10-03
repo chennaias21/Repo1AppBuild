@@ -1,0 +1,222 @@
+---
+id: "1.5"
+module: 1
+lesson: 5
+slug: "navigation-selection"
+title: "Moving Around Fast — Navigation and Selection"
+shortTitle: "Navigation & Selection"
+stage: "Beginner"
+durationMin: 10
+access: "free"
+objectives:
+  - "Navigate a 10,000-row dataset without the scroll bar"
+  - "Select any range with one keystroke combination"
+  - "Use gaps in the data as a diagnostic rather than a surprise"
+keys: ["Ctrl+Shift+Down", "Ctrl+Backspace"]
+datasets: ["Attendance_Register"]
+starterFile: null
+solutionFile: null
+functions: []
+excelVersion: "all"
+shotCount: 4
+prev: "1.4"
+next: "1.6"
+videoUrl: null
+---
+
+## Why this matters
+
+Scrolling through 4,000 rows with a mouse wheel is the clearest sign of an untrained user. This lesson has no new concepts — just about eight keystrokes that are the difference between looking like a beginner and looking experienced. One of them also finds data problems you'd otherwise miss entirely.
+
+## How it works
+
+**The mouse is for pointing at one thing. The keyboard is for moving through data.**
+
+Three families of movement:
+
+| | Move | Select |
+|---|---|---|
+| **One cell** | arrow keys | `Shift` + arrow |
+| **To the edge of the data** | `Ctrl` + arrow | `Ctrl` + `Shift` + arrow |
+| **To A1 / last used cell** | `Ctrl` + `Home` / `End` | `Ctrl` + `Shift` + `Home` / `End` |
+
+<Shot id="1.5.1" />
+
+`Ctrl` + arrow travels until the content changes state — filled to blank, or blank to filled. On a full column, `Ctrl`+`↓` lands on the last filled row instantly, whether that's row 12 or row 900,000.
+
+Adding `Shift` selects as it travels. **`Ctrl`+`Shift`+`↓` means "select from here to the bottom of the data"**, and it will save you more time than any other keystroke in this module.
+
+### The gap behaviour is a feature
+
+`Ctrl`+`Shift`+`↓` **stops at the first blank cell.** That sounds like a limitation. It's actually your best data-quality check.
+
+Run `Ctrl`+`↓` down each key column of a new dataset. If the columns stop at different rows, you have missing values — and you've found them before they corrupt a total.
+
+<Callout type="warning">
+The flip side: if you *assume* `Ctrl`+`Shift`+`↓` reached the bottom, you can build a formula covering half your data. It returns a plausible number with no error. Use `Ctrl`+`Shift`+`End` when you want the whole dataset regardless of gaps, and `Ctrl`+`↓` deliberately when you're hunting for them.
+</Callout>
+
+### Sheets and workbooks
+
+`Ctrl`+`PageDown` and `Ctrl`+`PageUp` move between sheet tabs. With twenty tabs, **right-click the small arrows at the bottom-left** for a jump list.
+
+<Callout type="tip">
+Scrolled away and lost your cursor? <Kbd>Ctrl</Kbd>+<Kbd>Backspace</Kbd> scrolls the screen straight back to the active cell. Almost nobody knows this one, and it's useful several times a day.
+</Callout>
+
+## Do it
+
+Set up a practice file: type `1` in A2 and `2` in A3, select both, then double-click the small square at the bottom-right of the selection to fill down to A500.
+
+1. Click **A1**. Press <Kbd>Ctrl</Kbd>+<Kbd>↓</Kbd>. You land on **A500** — the last filled cell.
+2. Press <Kbd>Ctrl</Kbd>+<Kbd>↑</Kbd>. Back to A1.
+3. Press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>↓</Kbd>. **A1:A500 selects.** One keystroke instead of a long drag.
+4. Press <Kbd>Ctrl</Kbd>+<Kbd>Home</Kbd> to clear it.
+
+<Shot id="1.5.2" />
+
+### Create a gap and watch what happens
+
+5. Delete the contents of **A250**.
+6. Click A1 and press <Kbd>Ctrl</Kbd>+<Kbd>↓</Kbd>. You stop at **A249** — the edge of the filled block.
+7. Press <Kbd>Ctrl</Kbd>+<Kbd>↓</Kbd> again. It jumps the gap and lands on **A251**.
+8. Now press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>↓</Kbd> from A1. It selects only **A1:A249** — less than half the data.
+
+<Shot id="1.5.3" />
+
+That's the trap and the diagnostic, in the same two keystrokes.
+
+9. From A1, press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>End</Kbd>. **Now the whole range selects**, gap included, because it respects the used range rather than the filled block.
+
+### Go To and Go To Special
+
+10. Press <Kbd>F5</Kbd>, type `A3000`, press <Kbd>Enter</Kbd>. You're far below the data.
+11. Press <Kbd>Ctrl</Kbd>+<Kbd>Backspace</Kbd>. The screen snaps back to your active cell.
+12. Select A1:A500, press <Kbd>F5</Kbd> → **Special** → **Blanks** → OK. Every blank cell selects at once — the foundation of the cleaning technique in Lesson 7.3.
+
+<Shot id="1.5.4" />
+
+13. Press <Kbd>Ctrl</Kbd>+<Kbd>PageDown</Kbd> and <Kbd>Ctrl</Kbd>+<Kbd>PageUp</Kbd> to move between sheets.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `Shift` + `↓` | Selects from here to the bottom of the filled block | Selecting one column of data — but note it stops at gaps | Click E2, press it |
+| `Ctrl` + `Shift` + `End` | Selects from here to the last used cell | Selecting a whole dataset regardless of internal gaps | Click A1, press it, then Ctrl+T |
+| `Ctrl` + `Backspace` | Scrolls back to the active cell | You scrolled away and can't find your cursor | The rescue key nobody knows |
+| `F5` → Special | Selects cells by type — blanks, formulas, errors | Data cleaning, and auditing someone else's file | F5 → Special → Blanks |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Assuming `Ctrl+Shift+↓` reached the bottom** | A total covering half the data, with no error | `Ctrl+Shift+End`, or check with `Ctrl+End` first |
+| Drag-selecting long ranges | Slow, and easy to overshoot or miss the last row | `Ctrl+Shift+↓` |
+| `Ctrl` + arrow scrolls the screen instead of moving the cursor | The cursor stays put | Scroll Lock is on — press the Scroll Lock key |
+| Using the scroll bar on a large file | Slow and imprecise | `F5` and type the address |
+| Forgetting multiple sheets are selected | You type in one tab and overwrite eleven others | The title bar shows `[Group]` — click a single tab |
+
+</MistakeTable>
+
+<Callout type="story">
+**Nikhil, Operations Analyst.** He was reconciling a 38,000-row logistics export against a summary claiming 41,200 shipments. The numbers wouldn't match and he'd spent an afternoon on it.
+
+He clicked A1 and pressed <Kbd>Ctrl</Kbd>+<Kbd>↓</Kbd>. It stopped at row **12,447**. Pressed it again — the data resumed at 12,449.
+
+There was a blank row where the export had been interrupted and restarted. Every formula in his summary used ranges that had quietly stopped at 12,447.
+
+Total diagnosis time: **under a minute**, using a keystroke he'd learned that morning.
+</Callout>
+
+## Practice
+
+<Exercise id="1.5.e1">
+
+<Scenario>
+Assess an attendance file's size and completeness before analysing it.
+</Scenario>
+
+<Dataset name="Attendance_Register">
+
+Build a practice file: `EmpID` in A1, `Date` in B1, `Status` in C1. Fill A2:A1000 with `E1001`, and C2:C1000 with `Present`. Then **delete the contents of C500 and C501** to simulate missing data.
+
+</Dataset>
+
+<Task>
+
+1. Without scrolling, find the last row of the EmpID column.
+2. Without scrolling, find where the Status column first breaks.
+3. From C2, select the Status data with one keystroke combination. What range selects?
+4. From A1, select the whole dataset with one keystroke combination. What range selects?
+5. Select C2:C1000 via the Name Box, then use Go To Special to select the blanks. How many? Read the status bar Count.
+6. Press <Kbd>F5</Kbd>, jump to A3000, then return to your active cell without using <Kbd>Ctrl</Kbd>+<Kbd>Home</Kbd>.
+7. Compare your answers to steps 3 and 4. Which one would you use before building a pivot table, and why?
+
+</Task>
+
+<Expected>
+1. A1000 · 2. `Ctrl+↓` from C1 stops at C499 · 3. **C2:C499** — it stops at the gap · 4. `Ctrl+Shift+End` selects A1:C1000 · 5. 2 blanks · 6. `Ctrl+Backspace`
+</Expected>
+
+<Solution>
+
+```
+1. Click A1, Ctrl+↓
+2. Click C1, Ctrl+↓  → lands on C499
+3. Click C2, Ctrl+Shift+↓  → selects C2:C499
+4. Click A1, Ctrl+Shift+End  → selects A1:C1000
+5. Name Box → C2:C1000 → Enter → F5 → Special → Blanks → OK
+6. Ctrl+Backspace
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 is the single most common source of silently wrong totals in real workbooks.** It selects 498 of your 999 records and returns a perfectly plausible number — which is exactly why nobody catches it. There's no error, no warning, and the figure looks like a figure.
+
+**Step 7's answer:** `Ctrl+Shift+End` before building anything, because it covers the full used range regardless of gaps. But use `Ctrl+↓` deliberately first, to *find* the gaps — a pivot table built on data with blank rows produces a `(blank)` category and misleading counts. Better still, convert the range to a Table (Lesson 6.1), which removes the whole class of range-selection error.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "1.5.q1",
+    type: "truefalse",
+    question: "Ctrl+↓ always takes you to the last row of your dataset.",
+    correct: false,
+    explanation: "It takes you to the edge of the current contiguous block. With a blank cell at row 300 of a 5,000-row column it stops at 299, and pressing it again jumps to the start of the next block. That's precisely what makes it a good gap detector — and precisely why assuming it reached the bottom produces a formula covering half your data."
+  },
+  {
+    id: "1.5.q2",
+    type: "scenario",
+    question: "You're reconciling a 38,000-row export against a summary that won't match. What's your first diagnostic step?",
+    options: [
+      "Rebuild the summary formulas from scratch",
+      "Press Ctrl+↓ down each key column to find where the data breaks",
+      "Sort the data and compare row counts visually",
+      "Re-download the export in case it was corrupted"
+    ],
+    correct: 1,
+    explanation: "A blank row mid-dataset makes every range-based formula stop short, and the resulting total looks entirely plausible. Ctrl+↓ down each column finds it in seconds — if the columns stop at different rows, you have your answer. Rebuilding the formulas wouldn't help, since they'd stop at the same gap. Ctrl+End also tells you the true extent of the used range for comparison."
+  },
+  {
+    id: "1.5.q3",
+    type: "mcq",
+    question: "You're in A1 of a column filled to A5000 with no gaps. Which keystroke selects A1:A5000?",
+    options: ["Ctrl + ↓", "Ctrl + Shift + ↓", "Shift + End", "Ctrl + A"],
+    correct: 1,
+    explanation: "Ctrl alone moves the cursor without selecting; adding Shift extends the selection as it travels. Ctrl+A also works here — it selects the current contiguous block — but it behaves differently once the cursor is outside the data, and it stops at gaps just as Ctrl+Shift+↓ does."
+  }
+]

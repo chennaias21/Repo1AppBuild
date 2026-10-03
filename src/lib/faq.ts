@@ -16,7 +16,7 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "What is the difference between the plans?",
-    a: "Essentials gives you all lessons, quizzes and practice files for one year, with project briefs. Complete adds lifetime access, full project walkthroughs, a verifiable certificate and email support. Complete + Review adds written feedback from the instructor on two of your projects.",
+    a: "Essentials gives you all lessons, quizzes and practice files for one year, with project briefs. Complete adds lifetime access, full project walkthroughs, a certificate and email support. Complete + Review adds written feedback from the instructor on two of your projects.",
   },
   {
     q: "How long does the course take?",

@@ -1,0 +1,230 @@
+---
+id: "2.6"
+module: 2
+lesson: 6
+slug: "page-setup-printing"
+title: "Page Setup and Printing a Report That Fits"
+shortTitle: "Page Setup & Printing"
+stage: "Beginner"
+durationMin: 9
+access: "free"
+objectives:
+  - "Print any dataset on the intended number of pages"
+  - "Repeat headers on every page"
+  - "Produce a clean PDF for circulation"
+keys: ["Ctrl+P", "Alt+P+I"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/02-06-printing.xlsx"
+solutionFile: "solution/02-06-printing.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 4
+prev: "2.5"
+next: "3.1"
+videoUrl: null
+---
+
+## Why this matters
+
+Excel's default print behaviour is genuinely bad — it slices data wherever the page happens to end, orphans the last two columns onto page seven, and repeats no headers, so page four is a grid of numbers with no labels. Five settings fix almost all of it, and learning them once means printing stops being a source of embarrassment.
+
+## How it works
+
+### The five settings
+
+**1. Orientation.** Landscape for wide data, which is most business tables.
+
+**2. Print Area.** Excel prints everything by default, including that stray note in AB300. Select what you want → **Page Layout → Print Area → Set Print Area**.
+
+**3. Scaling.** The most useful control in the dialog. **Page Layout → Scale to Fit:**
+
+- **Width: 1 page, Height: Automatic** — the standard choice. All columns on one page width, as many pages long as needed.
+- **Avoid "Fit Sheet on One Page"** on long data — it shrinks a 250-row report to about 15% and nobody can read it.
+
+**4. Print Titles.** This is the one that makes a report look professional. **Page Layout → Print Titles → Rows to repeat at top:** `$1:$1`. Every page now carries the header row.
+
+For wide reports also set **Columns to repeat at left** to `$A:$A`, so names stay visible when the report needs a second page-width.
+
+**5. Headers and footers.** **Page Setup → Header/Footer → Custom Footer.**
+
+<Shot id="2.6.1" />
+
+| Code | Inserts |
+|---|---|
+| `&P` | Current page number |
+| `&N` | Total pages |
+| `&D` | Current date |
+| `&F` | File name |
+| `&A` | Sheet name |
+
+The standard professional footer: `&F | &A` on the left, `Page &P of &N` centred, `&D` on the right.
+
+<Callout type="tip">
+**Page Break Preview** (View → Page Break Preview) shows blue lines where pages will split — **and you can drag them.** It's the only direct visual way to control pagination, and almost nobody uses it. If a break falls mid-department, drag it so each department starts on a fresh page.
+</Callout>
+
+<Callout type="warning">
+Print settings are saved **per worksheet, not per workbook.** Perfect the setup on one sheet and a new sheet starts with Excel's defaults. Either copy the configured sheet and replace its data, or group the sheets before configuring — remembering to ungroup immediately (Lesson 2.1).
+</Callout>
+
+## Do it
+
+Use a dataset with headers in row 1 and at least 60 rows.
+
+1. Press <Kbd>Ctrl</Kbd>+<Kbd>P</Kbd> and note the page count and what's wrong. Typically 8–10 pages, split columns, no headers after page 1.
+2. Select your data range. **Page Layout → Print Area → Set Print Area.**
+3. **Page Layout → Orientation → Landscape.**
+4. **Page Layout → Scale to Fit** → Width: **1 page**, Height: **Automatic**.
+
+<Shot id="2.6.2" />
+
+5. **Page Layout → Print Titles** → *Rows to repeat at top*: click row 1 → it reads `$1:$1`.
+6. In the same dialog, *Columns to repeat at left*: click column B → `$B:$B`.
+7. **Page Layout → Sheet Options** → tick **Print** under Gridlines.
+8. **Page Layout → Margins → Narrow.**
+9. **Page Setup launcher** (the small arrow) → **Header/Footer → Custom Footer:** left `&F | &A`, centre `Page &P of &N`, right `&D`.
+10. **Margins tab** → tick **Horizontally** under Center on page.
+
+<Shot id="2.6.3" />
+
+11. Press <Kbd>Ctrl</Kbd>+<Kbd>P</Kbd> again. Compare the page count with step 1 — typically 8–10 becomes 4–5. Check that page 3 carries the headers.
+
+### Control the page breaks
+
+12. **View → Page Break Preview.** Drag a blue line so a page breaks where you want it.
+13. To force one: click a row → **Page Layout → Breaks → Insert Page Break.**
+
+### Export a PDF
+
+14. **File → Export → Create PDF/XPS** → Options → *Active sheet(s)* → Publish.
+15. **Open the PDF and check it.** The PDF uses your print settings exactly, so any mistake is faithfully reproduced.
+
+<Shot id="2.6.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `P` | Print preview and settings | **Before every print or PDF, without exception** | Check the page count and that headers repeat |
+| `Alt` + `P` + `I` | Print Titles dialog | Setting repeating headers — the setting that matters most | Rows to repeat: `$1:$1` |
+| `Alt` + `P` + `R` + `S` | Set print area | After selecting the range you actually want | Stops stray cells creating blank pages |
+| `Alt` + `W` + `I` | Page Break Preview | Dragging page breaks to sensible places | Alt+W+L returns to Normal |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **No repeating headers** | Pages 2 onward are unlabelled columns of numbers | Print Titles → `$1:$1` |
+| Using "Fit Sheet on One Page" | 2pt text nobody can read | Width: 1 page, Height: Automatic |
+| Not setting a print area | Stray cells create blank or junk pages | Set Print Area explicitly |
+| Not previewing | You discover the problem after printing 40 copies | <Kbd>Ctrl</Kbd>+<Kbd>P</Kbd>, always |
+| Forgetting gridlines | Rows blur together on paper | Sheet Options → Gridlines → Print |
+| Assuming settings are workbook-wide | Sheet 2 prints badly after you perfected Sheet 1 | Settings are per sheet — copy the configured sheet |
+| Wide reports without repeating columns | Page 5 shows figures with no names attached | Columns to repeat at left |
+
+</MistakeTable>
+
+<Callout type="story">
+**Preeti, HR Business Partner.** Quarterly headcount review, printed for a leadership meeting of twelve people. She printed twelve copies of a 250-row report without previewing.
+
+The output: 11 pages per copy. Columns H to K had jumped to pages 7–11. No headers after page 1. **132 pages of paper nobody could interpret**, discovered five minutes before the meeting.
+
+She now uses a four-minute checklist before every print: Print Area → Landscape → Fit Width 1 → Print Titles → Preview. It has never gone wrong since.
+
+**The lesson isn't really about printing.** It's that a five-minute setup, made habitual, permanently removes a category of embarrassment. Most Excel expertise is exactly this shape.
+</Callout>
+
+## Practice
+
+<Exercise id="2.6.e1">
+
+<Scenario>
+Prepare a 60-row HR report for printing and PDF distribution to a leadership team.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/02-06-printing.xlsx">
+
+At least 60 rows with headers: `EmpID | Name | Department | Designation | DOJ | Location | Gender | CTC | Manager | Status`
+
+</Dataset>
+
+<Task>
+
+1. Print preview as-is. Note the page count and list three things wrong with it.
+2. Set the print area to your data only. Set Landscape. Set Scale to Fit → Width 1 page, Height Automatic.
+3. Set row 1 to repeat at the top, and column B to repeat at the left.
+4. Turn on gridline printing and set margins to Narrow.
+5. Add a footer: file name and sheet on the left, `Page &P of &N` centred, date on the right.
+6. Centre the report horizontally on the page.
+7. Preview again. Compare the page count with step 1. Check page 3 carries both the header row and the Name column.
+8. Open Page Break Preview and drag a break so it doesn't split a department awkwardly.
+9. Export a PDF and **open it** to verify the headers repeat.
+10. Now add a second sheet with the same data and press <Kbd>Ctrl</Kbd>+<Kbd>P</Kbd>. Why is the layout wrong again?
+
+</Task>
+
+<Expected>
+Step 1: typically 8–10 pages, split columns, headers only on page 1 · Step 7: typically 4–5 pages, headers on every page · Step 10: print settings are stored per worksheet, not per workbook
+</Expected>
+
+<Solution>
+
+```
+2. Page Layout → Print Area → Set Print Area
+   Page Layout → Orientation → Landscape
+   Page Layout → Scale to Fit → Width: 1 page, Height: Automatic
+3. Page Layout → Print Titles → Rows to repeat: $1:$1 · Columns to repeat: $B:$B
+5. Page Setup launcher → Header/Footer → Custom Footer
+   Left: &F | &A    Centre: Page &P of &N    Right: &D
+```
+
+</Solution>
+
+<Why>
+
+**Step 3's second half is the part people skip and then regret.** Repeating the header *row* fixes the vertical problem — you know what each column means on page 4. But if the report is wide enough to need a second page-width, page 5 shows columns H to K with no names attached, so you can't tell whose salary you're looking at. Repeating column B solves it, and it's the same dialog, one field lower.
+
+**Step 10's answer explains a recurring frustration.** Print area, orientation, scaling, print titles, margins and footers all belong to the *worksheet*. A new sheet starts from Excel's defaults. Either copy the configured sheet and replace its data — which brings every setting with it — or group the sheets before configuring, then ungroup immediately.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "2.6.q1",
+    type: "mcq",
+    question: "Your 200-row report prints across 6 pages, but only page 1 has column headers. Which setting fixes this?",
+    options: ["Scale to Fit", "Print Titles", "Print Area", "Margins"],
+    correct: 1,
+    explanation: "Page Layout → Print Titles → Rows to repeat at top → $1:$1 prints the header row at the top of every page. The same dialog has Columns to repeat at left, which matters on wide reports where a second page-width would otherwise show figures with no identifying column attached."
+  },
+  {
+    id: "2.6.q2",
+    type: "truefalse",
+    question: "\"Fit Sheet on One Page\" is the best scaling option for a 250-row dataset.",
+    correct: false,
+    explanation: "It compresses both width and height onto a single sheet, which on 250 rows means shrinking to roughly 15% and producing text around 2pt — technically one page, practically illegible. Use Width: 1 page with Height: Automatic, which fits the columns horizontally and lets the report run as many pages as it needs."
+  },
+  {
+    id: "2.6.q3",
+    type: "scenario",
+    question: "A colleague asks you to print a 28-column raw data export \"so the team can review it in the meeting\". What do you do?",
+    options: [
+      "Set it up as well as possible and print it — the request is clear",
+      "Push back and offer a summary, because 28 columns on one page width is unreadable in a meeting",
+      "Print it in portrait across multiple pages so the text stays large",
+      "Export it as a PDF instead, which handles wide data better"
+    ],
+    correct: 1,
+    explanation: "Twenty-eight columns squeezed to one page width produces text too small to read, and even done well it's several pages of dense raw data nobody will work through live. A pivot table showing the three or four dimensions that need discussing, or a one-page dashboard, serves the actual purpose. Send the Excel file for anyone needing detail. The instinct worth developing: when printing is hard, it's usually because the output is wrong, not the print settings."
+  }
+]

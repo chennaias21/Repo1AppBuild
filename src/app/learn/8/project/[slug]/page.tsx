@@ -46,8 +46,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   }));
 
   const frontmatter = readFrontmatter("projects", project.file);
-  const doc = locked ? null : await loadDocument("projects", project.file, { hideSolution: !entitlement.fullProjects });
-  const datasets = (frontmatter?.datasets ?? []).filter((f) => fs.existsSync(path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "files", f)));
+  const doc = locked ? null : await loadDocument("projects", project.file, { hideSolution: !entitlement.fullProjects, reviewIncluded: (entitlement.tier?.instructorReviews ?? 0) > 0 });
+  const datasets = (frontmatter?.datasets ?? [])
+    .map((name) => `starter/${name}.xlsx`)
+    .filter((f) => fs.existsSync(path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "files", f)));
 
   return (
     <div className="container-page grid gap-8 py-8 pb-24 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_13rem]">
@@ -74,7 +76,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             {datasets.map((f) => (
               <li key={f}>
                 <a href={`/files/${f}`} download className="inline-flex rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-tint">
-                  Download {f} ↓
+                  Download {f.replace("starter/", "")} ↓
                 </a>
               </li>
             ))}

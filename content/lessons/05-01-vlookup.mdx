@@ -1,0 +1,274 @@
+---
+id: "5.1"
+module: 5
+lesson: 1
+slug: "vlookup"
+title: "VLOOKUP — The Workhorse"
+shortTitle: "VLOOKUP"
+stage: "Intermediate"
+durationMin: 14
+access: "paid"
+objectives:
+  - "Pull data from one sheet into another using VLOOKUP"
+  - "Explain all four arguments, especially the last one"
+  - "Diagnose the five reasons a VLOOKUP returns #N/A"
+keys: ["F4", "F9"]
+datasets: ["HR_Employee_Master", "Attendance_Register"]
+starterFile: "starter/05-01-vlookup.xlsx"
+solutionFile: "solution/05-01-vlookup.xlsx"
+functions: ["VLOOKUP"]
+excelVersion: "all"
+shotCount: 3
+prev: "4.7"
+next: "5.2"
+videoUrl: null
+---
+
+## Why this matters
+
+This is the skill on every job advert. You have employee IDs in your attendance sheet and names, departments and salaries in your HR master. You need them side by side. Typing 250 names is not an option, and copy-paste breaks the moment either list is sorted differently.
+
+## How it works
+
+VLOOKUP asks: *take this value, find it in the first column of that table, and give me something from the same row.*
+
+<FormulaBlock>
+```
+=VLOOKUP(A2, $H$2:$K$251, 3, 0)
+         │    │            │  │
+         │    │            │  └── 0 = exact match. Always use 0.
+         │    │            └───── 3rd column of the table
+         │    └────────────────── where to look (locked with F4)
+         └─────────────────────── what to look for
+```
+</FormulaBlock>
+
+<Shot id="5.1.1" />
+
+Four arguments, and three of them cause all the trouble:
+
+**`table_array`** — the lookup value must be in the **first column** of this range. VLOOKUP cannot look leftwards. If EmpID sits in column J and you need the name from column H, VLOOKUP simply can't do it.
+
+**`col_index_num`** — counted from the first column of *your range*, not from column A of the sheet. If your range starts at H, then H is 1, I is 2, J is 3. Getting this wrong returns the right-looking value from the wrong column.
+
+**`range_lookup`** — `0` (or FALSE) means exact match. `1` (or TRUE) means approximate. **Omitting it defaults to approximate, which is almost never what you want** and returns wrong answers on unsorted data without erroring. Type the `0`. Every time.
+
+<Callout type="warning">
+Always lock the table range with <Kbd>F4</Kbd> → `$H$2:$K$251`. Without it, filling down shifts the range one row per row, and the last rows of your data search a range that no longer contains the records you need. You get `#N/A` on the bottom half of the column and no clue why.
+</Callout>
+
+<Callout type="tip">
+`col_index_num` breaks silently when someone inserts a column into the lookup table. Nothing errors — you just start pulling department where you wanted designation. This is the single biggest weakness of VLOOKUP, and it's why Lessons 5.2 and 5.3 exist.
+</Callout>
+
+## Do it
+
+Attendance sheet on the left, employee master on the right.
+
+| | A | B | | H | I | J |
+|---|---|---|---|---|---|---|
+| **1** | EmpID | Days | | EmpID | Name | Dept |
+| **2** | E1003 | 24 | | E1001 | Anil Kumar | Sales |
+| **3** | E1001 | 19 | | E1002 | Meera Nair | HR |
+| **4** | E1005 | 22 | | E1003 | Rahul Shah | Sales |
+| **5** | E1002 | 24 | | E1004 | Sneha Rao | Finance |
+| | | | | **6** | E1005 | Kabir Menon | Ops |
+
+Note the two lists are in a **different order**. That's exactly why you need a lookup.
+
+1. Click **C2**. Type `=VLOOKUP(`
+2. Click **A2** — the value to find. Type `,`
+3. Select **H2:J6** — the table. Press <Kbd>F4</Kbd> → `$H$2:$J$6`. Type `,`
+4. Type `2` — Name is the 2nd column of that range. Type `,`
+5. Type `0)` and press <Kbd>Enter</Kbd> → `Rahul Shah`
+6. Double-click the fill handle. Every row finds its own name regardless of order.
+
+<Shot id="5.1.2" />
+
+7. **D2** — the department: same formula with `3` instead of `2`.
+
+### Break it deliberately
+
+8. Remove the `$` signs from the table range and refill. The bottom rows return `#N/A` — the range crawled down past the data.
+9. Restore the `$`. Now insert a new column between H and I in the master. Your formula still says `2`, but column 2 is now the new blank column. **Every name goes blank, and nothing errors.**
+10. Add `E9999` in A6 — an ID not in the master. That row returns `#N/A`, correctly: the record genuinely doesn't exist.
+11. Wrap it: `=IFNA(VLOOKUP(A2,$H$2:$J$6,2,0),"Not in master")`
+
+### The five reasons VLOOKUP returns #N/A
+
+<Shot id="5.1.4" />
+
+| Cause | How to check |
+|---|---|
+| The value genuinely isn't there | Scan the master, or `=COUNTIF($H:$H,A2)` → 0 |
+| **Trailing space** on either side | `=LEN(A2)` vs `=LEN(TRIM(A2))` (Lesson 4.5) |
+| **One is text, one is a number** | `=ISNUMBER(A2)` vs `=ISNUMBER(H2)` — they must match |
+| Lookup value isn't in the table's first column | Look at where your range starts |
+| Range not locked, so it drifted | `Ctrl` + `` ` `` and read the formula in a bottom row |
+
+The middle two account for most real-world failures, and neither is visible on screen.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F4` | Locks the reference to absolute | **Every VLOOKUP table range**, without exception | Select `H2:J6` in the formula, press F4 |
+| `F9` on the lookup value | Shows what's actually being searched for | `#N/A` on data that looks identical — reveals a trailing space as `"E1001 "` | Select `A2`, press F9 |
+| `Ctrl` + `` ` `` | Shows formulas | Checking whether the range drifted on lower rows | Compare row 2's formula with row 200's |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Omitting the 4th argument** | Wrong values on unsorted data, no error | Always type `,0)` |
+| Table range not locked | `#N/A` on lower rows only | <Kbd>F4</Kbd> on the range |
+| **A column inserted into the master** | Wrong column returned, silently | Count again — or use XLOOKUP / INDEX MATCH |
+| Needing to look leftwards | VLOOKUP can't. `#N/A` or wrong column. | INDEX MATCH (Lesson 5.3) |
+| Text ID vs numeric ID | `#N/A` on identical-looking values | `=ISNUMBER()` on both sides; convert one |
+| Trailing space | `#N/A`, invisible cause | `TRIM` the source column |
+| `IFERROR` hiding a `#REF!` | Every row blank — looks like no matches | Use `IFNA` (Lesson 4.4) |
+
+</MistakeTable>
+
+<Callout type="story">
+**Nikhil, MIS Executive.** His monthly attendance report matched 400 employee IDs against the HR master. Around 30 returned `#N/A` every month. He kept a manual list of "problem IDs" and typed those names in by hand — an hour a month, for over a year.
+
+Both columns looked identical. The difference was that the biometric export wrote IDs as **text** while the HR master held them as **numbers**. `"1001"` and `1001` are different values to VLOOKUP, and neither looks different on screen.
+
+He found it with `=ISNUMBER(A2)` and `=ISNUMBER(H2)` side by side — TRUE on one, FALSE on the other. One Text to Columns pass on the import ended thirteen months of manual work.
+
+**When a lookup fails on data that looks the same, check the data *type* before you check anything else.** `LEN` for spaces, `ISNUMBER` for type. Those two tests find the cause almost every time.
+</Callout>
+
+## Practice
+
+<Exercise id="5.1.e1">
+
+<Scenario>
+Month-end attendance reconciliation. Pull names, departments and salaries from the employee master into the attendance sheet, and handle the IDs that don't match.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/05-01-vlookup.xlsx">
+
+**Attendance** (A:B)
+
+| | A | B |
+|---|---|---|
+| **1** | EmpID | Days |
+| **2** | E1003 | 24 |
+| **3** | E1001 | 19 |
+| **4** | E1005 | 22 |
+| **5** | E9999 | 24 |
+| **6** | E1002 | 21 |
+| **7** | `E1004 ` | 24 |
+
+Note row 7 has a **trailing space**.
+
+**Master** (H:K)
+
+| | H | I | J | K |
+|---|---|---|---|---|
+| **1** | EmpID | Name | Dept | CTC |
+| **2** | E1001 | Anil Kumar | Sales | 640000 |
+| **3** | E1002 | Meera Nair | HR | 520000 |
+| **4** | E1003 | Rahul Shah | Sales | 810000 |
+| **5** | E1004 | Sneha Rao | Finance | 470000 |
+| **6** | E1005 | Kabir Menon | Ops | 920000 |
+
+</Dataset>
+
+<Task>
+
+1. **C2** — the name. Lock the table range. Fill down.
+2. **D2** — the department. **E2** — the CTC.
+3. Two rows return `#N/A`. Identify **which cause applies to each** — they're different.
+4. Fix row 7 without editing the master, using `TRIM` inside the lookup.
+5. Wrap the name lookup in `IFNA` returning `Not in master`, so row 5 reads sensibly.
+6. **F2** — monthly salary: CTC ÷ 12, rounded to whole rupees. Handle the `#N/A` row so the column still totals.
+
+</Task>
+
+<Expected>
+C2 `Rahul Shah` · Row 5 `#N/A` because E9999 doesn't exist · Row 7 `#N/A` because of the trailing space · After step 4, row 7 returns `Sneha Rao`
+</Expected>
+
+<Hint>
+For step 4, `TRIM` goes around the lookup *value*, not the table: `VLOOKUP(TRIM(A2),...)`.
+</Hint>
+
+<Solution>
+
+```
+C2: =VLOOKUP(A2,$H$2:$K$6,2,0)
+D2: =VLOOKUP(A2,$H$2:$K$6,3,0)
+E2: =VLOOKUP(A2,$H$2:$K$6,4,0)
+
+Step 4:
+C2: =VLOOKUP(TRIM(A2),$H$2:$K$6,2,0)
+
+Step 5:
+C2: =IFNA(VLOOKUP(TRIM(A2),$H$2:$K$6,2,0),"Not in master")
+
+Step 6:
+F2: =IFNA(ROUND(VLOOKUP(TRIM(A2),$H$2:$K$6,4,0)/12,0),0)
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 is the point.** Both rows show the same `#N/A` and the causes are completely different. Row 5 is a genuine missing record — correct behaviour, and something you want to know about. Row 7 is a data-quality artefact you can fix. Treating both the same way, by wrapping everything in `IFNA` and moving on, means you never discover that one of your source systems adds trailing spaces.
+
+**Diagnose before you suppress.** `=COUNTIF($H$2:$H$6,A2)` returns 0 for both. But `=COUNTIF($H$2:$H$6,TRIM(A2))` returns 1 for row 7 and 0 for row 5 — that one-line test separates the two causes immediately.
+
+**Step 4's placement matters.** `TRIM` wraps the lookup value, because that's where the space is. Wrapping the table instead — `VLOOKUP(A2,TRIM($H$2:$K$6),2,0)` — doesn't work: `TRIM` operates on single values, not ranges. If the spaces were in the *master* you'd have to clean that column properly with a helper column and Paste Values (Lesson 4.5), because there's no way to trim a range inside a lookup.
+
+**Step 6 shows why the `IFNA` fallback value is a decision.** Returning `0` keeps the column summable. Returning `""` would leave it summable too but excluded from an AVERAGE. Returning `"Not in master"` would break the SUM entirely with `#VALUE!`. What you choose depends on whether the missing row should count as zero or not count at all.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "5.1.q1",
+    type: "mcq",
+    question: "What does the fourth argument of VLOOKUP control, and what happens if you leave it out?",
+    options: [
+      "Whether the range is locked; omitting it causes #REF!",
+      "Exact vs approximate match; omitting it defaults to approximate, which returns wrong values on unsorted data",
+      "Which column to return; omitting it returns column 1",
+      "Case sensitivity; omitting it makes the match case-sensitive"
+    ],
+    correct: 1,
+    explanation: "0 or FALSE means exact match. 1 or TRUE means approximate, and that is the default when the argument is omitted. On unsorted data, approximate match returns whatever value it stopped near — a plausible wrong answer with no error. Always type the ,0) explicitly. The only time you want approximate match is a deliberately sorted band table (Lesson 5.5)."
+  },
+  {
+    id: "5.1.q2",
+    type: "formula",
+    question: "EmpIDs are in A2 downward. The master occupies H2:L300 with EmpID in column H and designation in column K. Write the formula for B2, ready to fill down.",
+    accept: ["=VLOOKUP(A2,$H$2:$L$300,4,0)", "=VLOOKUP(A2,$H$2:$L$300,4,FALSE)"],
+    explanation: "Column K is the 4th column of the range H:L — counted from the start of your range, not from column A of the sheet. The range must be locked with F4, or filling down shifts it one row per row and the lower rows search a range that no longer holds the records. And the 0 is not optional."
+  },
+  {
+    id: "5.1.q3",
+    type: "scenario",
+    question: "Your VLOOKUP returns #N/A for about 30 of 400 rows. The IDs look identical in both sheets. What are the two things to check first?",
+    options: [
+      "Whether the table range is locked, and whether the column index is correct",
+      "Trailing spaces (compare LEN and LEN(TRIM)) and data type (compare ISNUMBER on both sides)",
+      "Whether the master is sorted, and whether the file needs recalculating",
+      "Whether IFNA is wrapping the formula, and whether the sheet is protected"
+    ],
+    correct: 1,
+    explanation: "Both causes are invisible on screen, which is why they account for most real-world VLOOKUP failures. A trailing space makes \"E1001 \" a different value from \"E1001\" — check with =LEN(A2) against =LEN(TRIM(A2)). A text ID will not match a numeric one — check with =ISNUMBER() on both sides; they must agree. Option 1 lists real problems, but an unlocked range fails on a contiguous block of lower rows rather than a scattered 30, and a wrong column index returns wrong values rather than #N/A."
+  }
+]

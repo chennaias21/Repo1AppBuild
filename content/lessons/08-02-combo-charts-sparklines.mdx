@@ -1,0 +1,246 @@
+---
+id: "8.2"
+module: 8
+lesson: 2
+slug: "combo-charts-sparklines"
+title: "Combo Charts, Secondary Axis and Sparklines"
+shortTitle: "Combo Charts"
+stage: "Business-Ready"
+durationMin: 11
+access: "paid"
+objectives:
+  - "Plot two measures on different scales in one chart"
+  - "Use a secondary axis without misleading the reader"
+  - "Add sparklines for a trend inside a single cell"
+keys: ["Ctrl+1", "Alt+N+SL"]
+datasets: ["Sales_Transactions"]
+starterFile: "starter/08-02-combo-charts.xlsx"
+solutionFile: "solution/08-02-combo-charts.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 3
+prev: "8.1"
+next: "8.3"
+videoUrl: null
+---
+
+## Why this matters
+
+Revenue in lakhs and margin in percent cannot share an axis — plot them together and the margin line sits flat along the bottom, invisible. A combo chart with a secondary axis solves it. And sparklines put a twelve-month trend inside one cell, which is how you get a trend column into a table without building twelve charts.
+
+## How it works
+
+### Combo charts
+
+**Insert → Combo → Custom Combination**, or right-click an existing chart → **Change Chart Type → Combo**.
+
+You get a row per series, with two controls each: the **chart type** and a **Secondary Axis** tick box.
+
+<Shot id="8.2.1" />
+
+The standard business pattern: **columns for the amount, a line for the rate, the line on the secondary axis.**
+
+| Series | Type | Secondary axis |
+|---|---|---|
+| Revenue | Clustered Column | ✗ |
+| Margin % | Line | ✓ |
+
+Columns for magnitude, a line for the trend. The eye reads them as different kinds of thing, which is exactly right — they *are* different kinds of thing.
+
+### The secondary axis problem, stated honestly
+
+A secondary axis lets you choose where the second series sits relative to the first. **Change its scale and you change the apparent relationship** — you can make margin look as though it's tracking revenue, or diverging from it, without altering a single number.
+
+That makes it a legitimate tool that is easy to misuse.
+
+<Callout type="warning">
+Two rules to keep a secondary axis honest. **Label both axes** so the reader knows which series belongs to which scale — an unlabelled dual-axis chart is unreadable at best and misleading at worst. And **start both axes at zero** unless you have a stated reason not to; truncating an axis exaggerates variation, and on a secondary axis nobody notices.
+</Callout>
+
+### Sparklines
+
+Select the cells where you want them → **Insert → Sparklines → Line** (<Kbd>Alt</Kbd>+<Kbd>N</Kbd>+<Kbd>S</Kbd>+<Kbd>L</Kbd>). Pick the data range, and you get a tiny chart *inside* each cell.
+
+Three types: **Line** for trend, **Column** for magnitude comparison, **Win/Loss** for above-or-below-zero.
+
+<Shot id="8.2.2" />
+
+They're a cell **background**, not an object — so they resize with the row, survive sorting, and sit inside a Table column without breaking anything. That's why they work in a report where twelve small charts wouldn't.
+
+<Callout type="tip">
+By default each sparkline scales to its own data, so a row varying between 10 and 12 looks as dramatic as one varying between 10 and 1,000. For comparing rows, set **Sparkline → Axis → Same for All Sparklines** on both minimum and maximum. Without that, the column is visually misleading.
+</Callout>
+
+## Do it
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Month | Revenue | Margin % |
+| **2** | Jan | 1023000 | 0.32 |
+| **3** | Feb | 513000 | 0.28 |
+| **4** | Mar | 383000 | 0.35 |
+| **5** | Apr | 1134000 | 0.31 |
+
+1. Select **A1:C5**. Press <Kbd>Alt</Kbd>+<Kbd>F1</Kbd>. Both series appear as columns — and Margin % is invisible, because 0.32 next to 1,023,000 is effectively zero.
+2. Right-click the chart → **Change Chart Type → Combo**.
+3. Set Revenue to **Clustered Column**. Set Margin % to **Line** and tick **Secondary Axis**. OK.
+4. Now both are readable.
+
+<Shot id="8.2.3" />
+
+5. Click the secondary axis → <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → Number → Percentage, 0 decimals.
+6. Format the primary axis as `#,##0,,"M"`.
+7. Add axis titles: **+** → Axis Titles. Label the left `Revenue (₹M)` and the right `Margin %`.
+
+### See how the axis can mislead
+
+8. Click the secondary axis → <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → set Minimum to `0.27` and Maximum to `0.36`.
+9. The margin line now swings dramatically. **Nothing in the data changed** — only the axis bounds.
+10. Set Minimum back to 0. The line flattens into its real shape.
+
+This is worth doing once. It's the clearest demonstration of why axis bounds are an editorial choice.
+
+### Sparklines
+
+11. Build a table: regions down the side, twelve monthly figures across.
+12. Select the empty column beside the last month. <Kbd>Alt</Kbd>+<Kbd>N</Kbd>+<Kbd>S</Kbd>+<Kbd>L</Kbd> → Line.
+13. Data Range: the twelve monthly columns. Location: your empty cells. OK.
+14. A trend line appears in each row's cell.
+15. **Sparkline → Show → Markers**, and tick **High Point** and **Low Point** to mark the extremes.
+16. **Sparkline → Axis → Same for All Sparklines** for both minimum and maximum. Compare before and after — rows that looked equally volatile now show their true relative movement.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `1` | Format pane for the selected element | Setting axis bounds, number formats and series colours | Click the secondary axis, press it |
+| `Alt` + `N` + `S` + `L` | Inserts line sparklines | Adding a trend column to a report table | Select the target cells first |
+| `Ctrl` + `1` on a series | Series options — including Secondary Axis | Faster than the Change Chart Type dialog for one series | Click the margin line, press it |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Two different scales on one axis** | The smaller series is a flat line at zero | Combo chart with a secondary axis |
+| Unlabelled dual axes | The reader can't tell which series uses which scale | Add both axis titles, always |
+| Truncated secondary axis | Variation looks far more dramatic than it is | Start at zero unless you state why not |
+| Sparklines auto-scaled per row | A row moving 10→12 looks like one moving 10→1,000 | Axis → Same for All Sparklines |
+| Both series as lines | The reader can't tell magnitude from rate | Columns for amounts, line for rates |
+| Sparkline range including the total column | The total dwarfs the monthly values | Select only the period columns |
+| Deleting a sparkline with Delete | Nothing happens — it's a cell background | Sparkline tab → Clear |
+
+</MistakeTable>
+
+<Callout type="story">
+**Deepa, Business Analyst.** Her quarterly pack showed revenue and margin on one chart with a secondary axis. To make the margin line "easier to read" she'd set its bounds to 27%–36%, the actual range of the data.
+
+The line swung from the bottom of the chart to the top across four months. Leadership read it as a margin crisis and commissioned a review.
+
+The real movement was 28% to 35% — seven percentage points, on a business where that's normal seasonal variation. With the axis starting at zero, the line is visibly close to flat.
+
+She now starts every axis at zero unless there's a stated reason, and when she does truncate she notes it on the chart.
+
+**Axis bounds are an editorial decision, not a formatting one.** A truncated secondary axis is the easiest way to accidentally mislead people with technically accurate data — and nobody checks the axis.
+</Callout>
+
+## Practice
+
+<Exercise id="8.2.e1">
+
+<Scenario>
+A monthly performance chart needing two scales, plus a regional table with trend sparklines.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/08-02-combo-charts.xlsx">
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | Month | Revenue | Margin % | Orders |
+| **2** | Jan | 1023000 | 0.32 | 14 |
+| **3** | Feb | 513000 | 0.28 | 9 |
+| **4** | Mar | 383000 | 0.35 | 7 |
+| **5** | Apr | 1134000 | 0.31 | 16 |
+| **6** | May | 890000 | 0.33 | 12 |
+| **7** | Jun | 1250000 | 0.29 | 18 |
+
+</Dataset>
+
+<Task>
+
+1. Chart Revenue and Margin % together as columns. What happens to the margin series, and why?
+2. Convert to a combo: Revenue as columns, Margin % as a line on the secondary axis.
+3. Format the secondary axis as a percentage and the primary as millions. Add both axis titles.
+4. Set the secondary axis minimum to 0.27 and maximum to 0.36. How does the story change? Set it back to 0.
+5. Add Orders as a third series — a line on the secondary axis. Is this chart still readable? What would you do instead?
+6. Build a regional table with six monthly columns, then add line sparklines in the column beside them.
+7. Turn on High Point and Low Point markers.
+8. Set the sparkline axis to Same for All Sparklines. Compare the column before and after — which rows changed appearance most?
+
+</Task>
+
+<Expected>
+Step 1: the margin series is invisible — 0.32 against 1,023,000 renders as zero height · Step 4: the line swings from bottom to top of the chart on unchanged data · Step 5: three series on two axes is unreadable — split into two charts
+</Expected>
+
+<Solution>
+
+```
+2. Right-click chart → Change Chart Type → Combo
+   Revenue: Clustered Column, no secondary
+   Margin %: Line, Secondary Axis ticked
+3. Click secondary axis → Ctrl+1 → Number → Percentage, 0 dp
+   Primary axis → Ctrl+1 → Number → Custom → #,##0,,"M"
+   + button → Axis Titles → label both
+6. Select the target cells → Alt+N+S+L → Data Range: the six month columns
+8. Sparkline tab → Axis → Same for All Sparklines (minimum and maximum)
+```
+
+</Solution>
+
+<Why>
+
+**Step 4 is the one to actually perform rather than read about.** Setting the secondary axis to 0.27–0.36 makes a seven-point margin movement fill the entire chart height. No number changed. This is exactly what happened to Deepa, and it triggered a business review over normal seasonal variation. Do it once, watch the line transform, and you'll never truncate an axis carelessly again.
+
+**Step 5 has no good chart answer, which is the lesson.** Three series across two axes means the reader must track which of three lines and columns belongs to which of two scales — and Orders on the same secondary axis as a percentage is meaningless, since 18 orders and 0.29 share no unit. Two charts side by side, or a chart plus a sparkline column, communicate this far better than one crowded chart. **When a chart needs a third axis, you need a second chart.**
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "8.2.q1",
+    type: "mcq",
+    question: "You plot revenue (around 1,000,000) and margin percentage (around 0.3) as columns on one chart. What happens?",
+    options: [
+      "Excel automatically creates a secondary axis",
+      "The margin series is invisible, rendering as effectively zero height",
+      "Excel returns an error about incompatible scales",
+      "Both series scale proportionally and display correctly"
+    ],
+    correct: 1,
+    explanation: "On a single axis running to a million, a value of 0.3 has no visible height — the series is technically plotted and practically invisible. Excel doesn't warn you or intervene. The fix is a combo chart: columns for the amount, a line for the rate, with the line on a secondary axis so it gets its own scale."
+  },
+  {
+    id: "8.2.q2",
+    type: "truefalse",
+    question: "Sparklines scale independently by default, so each row's chart uses its own minimum and maximum.",
+    correct: true,
+    explanation: "That's the default, and it makes a column of sparklines misleading for comparison — a row moving from 10 to 12 looks as dramatic as one moving from 10 to 1,000. Set Sparkline → Axis → Same for All Sparklines on both minimum and maximum whenever the rows are meant to be compared with each other. Independent scaling is only appropriate when you care about each row's own shape rather than relative magnitude."
+  },
+  {
+    id: "8.2.q3",
+    type: "formula",
+    question: "Write the custom number format that displays 1,250,000 on a chart axis as 1M.",
+    accept: ["#,##0,,\"M\"", "#,##0,,\"M\"", "0,,\"M\""],
+    explanation: "Each trailing comma divides the display by 1,000, so two commas give millions, and the quoted text appends the unit. The stored value is untouched — this is display formatting only (Lesson 2.4). Note that lakhs and crores can't be done with commas, since a lakh isn't a power of 1,000; those need a helper column or a TEXT formula."
+  }
+]

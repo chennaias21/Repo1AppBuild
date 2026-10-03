@@ -1,0 +1,266 @@
+---
+id: "8.4"
+module: 8
+lesson: 4
+slug: "interactive-dashboard"
+title: "Building an Interactive HR Dashboard"
+shortTitle: "Interactive Dashboard"
+stage: "Business-Ready"
+durationMin: 20
+access: "paid"
+objectives:
+  - "Build a complete one-screen dashboard from raw data to finished output"
+  - "Wire KPI tiles, charts and slicers so everything responds to one click"
+  - "Leave it refreshable in two keystrokes next month"
+keys: ["Alt+F5", "Alt+N+SF"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/08-04-hr-dashboard.xlsx"
+solutionFile: "solution/08-04-hr-dashboard.xlsx"
+functions: ["GETPIVOTDATA", "IFERROR", "DATEDIF"]
+excelVersion: "all"
+shotCount: 3
+prev: "8.3"
+next: "8.5"
+videoUrl: null
+---
+
+## Why this matters
+
+This is the lesson where everything connects. Tables from Module 6, cleaning from Module 7, pivots, slicers, `GETPIVOTDATA`, conditional formatting and the design rules from 8.3 — all of it becomes one screen a CHRO actually uses. Work through it with the file open; reading it won't teach you anything.
+
+## How it works
+
+The build order matters. Each stage depends on the last, and doing them out of sequence means redoing work.
+
+```
+1. RawData    paste export → Ctrl+T → Table named EmpMaster
+2. Working    add calculated columns the pivots need
+3. Rates      targets and thresholds in labelled cells
+4. Pivots     one per KPI and per chart, all on EmpMaster
+5. Dashboard  GETPIVOTDATA tiles → charts → slicers → Report Connections
+6. Polish     gridlines off, headings off, colours, conditional formatting
+```
+
+**The single rule that makes it maintainable: every pivot reads the same Table, and every tile reads a pivot via `GETPIVOTDATA`.** That combination means next month is paste-and-refresh, and nothing can misattribute when a department disappears.
+
+<Callout type="tip">
+Build the whole thing ugly first — tiles, charts and slicers wired up and responding correctly — and only then format it. Polishing a dashboard whose plumbing is still wrong means redoing the formatting, and the temptation to leave a broken tile alone because it looks finished is real.
+</Callout>
+
+## Do it
+
+### Stage 1 — RawData
+
+Start with an employee export: `EmpID`, `Name`, `Dept`, `Designation`, `DOJ`, `Location`, `Gender`, `CTC`, `Status`, `ExitDate`.
+
+1. Paste it into a sheet named `RawData`. Press <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd>. Name the Table **`EmpMaster`**.
+2. Run the six-point check from Lesson 7.1 — text-numbers in CTC, text dates in DOJ, hidden spaces in Dept. Fix anything you find now, not later.
+
+### Stage 2 — calculated columns
+
+Add these as Table columns, so they extend automatically:
+
+<FormulaBlock>
+```
+Tenure Yrs   =DATEDIF([@DOJ],TODAY(),"y")
+Joined MTD   =IF(TEXT([@DOJ],"mmm-yyyy")=TEXT(TODAY(),"mmm-yyyy"),1,0)
+Left MTD     =IF([@ExitDate]="",0,IF(TEXT([@ExitDate],"mmm-yyyy")=TEXT(TODAY(),"mmm-yyyy"),1,0))
+Active       =IF([@Status]="Active",1,0)
+```
+</FormulaBlock>
+
+Note the `Left MTD` formula tests for blank first — a leaver with no exit date must not count (Lesson 4.1).
+
+### Stage 3 — Rates
+
+3. On a `Rates` sheet, add labelled cells: `Attrition Target` = `12%`, `Headcount Plan` = `250`.
+
+### Stage 4 — pivots
+
+4. On a `Pivots` sheet, build five pivots, all from `EmpMaster`:
+
+| Pivot | Rows | Values |
+|---|---|---|
+| P1 Headcount | — | Sum of Active |
+| P2 Joiners | — | Sum of Joined MTD |
+| P3 Leavers | — | Sum of Left MTD |
+| P4 Headcount trend | DOJ grouped by Month | Count of EmpID, Running Total |
+| P5 Attrition by dept | Dept | Sum of Left MTD, Sum of Active |
+
+<Shot id="8.4.2" />
+
+### Stage 5 — the Dashboard
+
+5. On a `Dashboard` sheet, merge nothing. Use **Center Across Selection** for the title (Lesson 2.5).
+6. Build four KPI tiles. For each, type `=` and **click** the pivot cell so Excel writes `GETPIVOTDATA`, then wrap it:
+
+<FormulaBlock>
+```
+=IFERROR(GETPIVOTDATA("Active",Pivots!$A$3),0)
+=IFERROR(GETPIVOTDATA("Joined MTD",Pivots!$A$8),0)
+=IFERROR(GETPIVOTDATA("Left MTD",Pivots!$A$13),0)
+```
+</FormulaBlock>
+
+7. Attrition % tile: `=IFERROR(Leavers/Headcount,0)`, formatted as a percentage.
+8. Format each tile: large bold number, small grey label above, thin border, generous padding.
+
+<Shot id="8.4.3" />
+
+9. Add a conditional format on the attrition tile: red fill when it exceeds `Rates!$B$2`. Reference the cell, don't type 12% (Lesson 6.5).
+10. Create two pivot charts from P4 and P5. Hide all field buttons. Turn grand totals off (Lesson 7.8).
+11. **Insert → Slicer** on `Dept` and `Location`. Place them top-right.
+12. Right-click each slicer → **Report Connections** → tick **all five pivots**.
+
+### Stage 6 — polish
+
+13. **View → Gridlines** off. **View → Headings** off.
+14. One brand colour for tile borders and chart bars, one accent for the focal figure, greys elsewhere.
+15. Click a department in the slicer. **Every tile and both charts should move together.** If a tile doesn't, its pivot isn't in Report Connections.
+
+<Shot id="8.4.5" />
+
+### Test it like someone else will
+
+16. Filter to a department with no leavers. Do the tiles show `0` or `#REF!`? The `IFERROR` is why they show 0.
+17. Add three new employees to `RawData` — below the Table, so it expands. Press <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>F5</Kbd>. Everything updates.
+18. Clear all slicer selections before saving, so the next reader sees the full picture.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `Alt` + `F5` | Refreshes every pivot in the workbook | The monthly update — one keystroke for all five pivots | After pasting the new export |
+| `Alt` + `N` + `S` + `F` | Inserts a slicer | Adding the Dept and Location controls | Then Report Connections to wire all pivots |
+| `Alt` + `W` + `V` + `G` | Toggles gridlines | First polish step on the Dashboard sheet | Also `Alt+W+V+H` for headings |
+| `Alt` + `Shift` + arrow | Nudges an object one pixel | Aligning tiles and charts on a grid | Select the chart, then nudge |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Slicer connected to only one pivot** | Clicking it moves some tiles and not others | Report Connections → tick every pivot |
+| Pivots built on different ranges | Report Connections lists nothing | All pivots on the one Table |
+| Tiles as positional references | Wrong figures the month a department has no data | `GETPIVOTDATA`, always |
+| `GETPIVOTDATA` without `IFERROR` | `#REF!` on tiles whenever a slicer filters them out | Wrap every tile |
+| Merged cells for the title | Breaks alignment and any later sorting | Center Across Selection |
+| Thresholds typed into conditional formats | A target change means hunting through rules | Reference the `Rates` sheet |
+| Saving with a slicer filtered | The next reader sees a subset as if it were everything | Clear slicers before saving |
+| Forgetting to refresh | Last month's figures, looking entirely normal | <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>F5</Kbd> as a reflex |
+
+</MistakeTable>
+
+<Callout type="story">
+**Priya, HR Executive** — the headcount report from Lesson 7.5. Her dashboard replaced a full day of manual counting with eleven minutes.
+
+Month four, she pasted the export and sent the dashboard without refreshing. Leadership received March's headcount labelled April. Nobody noticed for a week, because the figures were plausible and the sheet looked current.
+
+Her fix was a `Last Refreshed` cell on the dashboard — a static timestamp she enters with <Kbd>Ctrl</Kbd>+<Kbd>;</Kbd> as part of the monthly routine, right beside the title. If the date is wrong, the dashboard is stale, and it's visible to every reader rather than only to her.
+
+**A dashboard's most dangerous failure is looking perfectly current while showing old data.** A visible refresh date costs one cell and makes staleness impossible to miss.
+</Callout>
+
+## Practice
+
+<Exercise id="8.4.e1">
+
+<Scenario>
+Build the complete HR dashboard end to end, then test it the way a colleague would.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/08-04-hr-dashboard.xlsx">
+
+250 employee records: `EmpID`, `Name`, `Dept`, `Designation`, `DOJ`, `Location`, `Gender`, `CTC`, `Status`, `ExitDate`. The export deliberately contains some text-numbers in CTC and a few trailing spaces in Dept.
+
+</Dataset>
+
+<Task>
+
+1. Set up the five sheets. Paste into `RawData`, convert to a Table named `EmpMaster`, and run the six-point check. What did you find and fix?
+2. Add the four calculated columns. Why does `Left MTD` need to test for blank first?
+3. On `Rates`, add an attrition target of 12% and a headcount plan of 250.
+4. Build the five pivots, all on `EmpMaster`.
+5. Build four KPI tiles using `GETPIVOTDATA`, each wrapped in `IFERROR`. Add a fifth: attrition percentage.
+6. Conditionally format the attrition tile red when it exceeds the target on `Rates`. Reference the cell.
+7. Create the two pivot charts. Hide field buttons and turn grand totals off.
+8. Add Dept and Location slicers and connect both to all five pivots.
+9. Add a `Last Refreshed` cell using <Kbd>Ctrl</Kbd>+<Kbd>;</Kbd>.
+10. Test: filter to a department with no leavers — do tiles show 0 or an error? Add five new employees and refresh. Does everything move?
+11. Break it deliberately: remove one pivot from the slicer's Report Connections and click a department. Which tile goes stale?
+
+</Task>
+
+<Expected>
+A working one-screen dashboard. Step 10: tiles show 0 because of `IFERROR`; all five pivots update on refresh. Step 11: the disconnected pivot's tile keeps showing the unfiltered figure while everything else filters
+</Expected>
+
+<Solution>
+
+```
+Tenure Yrs : =DATEDIF([@DOJ],TODAY(),"y")
+Joined MTD : =IF(TEXT([@DOJ],"mmm-yyyy")=TEXT(TODAY(),"mmm-yyyy"),1,0)
+Left MTD   : =IF([@ExitDate]="",0,IF(TEXT([@ExitDate],"mmm-yyyy")=TEXT(TODAY(),"mmm-yyyy"),1,0))
+Active     : =IF([@Status]="Active",1,0)
+
+Tiles      : =IFERROR(GETPIVOTDATA("Active",Pivots!$A$3),0)
+Attrition  : =IFERROR(Leavers/Headcount,0)
+CF rule    : cell value greater than =Rates!$B$2 → red fill
+```
+
+</Solution>
+
+<Why>
+
+**Step 11 is the most instructive failure in the whole module.** A tile whose pivot isn't in Report Connections keeps displaying the *unfiltered* company-wide figure while every other tile shows the selected department. So a dashboard filtered to Finance might show Finance's 3 leavers beside a company-wide headcount of 250 — and the attrition percentage computed from those two is meaningless.
+
+Nothing errors. All the numbers are real numbers from real pivots. The dashboard simply shows a mixture of two different filter states, and the only way to catch it is to click a slicer and check that *every* tile moves. Make that your final test before sharing anything.
+
+**Step 2's blank test** is the same discipline from Lesson 4.1. An active employee has no `ExitDate`, and a blank in a date comparison reads as zero — so without the blank test, `TEXT("","mmm-yyyy")` behaves unpredictably and active staff can be counted as leavers. On a metric that goes to the board, that matters.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "8.4.q1",
+    type: "scenario",
+    question: "You filter your dashboard's Dept slicer to Finance. Three KPI tiles change but the headcount tile still shows the company total. What's wrong?",
+    options: [
+      "The headcount tile needs refreshing with Alt+F5",
+      "That tile's pivot isn't included in the slicer's Report Connections",
+      "GETPIVOTDATA cannot respond to slicers",
+      "The headcount pivot needs its own slicer"
+    ],
+    correct: 1,
+    explanation: "A slicer only filters the pivots ticked in Report Connections. An unconnected pivot keeps showing unfiltered data, so the dashboard displays a mixture of two filter states — Finance's leavers beside a company-wide headcount — and any ratio calculated across them is meaningless. Nothing errors, and every figure is genuine, which is why the only reliable check is clicking a slicer and confirming every tile moves."
+  },
+  {
+    id: "8.4.q2",
+    type: "truefalse",
+    question: "Wrapping GETPIVOTDATA tiles in IFERROR is optional if the dashboard has slicers.",
+    correct: false,
+    explanation: "It's most necessary precisely when there are slicers. GETPIVOTDATA returns #REF! when its requested label isn't in the current pivot, and filtering to one department removes the others — so unwrapped tiles show errors every time someone uses the slicer, making a correct dashboard look broken. Choose the fallback deliberately: 0 keeps the tile usable in further arithmetic, \"\" leaves it blank."
+  },
+  {
+    id: "8.4.q3",
+    type: "decision",
+    question: "Your monthly dashboard was sent once showing the previous month's figures because nobody had refreshed it. What's the most effective safeguard?",
+    options: [
+      "A visible Last Refreshed cell, stamped with Ctrl+; as part of the monthly routine",
+      "A written checklist kept beside the file",
+      "Setting the workbook to refresh on open",
+      "Emailing a reminder to yourself each month"
+    ],
+    correct: 0,
+    explanation: "The danger with a stale dashboard is that it looks entirely current — plausible figures, normal layout, no warning. A visible refresh date makes staleness obvious to every reader, not just the builder, so the check doesn't depend on the one person remembering. Refresh-on-open (option 3) is genuinely useful and worth enabling too, but it doesn't help when the file is screenshotted or exported to PDF, which is how most dashboards are actually circulated."
+  }
+]

@@ -1,0 +1,231 @@
+---
+id: "2.1"
+module: 2
+lesson: 1
+slug: "managing-worksheets"
+title: "Managing Worksheets"
+shortTitle: "Managing Worksheets"
+stage: "Beginner"
+durationMin: 10
+access: "free"
+objectives:
+  - "Structure a workbook the way professionals do"
+  - "Group sheets to edit several at once — and ungroup safely"
+  - "Protect formulas so colleagues can't break them"
+keys: ["Shift+F11", "Ctrl+1"]
+datasets: ["Attendance_Register"]
+starterFile: null
+solutionFile: null
+functions: ["SUM"]
+excelVersion: "all"
+shotCount: 4
+prev: "1.6"
+next: "2.2"
+videoUrl: null
+---
+
+## Why this matters
+
+Workbook structure is one of those things nobody teaches and everybody judges you on. It also decides whether next month's update is a paste-and-refresh or a rebuild. And one technique in this lesson — grouped sheets — is the most destructive everyday accident in Excel.
+
+## How it works
+
+### The structure used in every well-built business workbook
+
+```
+[ Instructions ]   how to use this file, who owns it, what to update
+[ Raw Data     ]   paste the export here. Never edit. Never format.
+[ Working      ]   formulas, helper columns, cleaning
+[ Summary      ]   pivot tables
+[ Dashboard    ]   the page you actually show people
+[ Lookups      ]   reference lists: departments, grades, rates
+```
+
+Left to right runs raw to refined. Anyone opening the file understands it in five seconds.
+
+<Shot id="2.1.1" />
+
+**The rule that matters most: never edit your raw data sheet.** Paste the export, and do all work on other sheets referencing it. Next month you replace the raw data and everything downstream updates. Clean it in place instead, and you redo the cleaning every single month.
+
+**Naming:** short, descriptive, and avoid spaces if you can. `Raw Data` forces apostrophes into every formula — `='Raw Data'!A1` — where `Raw_Data` doesn't. Small thing, thousands of formulas. `Sheet1`, `Sheet2`, `Sheet3 (2)` is the signature of an unmaintained file.
+
+### Grouping sheets — powerful and dangerous
+
+Click one tab, hold <Kbd>Shift</Kbd>, click another. Every tab between is selected, and **anything you type or format applies to all of them at the same cell address.**
+
+Brilliant for formatting twelve monthly sheets identically. Catastrophic if you forget.
+
+<Callout type="warning">
+The **only** warning is `[Group]` in the title bar. No dialog, no coloured border. A deletion applies silently to every grouped sheet and stays invisible until you open another tab. So: group, do the one action, then **click a single tab immediately** — before anything else.
+</Callout>
+
+### Protecting a sheet
+
+The order confuses everyone. By default *every* cell is marked "Locked", but locking does nothing until you protect the sheet. So the workflow is backwards from what you'd expect:
+
+**Unlock the cells people should edit, then protect the sheet.**
+
+| Cell marked | Sheet protected | Result |
+|---|---|---|
+| Locked | Yes | Protected |
+| Locked | No | **No effect at all** |
+| Unlocked | Yes | Editable |
+
+Think of it as: unlocking chooses the holes, protecting puts the lid on.
+
+<Callout type="tip">
+`=SUM(Jan:Dec!B25)` is a **3-D reference** — it adds cell B25 from every sheet between Jan and Dec. Perfect for monthly workbooks with identical layouts, and it picks up any sheet dragged in between them.
+</Callout>
+
+## Do it
+
+1. Right-click a tab → **Insert → Worksheet**, or press <Kbd>Shift</Kbd>+<Kbd>F11</Kbd>.
+2. Double-click the tab name, type `Raw_Data`, press <Kbd>Enter</Kbd>.
+3. Right-click the tab → **Tab Color** → grey.
+4. Create four more: `Working`, `Summary`, `Lookups`, `Instructions`. Drag them into order.
+5. <Kbd>Ctrl</Kbd>-drag a tab to duplicate it instantly — faster than the Move or Copy dialog.
+6. Right-click `Lookups` → **Hide**. To bring it back: right-click any tab → **Unhide**.
+
+<Shot id="2.1.2" />
+
+### Group and ungroup
+
+7. Create `Jan`, `Feb`, `Mar`. Click **Jan**, hold <Kbd>Shift</Kbd>, click **Mar**.
+8. Check the title bar — it reads `[Group]`.
+9. Click A1 and type `Employee`. Make it bold with a fill colour.
+10. **Click a single tab to ungroup.** Check Feb and Mar — both have the header, identically formatted.
+11. Now group them again and delete column B. Check all three sheets. Undo. **That's the accident.**
+
+<Shot id="2.1.3" />
+
+### Protect properly
+
+12. On one sheet, select the cells users should edit — say `C5:C50`.
+13. Press <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → **Protection** tab → **untick Locked** → OK.
+14. **Review → Protect Sheet.** Leave *Select unlocked cells* ticked. OK.
+15. Try typing in a formula cell — refused. Try C10 — works.
+
+<Shot id="2.1.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Shift` + `F11` | Inserts a new worksheet | Need a scratch tab or a new section | Faster than right-clicking |
+| `Ctrl` + drag a tab | Duplicates the sheet | Creating next month's tab from this month's template | Rename the copy immediately |
+| `Ctrl` + `1` | Format Cells — including the Protection tab | Unlocking input cells before protecting | Select the range first |
+| `Ctrl` + `PgDn` / `PgUp` | Moves between sheets | Navigating a multi-tab workbook | Data → Summary → Dashboard |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Forgetting sheets are grouped** | You delete a column and lose it from twelve sheets | `[Group]` in the title bar. Click a single tab immediately after. |
+| Protecting before unlocking input cells | Nobody can type anything; you get four emails | Unlock the input range first, then protect |
+| Editing the raw data sheet | You redo the cleaning every month | Raw sheet is read-only by convention |
+| Tabs left as Sheet1, Sheet2 | Nobody, including future-you, knows what's in the file | Rename every tab |
+| **Deleting a sheet** | <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> will not bring it back | Hide it instead if you're unsure |
+| Spaces in sheet names | `='Raw Data'!A1` in every formula | Use underscores |
+| Trusting a sheet password | Removable in seconds by freely available tools | Protection prevents accidents, not intent |
+
+</MistakeTable>
+
+<Callout type="story">
+**Ritu, HR Manager across six plant locations.** Her annual leave tracker had one sheet per plant, and every month at least one plant manager overwrote the formula calculating leave balance — then emailed her saying "the file is broken."
+
+She spent twenty minutes restructuring: unlocked only the leave-application columns, protected each sheet, protected the workbook structure so nobody could add stray tabs, and moved the entitlement lookup to a hidden sheet.
+
+The "file is broken" emails stopped completely.
+
+**Twenty minutes of setup removed a recurring monthly problem that had been running for two years.**
+</Callout>
+
+## Practice
+
+<Exercise id="2.1.e1">
+
+<Scenario>
+Build the skeleton of a monthly sales workbook that three regional managers will update.
+</Scenario>
+
+<Dataset name="Attendance_Register">
+
+No data needed — you're building structure.
+
+</Dataset>
+
+<Task>
+
+1. Create a workbook with five sheets named `Instructions`, `Raw_Data`, `Working`, `Summary`, `Lookups`, in that order.
+2. Colour them: Instructions and Raw_Data grey, Working blue, Summary green, Lookups orange.
+3. On `Lookups`, put `North`, `South`, `East`, `West` in A1:A4. Then hide the sheet.
+4. On `Summary` B2, write a formula pulling the value from `Raw_Data` A1. Type `Test` into Raw_Data A1 and confirm B2 updates.
+5. On `Summary`, unlock only B10:B20, then protect the sheet with no password. Test that B5 is blocked and B12 works.
+6. Create `Jan`, `Feb`, `Mar`. Group them, format A1 bold with a fill, then ungroup. Verify all three.
+7. Group them again and delete column C. Check all three, then undo. What was your only warning?
+8. On `Summary`, write a 3-D reference totalling B25 across Jan to Mar.
+
+</Task>
+
+<Expected>
+Step 4: `=Raw_Data!A1` · Step 5: B5 refused, B12 accepted · Step 7: the `[Group]` indicator in the title bar, nothing else
+</Expected>
+
+<Solution>
+
+```
+Step 4: =Raw_Data!A1
+Step 5: select B10:B20 → Ctrl+1 → Protection → untick Locked → OK
+        → Review → Protect Sheet → OK
+Step 8: =SUM(Jan:Mar!B25)
+```
+
+</Solution>
+
+<Why>
+
+**Step 5 is the piece everyone gets backwards.** Excel marks every cell as Locked by default, but that property is completely inert until the sheet is protected. So protection is a two-stage switch: the cell says "I should be locked" and the sheet says "enforce it now". Skip the unlock step and you lock the entire sheet including the cells people need.
+
+**Step 7's answer matters because there is no second warning.** A deletion on grouped sheets applies to all of them silently, and you won't know until you open another tab — by which time you may have saved. That's why the discipline is absolute: group, perform the single action, click one tab, *then* do anything else.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "2.1.q1",
+    type: "mcq",
+    question: "You want users to type only in C5:C50 on a protected sheet. What must you do first?",
+    options: [
+      "Protect the sheet, then unlock C5:C50",
+      "Unlock C5:C50, then protect the sheet",
+      "Hide all the other cells",
+      "Lock C5:C50, then protect the sheet"
+    ],
+    correct: 1,
+    explanation: "Every cell starts life marked Locked, and that marking only takes effect when the sheet is protected. So you carve out the editable cells first — Ctrl+1 → Protection → untick Locked — then apply protection. Doing it the other way round locks the whole sheet including the cells people need, which generates support emails rather than protection."
+  },
+  {
+    id: "2.1.q2",
+    type: "truefalse",
+    question: "If you accidentally delete a worksheet, Ctrl+Z will restore it.",
+    correct: false,
+    explanation: "Deleting a worksheet clears the undo stack for that action — the sheet is gone. Your only recovery is an earlier saved version, OneDrive version history, or an AutoRecover file. When in doubt, hide the sheet rather than deleting it; hiding costs nothing and is fully reversible."
+  },
+  {
+    id: "2.1.q3",
+    type: "formula",
+    question: "Twelve sheets named Jan through Dec each hold total revenue in B25. Write one formula on a Summary sheet that adds all twelve.",
+    accept: ["=SUM(Jan:Dec!B25)"],
+    explanation: "This is a 3-D reference — it adds B25 from every sheet positioned between Jan and Dec inclusive. Worth knowing that it's positional: drag a new sheet in between them and it gets included automatically, which is usually convenient but occasionally surprising."
+  }
+]

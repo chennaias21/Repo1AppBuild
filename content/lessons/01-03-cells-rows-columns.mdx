@@ -1,0 +1,235 @@
+---
+id: "1.3"
+module: 1
+lesson: 3
+slug: "cells-rows-columns"
+title: "Cells, Rows, Columns and Cell Addresses"
+shortTitle: "Cells & Addresses"
+stage: "Beginner"
+durationMin: 8
+access: "free"
+objectives:
+  - "Read and write any cell address and range correctly"
+  - "Select cells, rows and columns efficiently"
+  - "Structure data so everything later in the course works"
+keys: ["Ctrl+Shift+End", "Ctrl+Space"]
+datasets: ["HR_Employee_Master"]
+starterFile: null
+solutionFile: null
+functions: []
+excelVersion: "all"
+shotCount: 4
+prev: "1.2"
+next: "1.4"
+videoUrl: null
+---
+
+## Why this matters
+
+Every formula you write for the rest of your life refers to cells by address. And one habit you form here — how you lay data out — decides whether pivot tables and lookups work smoothly later or fight you at every turn.
+
+## How it works
+
+Every box is a **cell**, and every cell's address is its **column letter then row number**. Always that order.
+
+`B7` = column B, row 7. Not `7B` — Excel rejects that.
+
+Columns run A to Z, then AA, AB, all the way to XFD (16,384 of them). Rows run 1 to 1,048,576.
+
+A **range** uses a colon:
+
+| Notation | Means | Cells |
+|---|---|---|
+| `A1` | One cell | 1 |
+| `A1:A10` | Ten cells down a column | 10 |
+| `A1:D1` | Four cells across a row | 4 |
+| `A1:D10` | A rectangle, 4 × 10 | 40 |
+| `A1:A5,C1:C5` | Two separate blocks | 10 |
+| `A:A` | The entire column | 1,048,576 |
+
+The colon means "through". A comma means "and these too".
+
+<Shot id="1.3.1" />
+
+### The structure rule that matters most
+
+**A row is a record. A column is a field.**
+
+One employee per row. Name, Department, Salary each in their own column. Keep that discipline and Modules 6 to 8 work. Break it and they won't.
+
+Two specific things to never do:
+
+**Don't put two pieces of information in one cell.** `Anil Kumar (Sales)` can't be filtered by department. Two columns.
+
+**Don't merge cells.** Merge looks tidy and breaks sorting, filtering, pivot tables and keyboard navigation — because merging keeps the value in the top-left cell and genuinely empties the rest. If you want a title centred across columns, use **Format Cells → Alignment → Center Across Selection**: visually identical, nothing breaks.
+
+<Callout type="warning">
+Whole-column references like `=SUM(E:E)` work, but they ask Excel to consider a million cells. Fine once; noticeably slow with several. Prefer an explicit range, or better, convert to a Table and use `Table1[CTC]` (Lesson 6.1).
+</Callout>
+
+<Callout type="tip">
+Say ranges out loud as you write them and the notation stops feeling abstract. `A1:D10` is "A-one through D-ten" — a rectangle. `A2:A6,D2:D6` is "A-two through A-six, **and** D-two through D-six" — two blocks. The colon is "through"; the comma is "and also".
+</Callout>
+
+## Do it
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | EmpID | Name | Department | DOJ | CTC |
+| **2** | E1001 | Anil Kumar | Sales | 12-Mar-2021 | 640000 |
+| **3** | E1002 | Meera Nair | HR | 05-Jul-2022 | 520000 |
+| **4** | E1003 | Rahul Shah | Sales | 19-Jan-2020 | 810000 |
+| **5** | E1004 | Sneha Rao | Finance | 28-Sep-2023 | 470000 |
+
+1. Type this in starting at A1.
+2. Click **C3**. The Name Box reads `C3`; the formula bar reads `HR`.
+3. Click **A2**, hold the mouse and drag to **E5**. While dragging, the Name Box shows `4R x 5C` — four rows by five columns.
+
+<Shot id="1.3.2" />
+
+4. Click the **column D header letter**. The whole column selects.
+5. Click the **row 3 header number**. The whole row selects.
+6. Click **A1**, then hold <Kbd>Ctrl</Kbd> and click **C1** and **E1**. Three non-adjacent cells — the `A1,C1,E1` pattern.
+7. Click **A1** and press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>End</Kbd>. The whole dataset selects in one keystroke. **This is how you select real data — never by dragging.**
+
+<Shot id="1.3.3" />
+
+### See why merge breaks things
+
+8. Select **A1:E1** and click **Merge & Center**. It looks like a title bar.
+9. Now try to sort the data — click one cell inside it and use Data → Sort. Excel refuses: *"To do this, all the merged cells need to be the same size."*
+10. Unmerge. Instead select A1:E1, press <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → Alignment → Horizontal → **Center Across Selection**.
+11. Click **C1**. The Name Box says `C1` and the cell is still usable — but the title still appears centred. Same look, nothing broken.
+
+<Shot id="1.3.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `Shift` + `End` | Selects from here to the last used cell | Selecting an entire dataset instantly, before sorting or making a Table | Click A1, press it |
+| `Ctrl` + `Shift` + `↓` | Extends the selection to the last filled cell below | Selecting one full column of data | Click E2, press it — note it stops at gaps |
+| `Ctrl` + `Space` | Selects the whole column | Formatting an entire column at once | Then Ctrl+Shift+1 to format as numbers |
+| `Shift` + `Space` | Selects the whole row | Deleting or highlighting one record | Then Ctrl+- to delete it |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| Writing `7B` instead of `B7` | `#NAME?`, or treated as text | Column letter first, always |
+| **Merging cells** | Sorting refuses; filters and pivots return blanks | Center Across Selection |
+| Two facts in one cell | Can't filter by department or sort by surname | One piece of information per cell |
+| Blank rows inside data | `Ctrl+Shift+↓` stops early; pivots read part of the data | Never a blank row inside a dataset |
+| Two stacked header rows | Pivot tables can't identify the header | One header row, directly above the data |
+| Drag-selecting 2,000 rows | Slow, and easy to miss the last row | `Ctrl+Shift+End` |
+
+</MistakeTable>
+
+<Callout type="story">
+**Kavya, Recruitment Coordinator.** Her candidate tracker merged the role name across four rows to "group" candidates visually — Java Developer merged over rows 4–7, QA Engineer over 8–11.
+
+It looked tidy. Then her manager asked for candidates by role and by source. The pivot table returned mostly blanks, because merged cells keep the value only in the top-left cell — the other three are genuinely empty.
+
+The fix took ten minutes: unmerge everything, fill the role down into every row, rebuild the pivot. It then worked immediately.
+
+**Formatting that makes data look organised often makes it functionally broken.** Keep the data flat and plain; make it look good with conditional formatting and charts instead.
+</Callout>
+
+## Practice
+
+<Exercise id="1.3.e1">
+
+<Scenario>
+Document the structure of an attendance sheet so a colleague can write formulas against it.
+</Scenario>
+
+<Dataset name="Attendance_Register">
+
+| | A | B | C | D | E | F |
+|---|---|---|---|---|---|---|
+| **1** | EmpID | Name | Date | Status | In Time | Out Time |
+| **2** | E1001 | Anil | 01-Sep-2026 | Present | 09:12 | 18:05 |
+| **3** | E1002 | Meera | 01-Sep-2026 | Present | 09:45 | 18:20 |
+| **4** | E1003 | Rahul | 01-Sep-2026 | Absent | | |
+| **5** | E1004 | Sneha | 01-Sep-2026 | Present | 08:58 | 17:40 |
+| **6** | E1005 | Kabir | 01-Sep-2026 | Half Day | 09:05 | 13:30 |
+
+</Dataset>
+
+<Task>
+
+Write the correct range notation for each:
+
+1. The header row only
+2. All the Status values, excluding the header
+3. The whole table including headers
+4. Rahul's entire record
+5. The EmpID and Status columns together, data only
+6. The single cell holding Kabir's out time
+
+Then:
+
+7. Click A1 and press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>End</Kbd>. What range selects? Why does it include E4 and F4, which are empty?
+8. Click E2 and press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>↓</Kbd>. Where does it stop, and why is that a warning rather than a bug?
+
+</Task>
+
+<Expected>
+1. `A1:F1` · 2. `D2:D6` · 3. `A1:F6` · 4. `A4:F4` · 5. `A2:A6,D2:D6` · 6. `F6` · 7. `A1:F6` · 8. stops at E3, because E4 is blank
+</Expected>
+
+<Solution>
+
+```
+1. A1:F1
+2. D2:D6
+3. A1:F6
+4. A4:F4
+5. A2:A6,D2:D6
+6. F6
+```
+
+</Solution>
+
+<Why>
+
+**Step 7's answer explains a rule you'll rely on constantly.** Excel's used range is always a *rectangle*, never a jagged shape — so E4 and F4 are included even though Rahul was absent and they're empty. That's why `=COUNT(E2:E6)` returns 4 rather than 5: the cells are in the range, they just hold nothing.
+
+**Step 8 is the more important one.** `Ctrl+Shift+↓` stops at the first blank, so it selects only E2:E3 — and if you built a formula on that selection you'd silently exclude three records. That behaviour is genuinely useful as a **gap detector**: run it down each column of a new dataset and if the columns stop at different rows, you've found missing data before it corrupts anything.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "1.3.q1",
+    type: "mcq",
+    question: "Which of these is a valid cell address?",
+    options: ["12F", "F12", "F-12", "F:12"],
+    correct: 1,
+    explanation: "Column letter first, then row number, with no separator. Excel rejects the reversed form. Ranges use a colon between two addresses — F1:F12 — and a comma joins separate blocks, so F:12 isn't valid notation for anything."
+  },
+  {
+    id: "1.3.q2",
+    type: "truefalse",
+    question: "The range A1:C3 refers to 6 cells.",
+    correct: false,
+    explanation: "It's 9 cells — three columns (A, B, C) multiplied by three rows (1, 2, 3). A common miscount, because people add 3+3 rather than multiplying. Being able to predict exactly how many cells a range covers is what lets you predict what a formula will return before you press Enter."
+  },
+  {
+    id: "1.3.q3",
+    type: "formula",
+    question: "A title needs to appear centred across columns A to E without breaking sorting or filtering. Name the command to use instead of Merge & Center.",
+    accept: ["Center Across Selection", "Centre Across Selection", "Format Cells → Alignment → Center Across Selection"],
+    explanation: "Found at Ctrl+1 → Alignment → Horizontal. The result looks identical to Merge & Center, but the cells stay separate and individually addressable — so sorting, filtering, pivot tables and keyboard navigation all keep working. Merge physically empties every cell except the top-left, which is why a filter on a merged column returns blanks."
+  }
+]

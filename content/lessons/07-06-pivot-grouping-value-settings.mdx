@@ -1,0 +1,254 @@
+---
+id: "7.6"
+module: 7
+lesson: 6
+slug: "pivot-grouping-value-settings"
+title: "Grouping, Sorting and Value Field Settings"
+shortTitle: "Grouping & Value Settings"
+stage: "Advanced"
+durationMin: 14
+access: "paid"
+objectives:
+  - "Group dates into months, quarters and years, and numbers into bands"
+  - "Show values as a percentage of total, a running total or a rank"
+  - "Sort and filter inside a pivot table without touching the source"
+keys: ["Alt+Shift+Right", "Alt+F5"]
+datasets: ["Sales_Transactions", "HR_Employee_Master"]
+starterFile: "starter/07-06-pivot-grouping.xlsx"
+solutionFile: "solution/07-06-pivot-grouping.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 3
+prev: "7.5"
+next: "7.7"
+videoUrl: null
+---
+
+## Why this matters
+
+A pivot table with 600 individual dates down the side is useless. Grouped into months it answers a question. And the same pivot can show revenue as a rupee figure, a percentage of total, a running total or a rank — without changing a single formula. These two features are what turn a summary into an analysis.
+
+## How it works
+
+### Grouping dates
+
+Right-click any date in the Rows zone → **Group**. Choose Months, Quarters, Years — or several at once, which creates a drill-down hierarchy.
+
+<Shot id="7.6.1" />
+
+Select Years and Months together and you get collapsible year groups containing months. Click the `+` and `−` boxes, or use <Kbd>Alt</Kbd>+<Kbd>Shift</Kbd>+<Kbd>→</Kbd> to expand and <Kbd>Alt</Kbd>+<Kbd>Shift</Kbd>+<Kbd>←</Kbd> to collapse.
+
+<Callout type="warning">
+If **Group** is greyed out on a date field, the column contains text dates or blanks. Pivot tables can only group genuine date serials. Fix the source with Text to Columns (Lesson 7.1) and refresh — this is the commonest reason grouping "doesn't work".
+</Callout>
+
+### Grouping numbers into bands
+
+Right-click a numeric field in Rows → **Group** → set Starting at, Ending at, and By.
+
+Group salary by `100000` and you get bands — 400000–499999, 500000–599999, and so on. That's a distribution analysis with no helper column and no nested IF, and it's one of the fastest ways to see the shape of a dataset.
+
+### Value Field Settings — the part people never find
+
+Right-click any value → **Value Field Settings** → **Show Values As**. This is where a pivot stops being a total and starts being an analysis.
+
+| Show Values As | Gives you |
+|---|---|
+| **% of Grand Total** | Each cell's share of everything |
+| **% of Column Total** | Each cell's share of its column |
+| **% of Row Total** | Each cell's share of its row |
+| **Running Total In** | Cumulative down the rows — YTD figures |
+| **% Difference From** | Growth against a chosen baseline |
+| **Rank Largest to Smallest** | A rank column with no formula |
+| **% of Parent Row Total** | Share within a grouped hierarchy |
+
+<Shot id="7.6.2" />
+
+**You can show the same field twice.** Drag Revenue into Values twice — leave one as Sum and set the other to % of Grand Total. Now you have the figure and its share side by side, from one field.
+
+<Callout type="tip">
+Rename the value headers. `Sum of Revenue` and `Sum of Revenue2` tell a reader nothing. Click the header cell and type `Revenue` and `Share %`. It takes five seconds and it's the difference between a working pivot and a presentable one.
+</Callout>
+
+### Sorting and filtering inside a pivot
+
+Right-click a value → **Sort** → Largest to Smallest. This sorts by the *numbers*, which is usually what you want — the Rows dropdown sorts alphabetically instead.
+
+The Rows dropdown also offers **Value Filters**: Top 10, Greater Than, Between. `Top 5 items by Sum of Revenue` is two clicks and needs no sorting at all.
+
+## Do it
+
+Use a sales dataset with a real `Date` column and `Revenue`.
+
+1. Build a pivot: **Date** → Rows, **Revenue** → Values. You get one row per date — unusable.
+2. Right-click any date → **Group** → tick **Months** and **Years**. OK.
+3. Now you have year groups containing months. Collapse a year with <Kbd>Alt</Kbd>+<Kbd>Shift</Kbd>+<Kbd>←</Kbd>.
+
+4. Drag **Region** to Rows above Date. Region → Year → Month, a three-level hierarchy.
+
+### Show values as
+
+5. Drag **Revenue** into Values a **second** time.
+6. Right-click the second one → **Value Field Settings** → **Show Values As** → **% of Grand Total**. OK.
+7. Rename the headers to `Revenue` and `Share %`.
+8. Add Revenue a third time → **Running Total In** → Base field: Month. That's a YTD column.
+
+<Shot id="7.6.4" />
+
+9. Add it once more → **Rank Largest to Smallest** → Base field: Region.
+
+### Band the numbers
+
+10. New pivot from an employee list: **CTC** → Rows, **EmpID** → Values.
+11. Right-click a CTC value → **Group** → Starting at `400000`, Ending at `1000000`, By `100000`.
+12. A salary distribution with a headcount per band.
+
+### Sort and filter properly
+
+13. Right-click a revenue figure → **Sort** → **Largest to Smallest**.
+14. Rows dropdown → **Value Filters** → **Top 10** → change to `5`, by Sum of Revenue.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `Shift` + `→` | Expands the selected group | Drilling into a year to see its months | Click a year label, press it |
+| `Alt` + `Shift` + `←` | Collapses the selected group | Getting back to a summary view for a screenshot | Collapse all years to annual totals |
+| `Alt` + `F5` | Refreshes the pivot | After any source change — grouping and settings survive a refresh | Adding a new month's data |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Group greyed out on dates** | You conclude grouping is unavailable | The column holds text dates or blanks — fix the source and refresh |
+| Sorting from the Rows dropdown | Sorts alphabetically, not by value | Right-click a **value** → Sort |
+| Leaving `Sum of Revenue2` as a header | Unreadable output | Click the header and rename it |
+| Running Total with no Base field | `#N/A` or a flat column | Set the Base field to the row grouping |
+| Grouping dates that span years, by Months only | January 2025 and January 2026 merge into one row | Tick Years as well as Months |
+| `% of Grand Total` when you wanted per-column shares | Percentages that don't sum to 100 per column | `% of Column Total` |
+| Manually typing percentages beside a pivot | Breaks the moment the pivot resizes | Use a second Values field instead |
+
+</MistakeTable>
+
+<Callout type="story">
+**Shreya, MIS Analyst.** Her monthly sales pack included a revenue table and, beside it, a column of percentages she calculated with formulas pointing at the pivot's cells.
+
+One month a region had no sales. The pivot returned three rows instead of four, every cell below shifted up, and her percentage formulas — pointing at fixed addresses — attached the wrong share to every region. The pack went out with West's percentage against East's revenue.
+
+The fix was to drag Revenue into Values a second time and set it to **% of Grand Total**. The percentages are now part of the pivot, so they resize with it and cannot misalign.
+
+**Never calculate beside a pivot table with fixed cell references.** A pivot changes shape whenever the data does, and a formula pointing at `C7` has no idea that C7 now means something else.
+</Callout>
+
+## Practice
+
+<Exercise id="7.6.e1">
+
+<Scenario>
+Build one pivot that shows revenue by region and month, with share, running total and rank — and a salary distribution from a second pivot.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/07-06-pivot-grouping.xlsx">
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | OrderID | Region | Date | Revenue |
+| **2** | SO1001 | North | 12-Jan-2026 | 648000 |
+| **3** | SO1002 | South | 28-Jan-2026 | 375000 |
+| **4** | SO1003 | North | 14-Feb-2026 | 432000 |
+| **5** | SO1004 | East | 03-Feb-2026 | 81000 |
+| **6** | SO1005 | West | 19-Mar-2026 | 275000 |
+| **7** | SO1006 | North | 22-Mar-2026 | 108000 |
+| **8** | SO1007 | South | 08-Apr-2026 | 810000 |
+| **9** | SO1008 | West | 15-Apr-2026 | 324000 |
+
+Plus an employee list with `EmpID` and `CTC` for the second pivot.
+
+</Dataset>
+
+<Task>
+
+1. Build a pivot: Date → Rows, Revenue → Values. Group the dates by **Months**.
+2. Add Region to Rows **above** Date. Collapse and expand a month.
+3. Add Revenue to Values a second time, shown as **% of Grand Total**. Rename both headers.
+4. Add Revenue a third time as a **Running Total In** by Month.
+5. Add it a fourth time as **Rank Largest to Smallest** by Region.
+6. Right-click a revenue value and sort Largest to Smallest. Then apply a **Value Filter → Top 3** by revenue.
+7. On the employee data, build a second pivot: CTC → Rows, EmpID → Values. Group CTC by `100000` bands starting at 400000.
+8. Now convert the Date column to text (select it, format as Text, retype one value) and refresh. What happens to your grouping, and what does that tell you?
+
+</Task>
+
+<Expected>
+Step 1: four month rows — Jan, Feb, Mar, Apr · Step 3: shares totalling 100% · Step 7: salary bands with a headcount each · Step 8: Group becomes unavailable and the grouping is lost
+</Expected>
+
+<Solution>
+
+```
+1. Date → Rows · Revenue → Values · right-click a date → Group → Months
+2. Drag Region above Date in the Rows zone
+3. Revenue → Values again · right-click → Value Field Settings → Show Values As → % of Grand Total
+   Click each header cell and type Revenue / Share %
+4. Revenue → Values again · Show Values As → Running Total In → Base field: Date (Months)
+5. Revenue → Values again · Show Values As → Rank Largest to Smallest → Base field: Region
+6. Right-click a value → Sort → Largest to Smallest
+   Rows dropdown → Value Filters → Top 10 → change to 3
+7. CTC → Rows · EmpID → Values · right-click a CTC → Group → 400000 / 1000000 / 100000
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 is the technique that solved Shreya's problem.** The same field can sit in Values several times with a different `Show Values As` on each. The percentages then live *inside* the pivot, so they resize with it — where a formula beside the pivot pointing at fixed addresses silently misaligns the moment a category appears or disappears.
+
+**Step 8 is the diagnostic worth remembering.** Grouping requires genuine date serials, so a text date column makes **Group** greyed out entirely. When grouping appears unavailable, the answer is almost never the pivot — it's the data type. Fix the source with Text to Columns and refresh, and grouping returns.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "7.6.q1",
+    type: "formula",
+    question: "You need a year-to-date revenue column inside a pivot table, without writing any formula. What Value Field Setting do you use, and what else must you specify?",
+    accept: ["Running Total In, with the Base field set to the row grouping", "Show Values As Running Total In and set the Base field", "Running Total In and a Base field"],
+    explanation: "Value Field Settings → Show Values As → Running Total In, then set the Base field to whatever the rows are grouped by — usually Month or Date. Without a Base field the column returns errors or a flat repeat. This replaces the expanding-range SUM($B$2:B2) technique from Lesson 3.3 and, unlike it, resizes automatically as the pivot changes shape."
+  },
+  {
+    id: "7.6.q2",
+    type: "mcq",
+    question: "Right-clicking a date field in a pivot table shows Group greyed out. Why?",
+    options: [
+      "The pivot needs refreshing first",
+      "The source column contains text dates or blanks rather than genuine dates",
+      "Grouping only works on numeric fields",
+      "The field is in the Columns zone rather than Rows"
+    ],
+    correct: 1,
+    explanation: "Pivot tables can only group real date serials, so text dates or blanks in the column disable grouping entirely. This is the most common reason grouping seems unavailable, and the fix is in the source rather than the pivot — Text to Columns with the date order stated explicitly, then refresh. Numbers group too, into bands, so option 3 has it backwards."
+  },
+  {
+    id: "7.6.q3",
+    type: "scenario",
+    question: "You calculated percentage shares in formulas beside a pivot table. One month a region had no sales, the pivot returned fewer rows, and every percentage attached to the wrong region. What should you have done?",
+    options: [
+      "Locked the formula references with F4",
+      "Added the Revenue field to Values a second time, shown as % of Grand Total",
+      "Sorted the pivot alphabetically so rows stay in a fixed order",
+      "Used GETPIVOTDATA in the formulas"
+    ],
+    correct: 1,
+    explanation: "A pivot changes shape whenever the data does, so any formula pointing at fixed addresses beside it will eventually misalign — locking the references with F4 makes that worse, not better, since the addresses then can't follow anything. Putting the percentage inside the pivot as a second Values field means it resizes with the table. GETPIVOTDATA is a genuine alternative for pulling single figures into a separate layout, but for a column of shares the second Values field is simpler and self-maintaining."
+  }
+]

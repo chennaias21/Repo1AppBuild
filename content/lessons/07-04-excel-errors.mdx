@@ -1,0 +1,272 @@
+---
+id: "7.4"
+module: 7
+lesson: 4
+slug: "excel-errors"
+title: "Understanding and Fixing Every Excel Error"
+shortTitle: "Excel Errors"
+stage: "Advanced"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Identify what each of the seven Excel errors is telling you"
+  - "Trace an error back to its cause instead of suppressing it"
+  - "Decide when to fix, when to handle, and when to leave an error visible"
+keys: ["F5", "Alt+M+P"]
+datasets: ["HR_Employee_Master", "Expense_Claims"]
+starterFile: "starter/07-04-errors.xlsx"
+solutionFile: "solution/07-04-errors.xlsx"
+functions: ["IFERROR", "IFNA", "AGGREGATE", "ISERROR"]
+excelVersion: "all"
+shotCount: 3
+prev: "7.3"
+next: "7.5"
+videoUrl: null
+---
+
+## Why this matters
+
+An Excel error is a diagnosis, not a failure. Each of the seven tells you something specific about what went wrong, and reading them correctly turns a twenty-minute hunt into a ten-second fix. The instinct to wrap everything in `IFERROR` is how people hide bugs they needed to know about.
+
+## How it works
+
+### The seven errors and what each one means
+
+| Error | Means | Usually caused by |
+|---|---|---|
+| `#N/A` | **Not found** | A lookup whose value genuinely isn't there — or a trailing space / type mismatch |
+| `#VALUE!` | **Wrong type** | Arithmetic on text; a text date in a date calculation |
+| `#REF!` | **Broken reference** | A row, column or sheet the formula needed was deleted |
+| `#DIV/0!` | **Divided by zero or blank** | A denominator that's 0 or empty |
+| `#NAME?` | **Excel doesn't recognise a name** | A misspelled function; text without quotes; `XLOOKUP` on an old version |
+| `#NUM!` | **Impossible number** | `SQRT` of a negative; `DATEDIF` with dates reversed |
+| `#SPILL!` | **No room to spill** | A dynamic array blocked by existing data |
+
+<Shot id="7.4.1" />
+
+**Two of these are informative rather than broken.** `#N/A` from a lookup often means "this record doesn't exist", which is a fact about your data worth knowing. `#DIV/0!` in a per-unit calculation means "no units", which is also a fact. The other five are almost always bugs.
+
+<Callout type="tip">
+`#####` is **not** an error. It means the column is too narrow to display a number, and Excel refuses to truncate numbers because that would be dangerously misleading. Double-click the column border.
+</Callout>
+
+### Find every error at once
+
+<Kbd>F5</Kbd> → **Special** → **Formulas** → untick all but **Errors** → OK.
+
+Every error cell on the sheet is selected, and the status bar gives you the count. **Do this before you suppress anything** — two errors in 600 rows is data; six hundred in six hundred rows is a broken formula.
+
+<Shot id="7.4.2" />
+
+### Trace the cause
+
+**Formulas → Error Checking → Trace Error** draws arrows to the cells feeding the error. **Formulas → Evaluate Formula** (<Kbd>Alt</Kbd>+<Kbd>M</Kbd>+<Kbd>V</Kbd>) steps through the calculation one piece at a time, so you see exactly where it breaks.
+
+Or use `F9` on part of a formula, as in Lesson 4.1.
+
+### Errors poison aggregates
+
+One error in a column makes `SUM`, `AVERAGE`, `MAX` and `MIN` over that column return the same error.
+
+<FormulaBlock>
+```
+=SUM(D2:D200)              → #N/A if any cell holds #N/A
+=AGGREGATE(9,6,D2:D200)    → a working total, ignoring errors
+                 │ │
+                 │ └── 6 = ignore errors
+                 └──── 9 = SUM
+```
+</FormulaBlock>
+
+`AGGREGATE` is a stopgap that lets you keep working while you find the cause. It is not a fix.
+
+<Callout type="warning">
+`IFERROR` catches all seven error types, so it cannot tell an expected `#N/A` from a `#REF!` caused by a deleted column. Wrapping a lookup in `=IFERROR(VLOOKUP(...),"")` on a broken column index returns blank for every row and looks exactly like "no matches found". Use `IFNA` on lookups so structural bugs stay visible (Lesson 4.4).
+</Callout>
+
+## Do it
+
+1. In a blank sheet, create one of each error deliberately:
+
+| Cell | Formula | Produces |
+|---|---|---|
+| A1 | `=VLOOKUP("X",B1:C3,2,0)` | `#N/A` |
+| A2 | `="text"*2` | `#VALUE!` |
+| A3 | `=SUM(D:D)` then delete column D | `#REF!` |
+| A4 | `=1/0` | `#DIV/0!` |
+| A5 | `=SUMM(1,2)` | `#NAME?` |
+| A6 | `=SQRT(-4)` | `#NUM!` |
+
+2. In **C1**: `=SUM(A1:A6)` → returns `#N/A`. One bad cell poisons the total.
+3. In **C2**: `=AGGREGATE(9,6,A1:A6)` → returns a number, ignoring every error.
+
+### Find them all
+
+4. <Kbd>F5</Kbd> → Special → Formulas → Errors only → OK. All six selected; status bar shows the count.
+
+### Trace one
+
+5. Click the `#VALUE!` cell. **Formulas → Evaluate Formula.** Click **Evaluate** repeatedly and watch `"text"*2` resolve step by step until the error appears.
+6. Click the `#N/A` cell. **Formulas → Error Checking → Trace Error.** Arrows point to the lookup range.
+
+### Diagnose before you suppress
+
+7. Build a lookup with a **wrong column index** and wrap it in `IFERROR` returning `""`. Every row is blank — indistinguishable from "no matches".
+8. Swap `IFERROR` for `IFNA`. `#REF!` appears on every row, visible and fixable in seconds.
+
+<Shot id="7.4.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F5` → Special → Errors | Selects every error cell on the sheet | **Before** wrapping anything in IFERROR — the count tells you if it's data or a bug | 2 errors in 600 rows is data; 600 is a broken formula |
+| `Alt` + `M` + `V` | Opens Evaluate Formula | Stepping through a long formula to see exactly where it breaks | Click Evaluate repeatedly |
+| `F9` on part of a formula | Evaluates just that piece | Faster than Evaluate Formula for a single suspect argument | Select the lookup, press F9, press Esc |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **`IFERROR` hiding a `#REF!`** | Every row blank; looks like no matches exist | `IFNA` on lookups |
+| Suppressing before diagnosing | The symptom is gone, the cause isn't | `F5` → Special → Errors first |
+| `IFERROR(...,0)` in an average | The zeros drag the average down | `""` if the row should be excluded |
+| Treating `#####` as an error | You start debugging a formula that's fine | Widen the column |
+| `#NAME?` on a modern function | You conclude the formula is wrong | Check the Excel version — `XLOOKUP`, `IFS`, `TEXTJOIN` need 2019+ |
+| `#DIV/0!` fixed by removing the division | You've hidden a real "no units" case | Handle it: `=IFERROR(C2/D2,0)` and decide what 0 means |
+| `#SPILL!` | A dynamic array can't expand | Clear the cells to the right |
+
+</MistakeTable>
+
+<Callout type="story">
+**Arun, MIS Analyst.** His monthly report pulled employee names into a claims sheet with `=IFERROR(VLOOKUP(...),"")`. One month every name came back blank. He assumed the HR export was broken and spent two hours comparing employee IDs character by character, hunting for whitespace.
+
+The export was fine. Someone had inserted a column into the master, so his column index now pointed past the end of the range — a `#REF!` on every row. `IFERROR` had turned all of them into empty strings, which looked exactly like "no matches found".
+
+He switched every lookup to `IFNA`. The next time a column moved, `#REF!` appeared immediately and the fix took ten seconds.
+
+**`IFERROR` cannot distinguish the errors you expect from the bugs you don't, so don't ask it to.** Diagnose first, then choose the narrowest handler that covers the case you actually anticipate.
+</Callout>
+
+## Practice
+
+<Exercise id="7.4.e1">
+
+<Scenario>
+An expense report with several different errors, each needing a different response.
+</Scenario>
+
+<Dataset name="Expense_Claims" starter="starter/07-04-errors.xlsx">
+
+**Claims** (A:D)
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | ClaimID | EmpID | Amount | Trips |
+| **2** | C001 | E1001 | 4500 | 3 |
+| **3** | C002 | E1002 | 1200 | 0 |
+| **4** | C003 | E9999 | 7800 | 2 |
+| **5** | C004 | E1003 | 15000 | 5 |
+
+**Master** (G:H) — E9999 is deliberately absent
+
+| | G | H |
+|---|---|---|
+| **1** | EmpID | Name |
+| **2** | E1001 | Anil Kumar |
+| **3** | E1002 | Meera Nair |
+| **4** | E1003 | Rahul Shah |
+
+</Dataset>
+
+<Task>
+
+1. **E2** — cost per trip (Amount ÷ Trips). Fill down. Which error appears, on which row, and what does it *mean* about the data?
+2. **F2** — look up the employee name. Which error appears, and what does it mean?
+3. In **J1**, total column E. What happens, and why?
+4. In **J2**, total column E while ignoring errors, using `AGGREGATE`.
+5. Use <Kbd>F5</Kbd> → Special → Errors. How many error cells on the sheet?
+6. Decide a response for each error: which should be fixed at source, which handled with a fallback, and which left visible? Justify each in one line.
+
+</Task>
+
+<Expected>
+Step 1: `#DIV/0!` on row 3 — the claim has no trips, so cost per trip is undefined · Step 2: `#N/A` on row 4 — E9999 isn't in the master · Step 3: returns `#DIV/0!` — one error poisons the whole SUM · Step 5: 2 error cells
+</Expected>
+
+<Solution>
+
+```
+E2: =C2/D2
+F2: =VLOOKUP(B2,$G$2:$H$4,2,0)
+J1: =SUM(E2:E5)              → #DIV/0!
+J2: =AGGREGATE(9,6,E2:E5)    → a working total
+
+Handled versions:
+E2: =IFERROR(C2/D2,"")       "" so the row is excluded from any AVERAGE
+F2: =IFNA(VLOOKUP(B2,$G$2:$H$4,2,0),"Not in master")
+```
+
+</Solution>
+
+<Why>
+
+**Step 6 is the point, and the three answers differ.** The `#N/A` on row 4 is a **data problem to escalate** — E9999 is a real claim from an employee missing from the master, which someone in HR needs to fix. Handling it with `IFNA` and a clear label like `Not in master` keeps the report readable *and* keeps the problem visible. Suppressing it to `""` would hide a genuine gap.
+
+The `#DIV/0!` on row 3 is **expected behaviour**, not a bug — a claim with no trips genuinely has no cost per trip. `IFERROR` with `""` is right here, and the choice of `""` over `0` matters: `0` would be included in an AVERAGE and drag it down, implying a zero cost that never happened.
+
+**Step 3 is why either decision has to be made at all.** A single error makes the whole SUM return that error, so you cannot leave errors unhandled in a column anything aggregates. `AGGREGATE` from step 4 lets you keep working while you decide — it is a stopgap, not a resolution.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "7.4.q1",
+    type: "mcq",
+    question: "A formula that worked yesterday now returns #REF!. What most likely happened?",
+    options: [
+      "The file needs recalculating",
+      "A row, column or sheet the formula referenced was deleted",
+      "The cell format changed to text",
+      "The workbook is in Manual calculation mode"
+    ],
+    correct: 1,
+    explanation: "#REF! means a broken reference — something the formula pointed at no longer exists. Deleting a column inside a lookup range, removing a sheet, or deleting rows a formula depended on all produce it. Unlike #N/A, this is always a bug rather than a fact about the data, which is why wrapping lookups in IFNA rather than IFERROR matters: IFERROR would hide it."
+  },
+  {
+    id: "7.4.q2",
+    type: "scenario",
+    question: "Your #NAME? error appears on a formula using XLOOKUP that works perfectly on your own machine. A colleague on Excel 2019 sees the error. What's the cause?",
+    options: [
+      "Their file is corrupted",
+      "XLOOKUP requires Microsoft 365 or Excel 2021 — it doesn't exist in 2019",
+      "They need to enable an add-in",
+      "The lookup range is on a closed workbook"
+    ],
+    correct: 1,
+    explanation: "#NAME? means Excel doesn't recognise a name — usually a misspelled function, text without quotes, or a function that version doesn't have. XLOOKUP, IFS, TEXTJOIN, CONCAT, FILTER, LET and LAMBDA all need newer versions. Wrapping it in IFERROR won't help, because the function itself is unrecognised. For mixed-version teams, INDEX MATCH works everywhere (Lesson 5.3)."
+  },
+  {
+    id: "7.4.q3",
+    type: "decision",
+    question: "A lookup returns #N/A for 5% of rows because those employees genuinely left the company. The column feeds a report others read. What's the best response?",
+    options: [
+      "Wrap it in IFNA with a clear label such as \"Not in master\"",
+      "Wrap it in IFERROR with \"\" so the report looks clean",
+      "Leave the #N/A visible — errors should never be hidden",
+      "Delete those rows from the report"
+    ],
+    correct: 0,
+    explanation: "IFNA handles the one error you expect while leaving structural bugs like #REF! visible, and a meaningful label tells the reader what actually happened rather than hiding it. Option 2 uses the broader IFERROR and destroys the information — it would also mask a broken column index. Option 3 leaves a report others can't read and breaks any SUM over the column. Option 4 silently changes the dataset, which is worse than any error message."
+  }
+]

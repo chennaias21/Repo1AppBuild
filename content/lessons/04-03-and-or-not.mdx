@@ -1,0 +1,246 @@
+---
+id: "4.3"
+module: 4
+lesson: 3
+slug: "and-or-not"
+title: "AND, OR, NOT — Multiple Conditions"
+shortTitle: "AND, OR, NOT"
+stage: "Intermediate"
+durationMin: 10
+access: "paid"
+objectives:
+  - "Combine several conditions in one IF using AND and OR"
+  - "Choose between AND and OR correctly — the most common logic error in business Excel"
+  - "Nest AND inside OR to express real eligibility rules"
+keys: ["F9", "Alt+Enter"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/04-03-and-or.xlsx"
+solutionFile: "solution/04-03-and-or.xlsx"
+functions: ["AND", "OR", "NOT"]
+excelVersion: "all"
+shotCount: 4
+prev: "4.2"
+next: "4.4"
+videoUrl: null
+---
+
+## Why this matters
+
+Business rules almost never test one thing. *"Bonus eligible if they've been here over a year, and their rating is Exceeds or better, and they're not serving notice."* Three conditions, one decision. `AND` and `OR` are how you say that in a formula.
+
+## How it works
+
+**`AND`** — every condition must be true. **`OR`** — at least one must be true. Both return TRUE or FALSE, so both slot straight into `IF`'s first argument.
+
+<FormulaBlock>
+```
+=IF(AND(C2>=12, D2="Exceeds"), "Eligible", "Not eligible")
+    │   └── both must be true ──┘
+    └── AND returns TRUE or FALSE, which IF then acts on
+```
+</FormulaBlock>
+
+<Shot id="4.3.1" />
+
+**Choosing between them is where people go wrong — and it isn't because the functions are hard. It's because English is ambiguous about "and".**
+
+*"Send a reminder to employees in Sales and Marketing."* You need `OR`, not `AND` — because no employee is in both departments at once. `AND(E2="Sales",E2="Marketing")` asks one cell to equal two different values simultaneously, and returns FALSE for every row.
+
+The reliable test: **read the condition aloud and ask whether one single row could satisfy every part of it at the same time.** If yes, `AND`. If the parts are alternatives, `OR`.
+
+| Plain English | Function | Why |
+|---|---|---|
+| "over 12 months **and** rated Exceeds" | `AND` | One person can be both |
+| "in Sales **and** Marketing" | `OR` | One person can't be in two departments |
+| "Mumbai, Pune **or** Nashik" | `OR` | Alternatives |
+| "full attendance **and** no warnings" | `AND` | One person can be both |
+
+**`NOT`** flips a result, but in practice `<>` is clearer: `=D2<>"Notice"` beats `=NOT(D2="Notice")`. Save `NOT` for flipping a whole compound expression — `=NOT(AND(...))`.
+
+<Callout type="tip">
+**`AND` is how you test a range.** There is no BETWEEN function in Excel. `=IF(AND(B2>=1000,B2<=5000),"In range","Out")` is the idiom, and you'll write it constantly for salary bands, date windows and quantity breaks. Both bounds are required — one argument only enforces one side.
+</Callout>
+
+<Callout type="tip">
+Past about four conditions, a formula stops being verifiable by eye. That's a signal the rule belongs in a criteria table with `COUNTIFS` rather than in one long formula.
+</Callout>
+
+## Do it
+
+Bonus eligibility: at least 12 months' service, rating of Exceeds or Outstanding, not serving notice.
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | Employee | Months | Rating | Status | Eligible |
+| **2** | Anil Kumar | 28 | Outstanding | Active | ? |
+| **3** | Meera Nair | 8 | Exceeds | Active | ? |
+| **4** | Rahul Shah | 40 | Meets | Active | ? |
+| **5** | Sneha Rao | 19 | Exceeds | Notice | ? |
+| **6** | Kabir Menon | 15 | Exceeds | Active | ? |
+
+Put `12` in **H1**.
+
+1. Click **E2**. Type `=IF(AND(`
+2. Click **B2**, type `>=`, click **H1**, press <Kbd>F4</Kbd> → `$H$1`
+3. Type `,OR(C2="Exceeds",C2="Outstanding")`
+4. Type `,D2<>"Notice")`
+5. Type `,"Eligible","Not eligible")` and press <Kbd>Enter</Kbd>. Fill down.
+
+Only Anil and Kabir qualify. Meera fails on service, Rahul on rating, Sneha on notice.
+
+<Shot id="4.3.2" />
+
+**The nested `OR` inside the `AND` is the pattern to learn.** "Exceeds *or* Outstanding" is one condition made of alternatives, so it becomes one `OR` sitting as one argument of the `AND`. The shape `AND(x, OR(a,b), y)` expresses most real eligibility rules.
+
+### Explode before you combine
+
+6. In G2: `=B2>=$H$1` · in I2: `=OR(C2="Exceeds",C2="Outstanding")` · in J2: `=D2<>"Notice"`
+7. In K2: `=AND(G2,I2,J2)` — `AND` accepts cells that already hold TRUE/FALSE. Column K matches column E.
+
+This is how you debug multi-condition logic: build it in pieces, confirm each piece, then combine. Delete the helpers afterwards.
+
+<Shot id="4.3.3" />
+
+### Break it deliberately
+
+8. In L2, swap the top-level `AND` for `OR`: `=IF(OR(B2>=$H$1,OR(C2="Exceeds",C2="Outstanding"),D2<>"Notice"),"Eligible","Not eligible")`
+9. Fill down. **Everyone is now eligible** — including Rahul, rated Meets, and Sneha, on notice. Each satisfies at least one condition, and `OR` needs only one.
+
+<Shot id="4.3.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F9` on a selected condition | Evaluates that condition alone | A four-condition formula returns the wrong answer and you need to know which part failed | Select `OR(C2="Exceeds",...)` → `FALSE` |
+| `Alt` + `Enter` | Line break inside a formula | Laying out one condition per line so the rule is readable | Before each argument of the `AND` |
+| `F2` | Edit in place with coloured references | Confirming each condition points at the cell you intended | Reviewing an eligibility rule |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **`OR` where `AND` was meant** | Everyone passes. No error. | Read the rule aloud; ask if one row can satisfy all parts |
+| `AND` where `OR` was meant | Nobody passes — an empty list | Same test. "Sales and Marketing" means `OR`. |
+| `=AND(C2="Exceeds","Outstanding")` | A plausible TRUE/FALSE — the second argument isn't a comparison, so it's ignored | `=OR(C2="Exceeds",C2="Outstanding")` — repeat the cell reference |
+| Forgetting `AND`/`OR` go *inside* IF | The cell shows TRUE/FALSE, not your labels | `=IF(AND(...),"Yes","No")` |
+| Range test with one bound | Only one side is enforced | `=AND(x>=min,x<=max)` |
+| Four or more conditions in one formula | Unverifiable by eye | Explode into helper columns, or use `COUNTIFS` |
+
+</MistakeTable>
+
+<Callout type="story">
+**Priyanka, HR Business Partner, 240-employee bonus cycle.** The policy read: *"Employees with 12 months' service and a rating of Exceeds or Outstanding, excluding those serving notice."* She translated it condition by condition, using `OR` throughout because the sentence contained the word "or".
+
+All 240 employees came back `Eligible`. Someone with two months' service and a Needs Improvement rating still satisfied `D2<>"Notice"`, and with `OR` one satisfied condition is enough. The list went to Finance, who queried it — the provision was three times last year's on unchanged headcount. That query is the only reason it was caught.
+
+Correct count: 96, not 240. **The word "or" in a policy sentence does not map to `OR` in a formula.** Policy language describes alternatives *within* a requirement; the requirements themselves are joined by `AND`. Translate the structure, not the words — and note this error always fails permissively, which is the expensive direction.
+</Callout>
+
+## Practice
+
+<Exercise id="4.3.e1">
+
+<Scenario>
+Three separate eligibility rules for a nine-person team: bonus, training nomination, and long-service award.
+</Scenario>
+
+<Dataset name="Eligibility_Check" starter="starter/04-03-and-or.xlsx">
+
+| | A | B | C | D | E | F |
+|---|---|---|---|---|---|---|
+| **1** | Employee | Months | Rating | Status | Dept | Days Present |
+| **2** | Anil Kumar | 28 | Outstanding | Active | Sales | 24 |
+| **3** | Meera Nair | 8 | Exceeds | Active | HR | 24 |
+| **4** | Rahul Shah | 40 | Meets | Active | Sales | 19 |
+| **5** | Sneha Rao | 19 | Exceeds | Notice | Finance | 22 |
+| **6** | Kabir Menon | 15 | Exceeds | Active | Ops | 12 |
+| **7** | Divya Iyer | 63 | Outstanding | Active | Sales | 26 |
+| **8** | Nisha Roy | 72 | Exceeds | Active | Ops | 24 |
+| **9** | Rohan Das | 48 | Meets | Active | Ops | 18 |
+| **10** | Anita Kaur | 26 | Exceeds | Active | HR | 25 |
+
+**I1** `Min Months` = `12` · **I2** `Full Days` = `24` · **I3** `Long Service` = `60`
+
+</Dataset>
+
+<Task>
+
+1. **G2** — `Eligible` if: at least I1 months **and** rating is Exceeds or Outstanding **and** not on notice.
+2. **H2** — `Nominate` if in Sales **or** Ops, **and** days present is at least I2.
+3. **J2** — `Award` if service is at least I3 **and** not on notice.
+4. Use <Kbd>F9</Kbd> to find the single condition that disqualifies Kabir from the training nomination.
+5. **K2** — `In band` if months of service is between 12 and 36 inclusive.
+6. **L2** — `Review` if the employee is either (on notice **and** rated Meets) **or** (fewer than 20 days present **and** at least I1 months' service). Two AND blocks inside one OR.
+
+</Task>
+
+<Expected>
+Bonus eligible: 5 (Anil, Kabir, Divya, Nisha, Anita) · Nominate: 4 (Anil, Divya, Nisha — check Rohan's 18 days) · Award: 2 (Divya, Nisha) · Step 4: Kabir's department qualifies, his attendance doesn't
+</Expected>
+
+<Hint>
+For step 6, build each `AND` block in its own helper cell first, confirm both, then wrap them in one `OR`.
+</Hint>
+
+<Solution>
+
+```
+G2: =IF(AND(B2>=$I$1,OR(C2="Exceeds",C2="Outstanding"),D2<>"Notice"),"Eligible","Not eligible")
+H2: =IF(AND(OR(E2="Sales",E2="Ops"),F2>=$I$2),"Nominate","")
+J2: =IF(AND(B2>=$I$3,D2<>"Notice"),"Award","")
+K2: =IF(AND(B2>=12,B2<=36),"In band","Out of band")
+L2: =IF(OR(AND(D2="Notice",C2="Meets"),AND(F2<20,B2>=$I$1)),"Review","")
+```
+
+</Solution>
+
+<Why>
+
+**Step 5 exists because Excel has no BETWEEN function.** `=AND(x>=min,x<=max)` is the idiom and you'll write it for the rest of your Excel life. Watch for the `OR` version of this mistake: `=OR(B2>=12,B2<=36)` returns TRUE for almost any number, because 500 satisfies the first condition. It looks nearly identical and is almost always wrong.
+
+**Step 6 is the shape most real policies take** — two distinct qualifying situations, either of which triggers the same outcome, each situation itself requiring several things. `OR(AND(...),AND(...))` expresses it directly. A formula with two nested AND blocks and four conditions is not verifiable by reading it, which is why the hint matters.
+
+**Step 4 shows what `F9` is for.** Kabir is in Ops so the department `OR` returns TRUE, but his 12 days fail the attendance test, so the `AND` returns FALSE. Selecting each condition and pressing F9 tells you that in two seconds. Guessing from the output tells you nothing.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "4.3.q1",
+    type: "truefalse",
+    question: "=AND(C2=\"Exceeds\",\"Outstanding\") correctly tests whether C2 contains either rating.",
+    correct: false,
+    explanation: "The second argument is just the text \"Outstanding\" — not a comparison — so it isn't a logical test and AND ignores it. The formula effectively tests only the first condition. You must repeat the cell reference and use OR: =OR(C2=\"Exceeds\",C2=\"Outstanding\"). Dangerous because it returns a plausible TRUE/FALSE rather than an error."
+  },
+  {
+    id: "4.3.q2",
+    type: "formula",
+    question: "Write a formula for G2 returning \"Eligible\" when months of service in B2 is at least 12 AND the rating in C2 is either \"Exceeds\" or \"Outstanding\", otherwise \"Not eligible\".",
+    accept: ["=IF(AND(B2>=12,OR(C2=\"Exceeds\",C2=\"Outstanding\")),\"Eligible\",\"Not eligible\")", "=IF(AND(OR(C2=\"Exceeds\",C2=\"Outstanding\"),B2>=12),\"Eligible\",\"Not eligible\")"],
+    explanation: "The OR sits as a single argument inside the AND, because \"Exceeds or Outstanding\" is one condition made of alternatives. The structure AND(x, OR(a,b)) expresses most real eligibility rules — a requirement that can be met in more than one way, combined with requirements that must all hold."
+  },
+  {
+    id: "4.3.q3",
+    type: "scenario",
+    question: "Your bonus formula returned all 240 employees as eligible, including people with two months' service. It reads =IF(OR(B2>=12,C2=\"Exceeds\",D2<>\"Notice\"),\"Eligible\",\"Not eligible\"). What went wrong?",
+    options: [
+      "The thresholds need absolute references",
+      "OR was used where AND was needed — one satisfied condition is enough for OR",
+      "The Status column contains trailing spaces",
+      "IF cannot handle three conditions"
+    ],
+    correct: 1,
+    explanation: "With OR, satisfying any single condition returns TRUE. Someone with two months' service still satisfies D2<>\"Notice\" if they're active, so every active employee passes on that condition alone. Fix: AND at the top level, with OR only around the genuine alternatives. Note this error always fails permissively — it approves people it shouldn't — which is why it reaches Finance rather than being caught as an obviously empty list."
+  }
+]

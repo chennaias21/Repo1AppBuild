@@ -1,0 +1,269 @@
+---
+id: "8.1"
+module: 8
+lesson: 1
+slug: "choosing-and-building-charts"
+title: "Choosing the Right Chart and Building It Well"
+shortTitle: "Charts"
+stage: "Business-Ready"
+durationMin: 13
+access: "paid"
+objectives:
+  - "Pick the right chart type from what the data has to say"
+  - "Build and format a chart so it reads in two seconds"
+  - "Avoid the four defaults that make Excel charts look amateur"
+keys: ["Alt+F1", "Ctrl+1"]
+datasets: ["Sales_Transactions", "HR_Employee_Master"]
+starterFile: "starter/08-01-charts.xlsx"
+solutionFile: "solution/08-01-charts.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 3
+prev: "7.9"
+next: "8.2"
+videoUrl: null
+---
+
+## Why this matters
+
+A table makes the reader do the work. A chart does the work for them. But the wrong chart is worse than a table — a pie chart of twelve regions tells you nothing, and a line chart of unrelated categories implies a trend that doesn't exist. Choosing correctly takes one question; building it well takes four settings.
+
+## How it works
+
+### The choosing rule
+
+Ask what the data has to say, not what looks nice:
+
+| The question | Chart |
+|---|---|
+| How do these categories compare? | **Column** (vertical) or **Bar** (horizontal, when labels are long) |
+| How has this changed over time? | **Line** |
+| What's the composition of a whole? | **Pie** — only if there are 2–4 slices |
+| Are these two things related? | **Scatter** |
+| How is this distributed? | **Histogram** |
+| Two measures on different scales? | **Combo** with a secondary axis (Lesson 8.2) |
+
+**Two rules that settle most arguments.** Use a **line** only when the horizontal axis is genuinely continuous — time, or an ordered scale. Regions are categories, not a sequence, so connecting them with a line implies a progression that doesn't exist.
+
+And **pie charts stop working past four slices.** The human eye can't compare angles well, and twelve slices in a legend is a puzzle, not a chart. Use a bar chart sorted descending instead — it's always more readable.
+
+<Callout type="tip">
+Sort your categories by value before charting, descending. An unsorted bar chart makes the reader scan back and forth to find the largest; a sorted one answers the question in the first half-second. This single habit improves more charts than any formatting choice.
+</Callout>
+
+### Building one
+
+Select the data including headers → **Insert → Charts**, or <Kbd>Alt</Kbd>+<Kbd>F1</Kbd> for a chart on the same sheet.
+
+The three panels you'll use: the **+** button adds and removes elements, the **paintbrush** changes style and colour, and <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> opens the full Format pane for whatever you've selected.
+
+### The four defaults to change every time
+
+<Shot id="8.1.2" />
+
+**1. The title.** Excel writes `Chart Title` or repeats the column header. Replace it with what the chart *says* — `Revenue by Region` is weak; `South leads on revenue, East is 8% of total` earns the space.
+
+**2. The legend.** With one series, delete it — the title already says what the bars are. Legends are only needed for two or more series.
+
+**3. Gridlines.** Excel adds horizontal gridlines at a default interval. Thin them, lighten them, or delete them and use data labels instead.
+
+**4. Axis number format.** `5000000` on an axis is unreadable. Select the axis, <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → Number → custom format `#,##0,,"M"` for millions (Lesson 2.4).
+
+<Callout type="warning">
+Never use a 3-D chart, and never rotate a pie. Both distort the data — a 3-D column chart makes front bars look larger than equal bars behind them, and a tilted pie exaggerates the slices at the front. If a chart's job is to represent proportions honestly, perspective effects are a defect, not a style.
+</Callout>
+
+### Data labels instead of an axis
+
+For a chart with few categories, delete the axis and gridlines entirely and add **data labels** to the bars. The reader gets exact figures with no visual clutter. This is the single biggest improvement available to most business charts.
+
+## Do it
+
+| | A | B |
+|---|---|---|
+| **1** | Region | Revenue |
+| **2** | North | 1188000 |
+| **3** | South | 1185000 |
+| **4** | East | 81000 |
+| **5** | West | 599000 |
+
+1. Sort by Revenue descending first — one cell selected, **Data → Sort**.
+2. Select **A1:B5**. Press <Kbd>Alt</Kbd>+<Kbd>F1</Kbd>. A clustered column chart appears.
+3. Click the title. Type `North and South lead; East is under 3% of total`.
+4. Click the legend. Press <Kbd>Delete</Kbd> — there's only one series.
+5. Click a gridline. Press <Kbd>Delete</Kbd>.
+
+<Shot id="8.1.3" />
+
+6. Click the **+** button → tick **Data Labels**. Now the figures sit on the bars.
+7. Click the vertical axis. Press <Kbd>Delete</Kbd> — the labels replace it.
+8. Click a bar → <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → Fill → pick one colour for all bars. Multiple colours on a single series is noise.
+9. Click the highest bar **twice** (once selects the series, twice selects that point) → give it your accent colour. Now the chart has a focal point.
+
+### Compare with a line chart
+
+10. Select the same data → **Insert → Line**. The regions are now joined by a line implying a trend from North to West.
+11. That trend is meaningless — regions have no order. Delete it.
+
+### Compare with a pie
+
+12. Make a pie of the same four regions. It's readable at four slices.
+13. Now add eight more regions and refresh the pie. The legend becomes a puzzle and the small slices are indistinguishable. A sorted bar chart handles twelve categories without difficulty.
+
+<Shot id="8.1.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `F1` | Chart on the current sheet | Quick chart while you're working in the data | Select the range, press it |
+| `F11` | Chart on its own new sheet | A full-page chart for printing or presenting | Select the range, press it |
+| `Ctrl` + `1` | Format pane for whatever is selected | Every formatting change — axis, series, title, label | Click the axis, press it |
+| Click twice on one bar | Selects that single data point, not the series | Highlighting one bar in your accent colour | Once for the series, twice for the point |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Line chart for categories** | A trend that doesn't exist | Line only for time or an ordered scale |
+| **Pie with more than four slices** | An unreadable legend puzzle | Sorted bar chart |
+| 3-D charts or rotated pies | Front values look bigger than equal ones behind | Never use them |
+| Unsorted bar chart | The reader hunts for the largest value | Sort descending before charting |
+| `Chart Title` left in place | Looks unfinished | Write what the chart *says* |
+| Legend on a single-series chart | Redundant clutter | Delete it |
+| Raw numbers on the axis | `5000000` is unreadable | Custom format `#,##0,,"M"` |
+| A different colour per bar in one series | Implies the colours mean something | One colour, plus an accent for the focal point |
+
+</MistakeTable>
+
+<Callout type="story">
+**Anup, Regional Sales Manager.** His monthly deck opened with a pie chart of revenue across eleven territories. The legend ran down the right-hand side in eleven colours, and the four smallest slices were visually identical.
+
+In a review meeting the national head asked which territory was third largest. Nobody could tell — not from the chart. Anup had to open the spreadsheet.
+
+He replaced it with a bar chart sorted descending, one colour, data labels on, no axis, no gridlines, and the top territory in the brand accent colour. The same question was answerable at a glance.
+
+**A chart that needs a supporting table has failed.** Sorting descending and using bars instead of a pie fixed it in under two minutes, and neither change required any design skill.
+</Callout>
+
+## Practice
+
+<Exercise id="8.1.e1">
+
+<Scenario>
+Build three charts from the same data and judge which actually answers each question.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/08-01-charts.xlsx">
+
+**Revenue by region**
+
+| | A | B |
+|---|---|---|
+| **1** | Region | Revenue |
+| **2** | North | 1188000 |
+| **3** | South | 1185000 |
+| **4** | East | 81000 |
+| **5** | West | 599000 |
+
+**Monthly revenue**
+
+| | D | E |
+|---|---|---|
+| **1** | Month | Revenue |
+| **2** | Jan | 1023000 |
+| **3** | Feb | 513000 |
+| **4** | Mar | 383000 |
+| **5** | Apr | 1134000 |
+
+</Dataset>
+
+<Task>
+
+1. Sort the region data descending, then build a column chart. Apply all four default fixes: real title, no legend, no gridlines, formatted axis.
+2. Replace the axis with data labels and delete the axis entirely.
+3. Colour all bars one colour, then make the largest bar your accent colour.
+4. Build a **line** chart of monthly revenue. Is a line appropriate here? Why?
+5. Build a **line** chart of the region data. Is it appropriate? Why not?
+6. Build a pie of the four regions, then add eight more regions and rebuild it. At what point does it stop being readable?
+7. Write a title for the region chart that states a finding rather than naming the data.
+
+</Task>
+
+<Expected>
+Step 4: yes — months are a continuous ordered scale · Step 5: no — regions are unordered categories, so the line implies a progression that doesn't exist · Step 6: readability breaks around five or six slices
+</Expected>
+
+<Solution>
+
+```
+1. Data → Sort descending on Revenue → select A1:B5 → Alt+F1
+   Title: click and type · Legend: click, Delete · Gridlines: click, Delete
+   Axis: Ctrl+1 → Number → Custom → #,##0,,"M"
+2. + button → Data Labels · then click the axis and Delete
+3. Click a bar → Ctrl+1 → Fill → one colour
+   Click the tallest bar twice → Ctrl+1 → Fill → accent colour
+7. e.g. "North and South deliver 78% of revenue; East is under 3%"
+```
+
+</Solution>
+
+<Why>
+
+**Steps 4 and 5 are the same chart type on different data, with opposite verdicts.** A line works for months because the horizontal axis is continuous and ordered — the slope between Feb and Mar means something. Regions have no inherent order, so the line's slope is an artefact of however you happened to sort them. Re-sort the regions and the "trend" reverses. That's the test: if re-ordering the categories changes the visual message, a line is the wrong chart.
+
+**Step 7 is where most charts are won or lost.** `Revenue by Region` makes the reader do the analysis. `North and South deliver 78% of revenue; East is under 3%` has already done it. The title is the most-read text on any chart and it's usually wasted on restating the axis labels.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "8.1.q1",
+    type: "mcq",
+    question: "You need to compare revenue across eleven sales territories. Which chart?",
+    options: [
+      "A pie chart, so the shares of the whole are visible",
+      "A bar chart sorted descending",
+      "A line chart connecting the territories",
+      "A 3-D column chart to make it visually engaging"
+    ],
+    correct: 1,
+    explanation: "Pie charts stop working past about four slices — the eye can't compare angles well and an eleven-item legend becomes a puzzle. A line implies a progression, but territories have no order, so re-sorting them would change the apparent trend. 3-D distorts the data outright, making front values look larger than equal ones behind. A sorted bar chart handles any number of categories and answers \"which is largest\" instantly."
+  },
+  {
+    id: "8.1.q2",
+    type: "decision",
+    question: "Your column chart has four categories. Keep the vertical axis and gridlines, or replace them with data labels?",
+    options: [
+      "Data labels, and delete both the axis and the gridlines",
+      "Keep the axis and gridlines; data labels duplicate them",
+      "Keep gridlines but delete the axis",
+      "Add data labels and keep everything for maximum precision"
+    ],
+    correct: 0,
+    explanation: "With few categories, data labels give exact figures at the point of interest, which makes the axis and gridlines redundant scaffolding. Removing them cuts visual clutter substantially and the chart reads faster. Option 4 is the common instinct and it's the worst outcome — the same information three times. Keep the axis when there are many categories or when the reader needs to judge intermediate values."
+  },
+  {
+    id: "8.1.q3",
+    type: "scenario",
+    question: "A manager asks which of your eleven territories is third largest, and nobody can tell from your chart. What went wrong and what's the two-minute fix?",
+    options: [
+      "The chart needs a larger font; increase the text size",
+      "It's a pie chart with too many slices — replace it with a bar chart sorted descending",
+      "The data needs filtering to the top five territories only",
+      "The legend should move below the chart rather than beside it"
+    ],
+    correct: 1,
+    explanation: "Ranking questions are what sorted bar charts are for, and they're precisely what pie charts fail at once there are more than a handful of slices. Sorting descending means rank is readable by position alone, with no legend-matching required. Option 3 hides data to work around a chart choice, which loses information the manager may need. Font size and legend placement don't address the underlying problem: the encoding itself can't answer the question."
+  }
+]

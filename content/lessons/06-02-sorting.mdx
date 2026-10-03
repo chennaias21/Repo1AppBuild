@@ -1,0 +1,271 @@
+---
+id: "6.2"
+module: 6
+lesson: 2
+slug: "sorting"
+title: "Sorting — Single, Multi-Level, Custom Lists and Colour"
+shortTitle: "Sorting"
+stage: "Intermediate"
+durationMin: 10
+access: "paid"
+objectives:
+  - "Sort on several columns at once, in the right priority order"
+  - "Sort into a logical order that isn't alphabetical, using a custom list"
+  - "Avoid the sort mistake that scrambles your data permanently"
+keys: ["Alt+A+S+S", "Ctrl+Z"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/06-02-sorting.xlsx"
+solutionFile: "solution/06-02-sorting.xlsx"
+functions: ["SORT"]
+excelVersion: "all"
+shotCount: 3
+prev: "6.1"
+next: "6.3"
+videoUrl: null
+---
+
+## Why this matters
+
+Sorting looks trivial until it destroys a dataset. The single most damaging thing a beginner does in Excel is select one column, sort it, and scramble every record — names now attached to the wrong salaries, with no error and no obvious symptom. This lesson is mostly about not doing that.
+
+## How it works
+
+**Never select a single column and sort.** If you select only column B and sort it, Excel sorts *just that column* and leaves every other column where it was. Anil's name moves; Anil's salary doesn't. The data is now permanently wrong and nothing indicates it.
+
+<Shot id="6.2.1" />
+
+**Do this instead:** click **one cell** inside the data and sort. Excel detects the whole block and moves complete rows. Or convert to a Table first (Lesson 6.1), where single-column sorting is impossible by design.
+
+<Callout type="warning">
+Excel shows a "Sort Warning" dialog when it notices adjacent data you didn't select, offering to *expand the selection*. **Always expand.** People click "Continue with the current selection" to dismiss the dialog quickly, and that's the click that scrambles the data.
+</Callout>
+
+### Multi-level sorting
+
+**Data → Sort** for more than one level. Order matters:
+
+<FormulaBlock>
+```
+Level 1:  Department    A → Z        the outer grouping
+Level 2:  CTC           Largest → Smallest   within each department
+Level 3:  Name          A → Z        ties broken alphabetically
+```
+</FormulaBlock>
+
+Read it as: group by department, then highest paid first inside each, then alphabetically for equal salaries.
+
+<Shot id="6.2.2" />
+
+### Custom lists — the one people don't know
+
+Alphabetical is often wrong. Sorting designations gives you `Analyst, Executive, Lead, Manager, Sr Manager` — meaningless as a hierarchy.
+
+In the Sort dialog, set Order to **Custom List** and type the real sequence. Excel remembers it for the workbook and for future sorts.
+
+<FormulaBlock>
+```
+Executive, Analyst, Lead, Manager, Sr Manager, Director
+```
+</FormulaBlock>
+
+Same for months, regions, grades, priority levels, shift names. Any time alphabetical order misrepresents the data, a custom list fixes it.
+
+<Callout type="tip">
+Build your custom lists once at **File → Options → Advanced → Edit Custom Lists** and they become available in every sort *and* in AutoFill (Lesson 2.3). Two features, one setup.
+</Callout>
+
+### Sort left to right
+
+The Sort dialog's **Options** button has "Sort left to right" — for when your data runs across rows rather than down columns. Rare, but it exists and people waste time transposing data without knowing it.
+
+### SORT() — sorting without touching the source
+
+On Microsoft 365:
+
+<FormulaBlock>
+```
+=SORT(Orders, 5, -1)
+       │       │  │
+       │       │  └── -1 = descending
+       │       └───── sort by the 5th column
+       └───────────── the range or Table
+```
+</FormulaBlock>
+
+This returns a sorted *copy* that updates live. The source stays untouched, which matters when other formulas depend on its original order.
+
+## Do it
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | EmpID | Name | Dept | CTC |
+| **2** | E1001 | Anil Kumar | Sales | 640000 |
+| **3** | E1002 | Meera Nair | HR | 520000 |
+| **4** | E1003 | Rahul Shah | Sales | 810000 |
+| **5** | E1004 | Sneha Rao | Finance | 470000 |
+| **6** | E1005 | Kabir Menon | Ops | 920000 |
+
+### See the damage first
+
+1. Select **only D2:D6**. Press <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>S</Kbd>+<Kbd>D</Kbd> to sort descending.
+2. If the Sort Warning appears, choose **Continue with the current selection** — deliberately, this once.
+3. Look at the result. Kabir's 920,000 is now beside Anil's name. **Every salary is attached to the wrong person.**
+4. Press <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> immediately.
+
+<Shot id="6.2.3" />
+
+That is what happens in real files, and it usually isn't noticed until someone queries their own figure.
+
+### Sort properly
+
+5. Click **one cell** — say C3. **Data → Sort**.
+6. Confirm "My data has headers" is ticked.
+7. Level 1: `Dept`, A → Z. **Add Level.** Level 2: `CTC`, Largest → Smallest. OK.
+8. Departments group together, highest paid first within each.
+
+### Custom order
+
+9. Add a `Designation` column with values `Analyst`, `Manager`, `Executive`, `Sr Manager`, `Lead`.
+10. **Data → Sort** → Sort by `Designation` → Order → **Custom List…**
+11. Type the hierarchy, one per line: `Executive`, `Analyst`, `Lead`, `Manager`, `Sr Manager`. Add. OK.
+12. The data now sorts by seniority rather than alphabet.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `A` + `S` + `S` | Opens the full Sort dialog | Any sort with more than one level, or a custom order | Department, then CTC descending |
+| `Alt` + `A` + `S` + `A` | Sorts ascending on the active column | A quick single-level sort — click one cell first, never select a column | Sorting a band table (Lesson 5.5) |
+| `Ctrl` + `Z` | Undo | **The instant you realise a sort went wrong** — before you save or do anything else | Recovering a scrambled dataset |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Selecting one column and sorting** | Data permanently scrambled, no error | Click one cell; let Excel take the whole block |
+| Dismissing the Sort Warning with "current selection" | Same scrambling | Always choose **Expand the selection** |
+| Header row included as data | Your header sorts into the middle of the records | Tick "My data has headers" |
+| Merged cells in the range | Excel refuses to sort at all | Unmerge first (Lesson 2.5) |
+| Sort levels in the wrong priority | Grouping doesn't match what you wanted | Level 1 is the outer grouping |
+| Expecting alphabetical to be logical | `Analyst` above `Sr Manager` | Custom list |
+| Sorting a range that has blank rows | Only the block above the gap sorts | Remove blank rows first |
+
+</MistakeTable>
+
+<Callout type="story">
+**Preethi, HR Coordinator.** She sorted a 180-row employee list by CTC descending to prepare a compensation review. She'd selected the CTC column only, and clicked through the Sort Warning without reading it.
+
+The file looked fine. Salaries in a clean descending order, names beside them. She used it to build the review list and shared it with three department heads.
+
+A manager noticed that a junior analyst appeared with a Sr Manager's salary. Every one of the 180 rows had its CTC attached to the wrong person — the names, IDs and departments hadn't moved at all. She had no saved copy from before the sort, and the file had been saved twice since.
+
+Rebuilding it meant re-extracting from the HRMS and redoing three days of annotations.
+
+**Two habits prevent this entirely: click one cell rather than selecting a column, and convert to a Table first — where single-column sorting isn't possible.** Also worth knowing: `Ctrl+Z` recovers it instantly, but only before you save and close.
+</Callout>
+
+## Practice
+
+<Exercise id="6.2.e1">
+
+<Scenario>
+Prepare a compensation review list sorted by department, then seniority, then salary — with seniority in its real hierarchy rather than alphabetical order.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/06-02-sorting.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | EmpID | Name | Dept | Designation | CTC |
+| **2** | E1001 | Anil Kumar | Sales | Manager | 640000 |
+| **3** | E1002 | Meera Nair | HR | Executive | 520000 |
+| **4** | E1003 | Rahul Shah | Sales | Sr Manager | 810000 |
+| **5** | E1004 | Sneha Rao | Finance | Analyst | 470000 |
+| **6** | E1005 | Kabir Menon | Ops | Lead | 920000 |
+| **7** | E1006 | Divya Iyer | Sales | Analyst | 725000 |
+| **8** | E1007 | Arjun Das | HR | Manager | 580000 |
+| **9** | E1008 | Nisha Roy | Ops | Sr Manager | 690000 |
+
+</Dataset>
+
+<Task>
+
+1. Convert to a Table named `EmpMaster` first. Why does this make the exercise safer?
+2. Sort by Dept A→Z, then CTC Largest→Smallest. Confirm Sales groups together with Rahul above Divya above Anil.
+3. Create a custom list for the designation hierarchy: `Executive`, `Analyst`, `Lead`, `Manager`, `Sr Manager`.
+4. Re-sort: Dept A→Z, then Designation by your custom list, then CTC Largest→Smallest.
+5. Where does Divya (Sales, Analyst, 725000) appear relative to Anil (Sales, Manager, 640000)? Is that what a seniority sort should produce?
+6. On Microsoft 365, write a `SORT` formula elsewhere on the sheet returning the Table sorted by CTC descending, without altering the source.
+7. Now the deliberate error: on a **copy** of the data, select only the CTC column, sort descending, and dismiss the warning with "current selection". Confirm the damage, then undo.
+
+</Task>
+
+<Expected>
+Step 2: Sales order is Rahul (810,000), Divya (725,000), Anil (640,000) · Step 5: Divya appears above Anil because Analyst ranks below Manager in the custom list — correct for a seniority sort even though her salary is higher
+</Expected>
+
+<Solution>
+
+```
+Step 3: Data → Sort → Order → Custom List… → type the five designations, one per line → Add → OK
+Step 4: Level 1 Dept A→Z | Level 2 Designation (custom list) | Level 3 CTC Largest→Smallest
+Step 6: =SORT(EmpMaster,5,-1)
+```
+
+</Solution>
+
+<Why>
+
+**Step 1's answer:** inside a Table, Excel will not let you sort a single column independently of its row. The scrambling failure from step 7 becomes structurally impossible. That alone is a reason to press <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd> on any data you're about to sort.
+
+**Step 5 is the point of custom lists.** Divya earns more than Anil but is junior to him, so a seniority sort correctly places her above him — the CTC level only breaks ties *within* a designation. Sorted alphabetically, `Executive` would land at the top despite being the most junior grade. Alphabetical order agrees with hierarchy only by accident.
+
+**Step 6 matters when other things depend on the current order.** Physically sorting moves cells, changing what every relative reference elsewhere points at. `SORT()` returns a live copy and leaves the source untouched.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "6.2.q1",
+    type: "scenario",
+    question: "A colleague selected just the Salary column in a 180-row employee list, sorted it descending, and saved. What has happened?",
+    options: [
+      "Nothing — Excel always sorts complete rows",
+      "Every salary is now attached to the wrong employee, with no error shown",
+      "Excel would have refused the sort",
+      "Only the first and last rows are affected"
+    ],
+    correct: 1,
+    explanation: "Sorting a selected column moves only that column's values and leaves every other column in place, so each salary lands beside whichever name happens to occupy that row now. Nothing errors and the result looks entirely plausible — a clean descending column of salaries next to names. Excel does warn via the Sort Warning dialog, but it's routinely dismissed. Ctrl+Z recovers it instantly; after a save and close, it doesn't."
+  },
+  {
+    id: "6.2.q2",
+    type: "mcq",
+    question: "You need designations sorted as Executive, Analyst, Lead, Manager, Sr Manager. What do you use?",
+    options: [
+      "Sort A→Z, then manually move rows",
+      "A Custom List, set via the Order dropdown in the Sort dialog",
+      "Add a hidden numeric column and sort on that",
+      "Sort Z→A instead"
+    ],
+    correct: 1,
+    explanation: "A Custom List lets you define any sequence, and Excel remembers it for future sorts and for AutoFill. Option 3 works and is sometimes used, but it means maintaining a parallel column that can fall out of sync with the designations — a custom list needs no extra data. Alphabetical order agrees with a real hierarchy only by coincidence, which is why neither A→Z nor Z→A helps here."
+  },
+  {
+    id: "6.2.q3",
+    type: "formula",
+    question: "On Microsoft 365, write a formula returning a Table named EmpMaster sorted by its 5th column, largest to smallest, without changing the source data.",
+    accept: ["=SORT(EmpMaster,5,-1)", "=SORT(EmpMaster, 5, -1)"],
+    explanation: "SORT returns a live sorted copy and leaves the original order intact — which matters because physically sorting a range moves cells, changing what relative references elsewhere point at. The -1 gives descending order; 1 or omitting it gives ascending. On older Excel versions you'd need to sort a duplicate of the data instead."
+  }
+]

@@ -1,0 +1,302 @@
+---
+id: "5.5"
+module: 5
+lesson: 5
+slug: "two-way-approximate-lookup"
+title: "Two-Way Lookups and Approximate Match"
+shortTitle: "Two-Way & Approximate"
+stage: "Intermediate"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Use approximate match to assign grades, slabs and tax bands"
+  - "Build a band table that anyone can maintain without editing formulas"
+  - "Combine two MATCHes for a row-and-column intersection"
+keys: ["F4", "F9"]
+datasets: ["HR_Employee_Master", "Sales_Transactions"]
+starterFile: "starter/05-05-approximate.xlsx"
+solutionFile: "solution/05-05-approximate.xlsx"
+functions: ["VLOOKUP", "XLOOKUP", "INDEX", "MATCH"]
+excelVersion: "all"
+shotCount: 3
+prev: "5.4"
+next: "6.1"
+videoUrl: null
+---
+
+## Why this matters
+
+Lesson 4.2 built rating bands with a nested IF and argued the thresholds belong in a table. This is that table. Approximate match assigns grades, commission tiers, tax slabs and ageing buckets so changing a threshold means editing a cell, not hunting through formulas.
+
+## How it works
+
+Approximate match is the fourth argument you've been told to always set to `0`. Set it to `1` deliberately and VLOOKUP changes behaviour: instead of demanding an exact hit, it finds **the largest value that is less than or equal to** what you're looking for.
+
+<FormulaBlock>
+```
+=VLOOKUP(B2, $H$2:$I$5, 2, 1)
+                            │
+                            └── 1 = approximate. Deliberate, not forgotten.
+```
+</FormulaBlock>
+
+With this band table:
+
+| | H | I |
+|---|---|---|
+| **1** | From | Rating |
+| **2** | 0 | Needs Improvement |
+| **3** | 60 | Meets |
+| **4** | 75 | Exceeds |
+| **5** | 90 | Outstanding |
+
+A score of 78 finds no exact match, so it takes the largest threshold at or below 78 — that's 75 — and returns `Exceeds`.
+
+<Shot id="5.5.1" />
+
+**Two rules, and breaking either gives wrong answers with no error:**
+
+**The table must be sorted ascending.** Out of order, it stops at the wrong row and returns a plausible wrong band.
+
+**The first row must start at the lowest possible value**, usually `0`. If your table starts at 60, a score of 45 returns `#N/A` rather than `Needs Improvement`.
+
+<Callout type="warning">
+This is the one situation where the fourth argument should be `1`. Everywhere else it must be `0`. The danger is the reverse mistake — *forgetting* the argument on an exact-match lookup, which silently gives you approximate behaviour on unsorted data. The cost of that is wrong values that look right.
+</Callout>
+
+XLOOKUP does the same thing with `match_mode` of `-1` (next smaller) and doesn't require sorting:
+
+<FormulaBlock>
+```
+=XLOOKUP(B2, $H$2:$H$5, $I$2:$I$5, "Out of range", -1)
+```
+</FormulaBlock>
+
+### Why a table beats a nested IF
+
+| | Nested IF | Band table |
+|---|---|---|
+| Change a threshold | Edit every formula, in every column, on every sheet | Edit one cell |
+| Who can see the bands | Only someone who opens the formula | Anyone looking at the sheet |
+| Add a fifth band | Rewrite the formula | Insert a row |
+| Risk of an ordering bug | High — tests must be in the right sequence | None — the table is sorted visibly |
+
+Past about three bands, or if the bands ever change, the table wins.
+
+### Two-way lookup
+
+Lesson 5.3 covered this — two MATCHes for a row-and-column intersection:
+
+<FormulaBlock>
+```
+=INDEX($B$2:$E$5, MATCH($G$1,$A$2:$A$5,0), MATCH($G$2,$B$1:$E$1,0))
+                  └── which row?            └── which column? (header ROW)
+```
+</FormulaBlock>
+
+Put the two labels in dropdowns and you have a compact interactive report. You'll build one in the practice below.
+
+<Callout type="tip">
+Keep every band table on a single `Rates` sheet — grades, commission slabs, tax bands, ageing buckets. One place to look, one place to update, and an auditor can see every threshold your workbook applies without opening a formula.
+</Callout>
+
+## Do it
+
+### Grade bands
+
+| | A | B | | H | I |
+|---|---|---|---|---|---|
+| **1** | Employee | Score | | From | Rating |
+| **2** | Anil Kumar | 92 | | 0 | Needs Improvement |
+| **3** | Meera Nair | 78 | | 60 | Meets |
+| **4** | Rahul Shah | 64 | | 75 | Exceeds |
+| **5** | Sneha Rao | 45 | | 90 | Outstanding |
+| **6** | Kabir Menon | 90 | | | |
+
+1. **C2**: `=VLOOKUP(B2,$H$2:$I$5,2,1)` → `Outstanding`
+2. Fill down. Check Sneha's 45 → `Needs Improvement`, and Kabir's exact 90 → `Outstanding`.
+3. Now change the Exceeds threshold in H4 from 75 to 80. Meera's 78 drops to `Meets` automatically. **One cell edited, every row updated.**
+
+<Shot id="5.5.3" />
+
+### Break it deliberately
+
+4. Sort the band table descending — put 90 at the top. Refill column C. Every result is now wrong, and nothing errors.
+5. Sort it back ascending.
+6. Delete the `0` row from H2 so the table starts at 60. Sneha's 45 returns `#N/A` — there is no band at or below 45.
+7. Restore the `0` row.
+
+<Shot id="5.5.4" />
+
+### Commission slabs
+
+8. Build a second table: `0` → 2%, `500000` → 4%, `1000000` → 6%, `2500000` → 8%.
+9. Against a sales figure, `=VLOOKUP(D2,$K$2:$L$5,2,1)` returns the rate, and `=D2*that` gives the commission.
+10. The finance team can now change a slab without opening a single formula.
+
+### Two-way grid
+
+11. Regions down A10:A13, quarters across B9:E9, revenue in B10:E13.
+12. Labels in **G9** and **G10**. In **G11**:
+    `=INDEX($B$10:$E$13,MATCH($G$9,$A$10:$A$13,0),MATCH($G$10,$B$9:$E$9,0))`
+13. Change either label and the figure follows.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F4` | Locks the band table range | Every approximate-match lookup — an unlocked band table drifts and returns wrong grades | Select `H2:I5`, press F4 |
+| `F9` on the MATCH portion | Shows the row or column number found | Debugging a two-way lookup that returns the wrong cell | Select `MATCH($G$9,$A$10:$A$13,0)` → `2` |
+| `Alt` + `A` + `S` + `A` | Sort ascending | Fixing a band table that's out of order — the commonest cause of wrong bands | Select the table, sort on the From column |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Band table not sorted ascending** | Wrong bands, no error at all | Sort on the threshold column |
+| First row doesn't start at the lowest value | `#N/A` for low values | Begin the table at `0` |
+| Using `0` instead of `1` for the match type | `#N/A` on every non-exact value | `1` for bands — the one place it's correct |
+| *Forgetting* the argument on an exact lookup | Approximate behaviour on unsorted data — plausible wrong values | Always type `,0)` unless you mean bands |
+| Band table not locked | Grades shift on lower rows | <Kbd>F4</Kbd> |
+| Overlapping or gapped thresholds | Silent misassignment | Each row is the *start* of its band; no gaps, no overlaps |
+| Two-way MATCH searching a column for the header | `#N/A` | The column MATCH searches the header **row** |
+
+</MistakeTable>
+
+<Callout type="story">
+**Anjali, Payroll Manager.** Professional tax slabs were hard-coded into a nested IF across three sheets. When the state revised the slabs mid-year, she updated the formulas she could find. She missed one sheet.
+
+That sheet covered 62 employees, who were deducted at the old rate for four months. The shortfall surfaced in the annual filing reconciliation and had to be recovered from those employees' salaries in a single month — 62 uncomfortable conversations, and a compliance note on the audit.
+
+She rebuilt it as one slab table on a Rates sheet, referenced by approximate-match VLOOKUP from everywhere. The next revision took ninety seconds and was impossible to apply partially.
+
+**A rule that lives in a formula can be updated incompletely. A rule that lives in a cell cannot.** That's the whole argument for band tables, and it's worth more than the formula elegance.
+</Callout>
+
+## Practice
+
+<Exercise id="5.5.e1">
+
+<Scenario>
+Build a maintainable appraisal and commission calculator using band tables, plus a two-way revenue reader.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/05-05-approximate.xlsx">
+
+**Employees** (A:C)
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee | Score | Sales |
+| **2** | Anil Kumar | 92 | 2800000 |
+| **3** | Meera Nair | 78 | 640000 |
+| **4** | Rahul Shah | 64 | 1450000 |
+| **5** | Sneha Rao | 45 | 320000 |
+| **6** | Kabir Menon | 90 | 980000 |
+| **7** | Divya Iyer | 75 | 3100000 |
+
+**Rating bands** (H:J)
+
+| | H | I | J |
+|---|---|---|---|
+| **1** | From | Rating | Hike |
+| **2** | 0 | Needs Improvement | 0% |
+| **3** | 60 | Meets | 6% |
+| **4** | 75 | Exceeds | 9% |
+| **5** | 90 | Outstanding | 12% |
+
+**Commission slabs** (L:M)
+
+| | L | M |
+|---|---|---|
+| **1** | From | Rate |
+| **2** | 0 | 2% |
+| **3** | 500000 | 4% |
+| **4** | 1000000 | 6% |
+| **5** | 2500000 | 8% |
+
+</Dataset>
+
+<Task>
+
+1. **D2** — the rating from the score, using approximate match. Fill down.
+2. **E2** — the hike percentage from the same band table.
+3. **F2** — the commission rate from the sales figure and the slab table.
+4. **G2** — the commission amount.
+5. Change the Exceeds threshold in H4 from 75 to 80. How many ratings change? Which employees?
+6. Now sort the rating band table **descending** and refill column D. How many results are wrong? Does anything error?
+7. Undo the sort. Then add a fifth slab: `5000000` → 10%. How many formulas did you edit?
+8. Build a revenue grid (regions × quarters) and a two-way lookup that reads any cell from two dropdown labels.
+
+</Task>
+
+<Expected>
+D2 `Outstanding` · D5 `Needs Improvement` · D7 `Exceeds` (exactly 75) · F2 = 8% · G2 = 224,000 · Step 5: Meera and Divya both drop to `Meets` · Step 6: most rows wrong, nothing errors · Step 7: zero formulas edited
+</Expected>
+
+<Solution>
+
+```
+D2: =VLOOKUP(B2,$H$2:$J$5,2,1)
+E2: =VLOOKUP(B2,$H$2:$J$5,3,1)
+F2: =VLOOKUP(C2,$L$2:$M$5,2,1)
+G2: =C2*F2
+
+XLOOKUP alternative (365 only, no sorting required):
+D2: =XLOOKUP(B2,$H$2:$H$5,$I$2:$I$5,"Out of range",-1)
+
+Two-way:
+=INDEX($B$11:$E$14,MATCH($G$9,$A$11:$A$14,0),MATCH($G$10,$B$10:$E$10,0))
+```
+
+</Solution>
+
+<Why>
+
+**Step 7 is the answer to the whole lesson: zero.** You inserted a row and every commission calculation picked it up, because the formula references the table rather than encoding the thresholds. Compare the nested IF in Lesson 4.2, where adding a band means rewriting the formula everywhere it appears — and missing one copy is exactly what happened in Anjali's story.
+
+**Step 6 is the risk you accept in exchange.** Approximate match assumes ascending order and doesn't verify it. Sorted the other way it stops at the wrong boundary and returns a real rating from the wrong row — no error, and the output still looks like a normal distribution. So the trade is explicit: band tables move the ordering bug out of your *formula* and into your *data*, where it's at least visible. A sorted table you can see and check; a nested IF's test sequence you have to read. On Microsoft 365, `XLOOKUP` with `-1` removes even that, since it needs no sorting.
+
+**One detail worth noticing:** the `0` in row H2 isn't decoration. Delete it and Sneha's 45 returns `#N/A`, because approximate match needs a threshold at or below the value it's given. Every band table needs a floor row, and it's the most commonly forgotten part.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "5.5.q1",
+    type: "formula",
+    question: "Scores are in B2 downward. A band table sits in H2:I5 with thresholds ascending in column H and rating names in column I. Write the formula for C2.",
+    accept: ["=VLOOKUP(B2,$H$2:$I$5,2,1)", "=VLOOKUP(B2,$H$2:$I$5,2,TRUE)"],
+    explanation: "The fourth argument is 1 (or TRUE) for approximate match, which finds the largest threshold at or below the score. This is the one situation where 1 is correct — everywhere else it must be 0. The table range must be locked with F4, the thresholds must be sorted ascending, and the first row must start at the lowest possible value or low scores return #N/A."
+  },
+  {
+    id: "5.5.q2",
+    type: "truefalse",
+    question: "If an approximate-match band table is sorted descending instead of ascending, the lookup returns #N/A so you know something is wrong.",
+    correct: false,
+    explanation: "It returns wrong values with no error at all. Approximate match assumes ascending order and doesn't verify it — sorted the other way, it stops at the wrong boundary and returns a genuine rating from the wrong row. The output looks like a plausible distribution, which is why this error survives review. XLOOKUP with match_mode -1 doesn't require sorting, which removes the risk entirely on Microsoft 365."
+  },
+  {
+    id: "5.5.q3",
+    type: "scenario",
+    question: "Tax slabs are hard-coded into nested IFs across three sheets. The state revises the slabs. What's the risk, and what should the structure have been?",
+    options: [
+      "The formulas may become too long; they should have used IFS",
+      "You can update some copies and miss others — the rules belong in one band table referenced by approximate-match lookup",
+      "Nested IFs can't handle more than seven slabs; a lookup is needed for capacity reasons",
+      "There's no real risk as long as you use Find & Replace carefully"
+    ],
+    correct: 1,
+    explanation: "A rule spread across formulas can be updated incompletely, and the sheet you miss keeps applying the old rate silently until a reconciliation catches it. A single band table on a rates sheet, referenced from everywhere, makes a revision one edit that either applies fully or not at all — partial application becomes structurally impossible. Option 4 is dangerous specifically because the same number may be a threshold in one formula and something unrelated in another, so Find & Replace can introduce new errors while fixing old ones."
+  }
+]

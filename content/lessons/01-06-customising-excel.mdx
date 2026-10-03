@@ -1,0 +1,230 @@
+---
+id: "1.6"
+module: 1
+lesson: 6
+slug: "customising-excel"
+title: "Customising Excel to Work Your Way"
+shortTitle: "Customising Excel"
+stage: "Beginner"
+durationMin: 9
+access: "free"
+objectives:
+  - "Put your most-used commands two keystrokes away"
+  - "Use Freeze Panes so headers stay visible in long datasets"
+  - "Change the four Excel settings experienced users fix on day one"
+keys: ["Alt+1", "Alt+W+FF"]
+datasets: ["HR_Employee_Master"]
+starterFile: null
+solutionFile: null
+functions: []
+excelVersion: "all"
+shotCount: 4
+prev: "1.5"
+next: "2.1"
+videoUrl: null
+---
+
+## Why this matters
+
+Excel out of the box is set up for nobody in particular. Ten minutes of setup makes it feel built for you, and the settings stay with your installation permanently. This is the highest-return ten minutes in the whole course — it's compounding interest on every hour you spend in Excel afterwards.
+
+## How it works
+
+### The Quick Access Toolbar
+
+The small row of icons at the very top-left. Add anything to it and it gets a permanent number shortcut: **the first icon is <Kbd>Alt</Kbd>+<Kbd>1</Kbd>, the second <Kbd>Alt</Kbd>+<Kbd>2</Kbd>**, and so on.
+
+This is how you reach commands that have no built-in shortcut. **Paste Values belongs in position 1** — it's the command you'll use most that Excel gives no simple key for.
+
+<Shot id="1.6.1" />
+
+Five worth adding, in this order: Paste Values, Freeze Panes, Filter, Format Painter, Merge Across.
+
+### Freeze Panes
+
+On a 500-row sheet, once you scroll past row 30 the column headers are gone — so you're guessing which column is which. Freeze Panes pins rows and columns in place.
+
+**The rule people get wrong constantly: click the cell *below and to the right* of what you want frozen.**
+
+| To freeze | Click |
+|---|---|
+| Row 1 only | **A2** |
+| Column A only | **B1** |
+| Row 1 **and** column A | **B2** |
+| Rows 1–3 and columns A–B | **C4** |
+
+Everything above and to the left of the selected cell freezes. Read it that way and you'll never guess.
+
+<Shot id="1.6.2" />
+
+<Callout type="tip">
+**Split** (View → Split) looks similar and does something different — it divides the window into independently scrolling panes. If your sheet suddenly feels broken with duplicate views, you pressed Split when you meant Freeze. View → Split again removes it.
+</Callout>
+
+### The four settings to change on day one
+
+**File → Options:**
+
+| Setting | Change to | Why |
+|---|---|---|
+| **Save** → AutoRecover | **2 minutes** | Default is 10. A crash costs you ten minutes. No downside to 2. |
+| **General** → sheets in new workbook | **1** | You rarely need three empty sheets |
+| **Formulas** → Calculation | **Automatic** | If a file "stops calculating", this is why — and it travels with the file |
+| **Advanced** → After pressing Enter, move | **Down** (or Right) | Match it to how you enter data |
+
+<Callout type="tip">
+Export your setup: **File → Options → Quick Access Toolbar → Import/Export → Export all customisations.** Save that file somewhere safe. On a new laptop you restore your entire configuration in ten seconds instead of rebuilding it from memory.
+</Callout>
+
+## Do it
+
+### Set up the QAT
+
+1. Click the small **dropdown arrow** at the right end of the Quick Access Toolbar → **More Commands…**
+2. Set *Choose commands from* to **All Commands**.
+3. Find and **Add** these five, in order: Paste Values, Freeze Panes, Filter, Format Painter, Merge Across.
+4. Use the up/down arrows on the right to fix the order. OK.
+5. Test it: put `=5*5` in a cell, press <Kbd>Ctrl</Kbd>+<Kbd>C</Kbd>, click elsewhere, press <Kbd>Alt</Kbd>+<Kbd>1</Kbd>. The cell shows `25` and the formula bar also shows `25` — the formula is gone, only the value pasted.
+
+<Shot id="1.6.3" />
+
+### Freeze panes
+
+6. Open a dataset with headers in row 1 and an ID in column A.
+7. Click **B2**. **View → Freeze Panes → Freeze Panes** (or <Kbd>Alt</Kbd>+<Kbd>W</Kbd>+<Kbd>F</Kbd>+<Kbd>F</Kbd>).
+8. Scroll down and right. Row 1 and column A stay put. Thin freeze lines mark the boundary.
+9. Undo it: **View → Freeze Panes → Unfreeze Panes**.
+10. Now deliberately click **row 1** and freeze. Nothing useful happens — proving the rule.
+
+<Shot id="1.6.4" />
+
+### Change the options
+
+11. **File → Options → Save** → AutoRecover every **2** minutes → tick *Keep the last AutoRecovered version*.
+12. **File → Options → General** → *Include this many sheets*: **1**.
+13. **File → Options → Formulas** → confirm Calculation is **Automatic**.
+14. **File → Options → Quick Access Toolbar → Import/Export → Export all customisations.** Note where you saved it.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `1` to `Alt` + `9` | Runs the nth Quick Access Toolbar command | Any frequent command with no native shortcut | Alt+1 for Paste Values — two keys instead of five |
+| `Alt` + `W` + `F` + `F` | Freeze Panes | First thing on opening any long dataset | Click B2 first |
+| `Ctrl` + scroll wheel | Zoom in and out | Fitting more rows on screen, or reading dense data | Zoom to 80% to see more |
+| `Ctrl` + `F1` | Collapses or expands the Ribbon | Reclaiming screen space on a laptop | Reviewing a long list |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Clicking row 1 then Freeze Panes** | Nothing freezes, or the wrong thing does | Click the cell *below and right* of what you want frozen |
+| Using Split when you meant Freeze | The window divides into duplicate scrolling panes | View → Split to toggle it off |
+| Calculation left on Manual | Formulas show stale results for days, silently | File → Options → Formulas → Automatic. Watch for "Calculate" in the status bar. |
+| Twenty items on the QAT | You can't find anything and lose the Alt+number advantage | Keep it to five to seven you genuinely use daily |
+| Not exporting your setup | You rebuild it from memory on every new machine | Import/Export → Export all customisations |
+
+</MistakeTable>
+
+<Callout type="story">
+**Divya, MIS Executive.** She built the same monthly report across nine regional sheets. Her only change was putting Paste Values, Freeze Panes and Format Painter on the QAT, and freezing every regional tab at B2.
+
+She measured it out of curiosity: the report went from 50 minutes to 34.
+
+Not because she learned a new function — because she stopped making roughly 200 unnecessary mouse trips to the Ribbon each session.
+
+**Setup isn't a productivity gimmick.** It's the one change in this course that pays back on every single hour you spend in Excel afterwards.
+</Callout>
+
+## Practice
+
+<Exercise id="1.6.e1">
+
+<Scenario>
+A fresh Excel install and a 250-row HR file you'll review weekly. Set it up properly before you start.
+</Scenario>
+
+<Dataset name="HR_Employee_Master">
+
+Any dataset with headers in row 1 and at least 60 rows. Headers: `EmpID | Name | Department | DOJ | CTC`.
+
+</Dataset>
+
+<Task>
+
+1. Add these four to the QAT in order: Paste Values, Freeze Panes, Filter, Format Painter.
+2. Confirm <Kbd>Alt</Kbd>+<Kbd>1</Kbd> pastes values — put `=5*5` in a cell, copy it, and paste as a value elsewhere using only the keyboard.
+3. Freeze the sheet so both the header row and the EmpID column stay visible. Which cell must you click?
+4. Scroll to row 60 and confirm you can still read the headers and the EmpID.
+5. Set AutoRecover to 2 minutes and new workbooks to 1 sheet.
+6. Deliberately use **View → Split** instead of Freeze Panes. What happens? Turn it off.
+7. Set Calculation to **Manual**, change a value feeding a formula, and watch what the formula does. Then set it back to Automatic and press <Kbd>F9</Kbd>.
+8. Export your QAT customisations.
+
+</Task>
+
+<Expected>
+Step 3: **B2** · Step 6: the window divides into independently scrolling panes showing duplicate views · Step 7: the formula shows a stale result and "Calculate" appears in the status bar
+</Expected>
+
+<Solution>
+
+```
+1. QAT dropdown → More Commands → All Commands → add each → OK
+2. Type =5*5 in D1 → Ctrl+C → click D3 → Alt+1
+3. Click B2 → View → Freeze Panes → Freeze Panes   (or Alt+W+F+F)
+5. File → Options → Save → 2 minutes
+   File → Options → General → Include this many sheets: 1
+8. File → Options → Quick Access Toolbar → Import/Export → Export all customisations
+```
+
+</Solution>
+
+<Why>
+
+**Step 2 shows why Paste Values earns position 1.** A normal paste carries the formula, and its references shift — paste `=A1*B1` two rows down and it silently becomes `=A3*B3`, giving a different answer. Paste Values pastes the result only, cutting the link. You'll need that constantly: sending figures to someone without your source data, freezing a snapshot before inputs change, or breaking a circular reference. `Ctrl+Alt+V, V, Enter` is five key presses through a dialog; `Alt+1` is two with none.
+
+**Step 7 is worth doing once.** With Calculation on Manual, the formula displays its old answer and the only signal is the word "Calculate" in the status bar. This setting is saved *with the workbook*, so it spreads from person to person when a file is shared — and it's the answer to almost every "Excel has stopped working properly" complaint.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "1.6.q1",
+    type: "decision",
+    question: "You use Paste Values around thirty times a day. Memorise Ctrl+Alt+V, V, Enter, or put it on the Quick Access Toolbar?",
+    options: [
+      "Quick Access Toolbar, so it becomes Alt+1",
+      "Memorise the keyboard sequence — no setup required",
+      "Use right-click → Paste Options each time",
+      "Record a macro for it"
+    ],
+    correct: 0,
+    explanation: "Ctrl+Alt+V, V, Enter is five key presses across three actions with a dialog in the middle that can shift focus. Alt+1 is two keys, one action, no dialog. Over thirty daily uses that's roughly ninety fewer keystrokes and nothing to mis-click. The general rule: any command you use more than ten times a day that lacks a two-key native shortcut belongs on the QAT."
+  },
+  {
+    id: "1.6.q2",
+    type: "mcq",
+    question: "You want row 1 and columns A and B to stay visible while scrolling. Which cell do you select before clicking Freeze Panes?",
+    options: ["A1", "B2", "C2", "C1"],
+    correct: 2,
+    explanation: "Everything above and to the left of the selected cell freezes. Row 1 is above C2, and columns A and B are to its left. Selecting B2 would freeze only row 1 and column A. Reading the rule as \"click below and right of what you want frozen\" makes it impossible to get wrong."
+  },
+  {
+    id: "1.6.q3",
+    type: "truefalse",
+    question: "Commands added to the Quick Access Toolbar apply only to the workbook that was open when you added them.",
+    correct: false,
+    explanation: "QAT customisations are stored in your Excel installation, not in a workbook, so they follow you across every file on that machine. That's also why exporting them matters — File → Options → Quick Access Toolbar → Import/Export lets you restore your whole setup on a new laptop in ten seconds rather than rebuilding it from memory."
+  }
+]

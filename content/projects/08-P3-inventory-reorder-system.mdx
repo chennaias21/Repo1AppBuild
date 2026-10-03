@@ -1,0 +1,217 @@
+---
+id: "8.P3"
+module: 8
+type: "project"
+slug: "inventory-reorder-system"
+title: "Inventory & Reorder Management System"
+shortTitle: "Inventory Project"
+stage: "Business-Ready"
+estimatedMin: 200
+access: "paid"
+skillsUsed: ["Tables", "IF logic", "Approximate match lookup", "Data Validation", "Conditional Formatting", "Power Query", "Pivot Tables"]
+lessonsApplied: ["6.1", "6.5", "6.7", "5.5", "4.1", "4.7", "7.1", "8.7"]
+datasets: ["Inventory_Stock"]
+starterFile: "starter/08-P3-inventory-start.xlsx"
+solutionFile: "solution/08-P3-inventory-complete.xlsx"
+submission: true
+shotCount: 4
+prev: "8.P2"
+next: null
+---
+
+## The brief
+
+You run operations for a company with 180 SKUs across two warehouses. Stock is currently tracked in a spreadsheet that shows only current quantity — it has no view of what's running low, what's overstocked, or what's been sitting unsold for months.
+
+Last quarter you had two stockouts on fast-moving items and simultaneously wrote off ₹4 lakh of obsolete stock. Both were visible in the data; nobody was looking.
+
+Your operations head wants a workbook that tells her what to order and what to clear, without her having to interpret anything.
+
+## What you'll build
+
+<Deliverable>
+
+- [ ] A stock master as a Table with days-of-cover and stock value calculated
+- [ ] A reorder status derived from a band table, not a nested IF
+- [ ] Stock ageing buckets showing how long each SKU has been unsold
+- [ ] A reorder list that populates itself — only items needing action
+- [ ] Visual alerts: critical, low, healthy, overstocked, obsolete
+- [ ] A Power Query import so the weekly warehouse export needs one click
+- [ ] A summary showing value at risk, value obsolete, and SKUs to reorder
+- [ ] All thresholds in labelled cells, so the ops head can change policy herself
+
+</Deliverable>
+
+## The data
+
+**`RawStock`** — 180 SKUs: `SKU`, `Item`, `Category`, `Warehouse`, `OpeningQty`, `Received`, `Issued`, `ReorderLevel`, `UnitCost`, `Supplier`, `LeadTimeDays`, `LastIssueDate`
+
+**`RawUsage`** — 12 months of monthly issue quantities per SKU, with **months across the columns** rather than down rows.
+
+<Callout type="warning">
+`RawUsage` is in the wrong shape for analysis — twelve month columns instead of one Month column. You'll need Power Query's **Unpivot** to turn it tall (Lesson 8.7). Doing it by hand takes an hour; unpivot is two clicks and re-runs next month.
+</Callout>
+
+There is no `ClosingQty` column. Derive it. Expect text-numbers in `UnitCost`, inconsistent `Category` spellings, and a few SKUs with a `LastIssueDate` over two years old.
+
+## Milestones
+
+<Milestone n="1" title="Clean, structure and derive">
+
+Six-point check. Fix the text-numbers and standardise the category names. Convert to a Table named `Stock`.
+
+Add calculated columns: closing quantity, stock value, average monthly usage, days of cover, and days since last issue.
+
+**You should now be able to** sort by days of cover and see immediately which SKUs are closest to running out.
+
+<Shot id="8.P3.1" />
+
+</Milestone>
+
+<Milestone n="2" title="Build the policy table — not a nested IF">
+
+On a `Rates` sheet, build a band table for reorder status:
+
+| Days of cover from | Status |
+|---|---|
+| 0 | Critical |
+| 7 | Low |
+| 21 | Healthy |
+| 90 | Overstocked |
+
+Look the status up with approximate match. Add a second band table for ageing buckets based on days since last issue.
+
+**You should now be able to** change a threshold in one cell and watch every SKU's status update — and the ops head can do the same without opening a formula.
+
+</Milestone>
+
+<Milestone n="3" title="Flag it visually">
+
+Conditional formatting on whole rows: red for Critical, amber for Low, grey for Overstocked, and a distinct flag for anything unsold for over 365 days.
+
+Order the rules so Critical wins over Low, with **Stop If True**. Add data bars to the days-of-cover column with the minimum set to Number 0.
+
+**You should now be able to** open the sheet and see what needs attention without reading a single number.
+
+<Shot id="8.P3.2" />
+
+</Milestone>
+
+<Milestone n="4" title="Build the self-populating reorder list">
+
+On a `Reorder` sheet, produce a list containing **only** SKUs with status Critical or Low — item, supplier, quantity to order, lead time, and the date to order by.
+
+Quantity to order should bring stock up to a target cover level held on `Rates`, rounded up to the supplier's pack size. Order-by date works backwards from lead time using working days.
+
+Use a dynamic array so the list resizes itself. If you're on an older Excel version, use a helper column and a filter instead.
+
+**You should now be able to** send this list to purchasing with no editing.
+
+<Shot id="8.P3.3" />
+
+</Milestone>
+
+<Milestone n="5" title="Automate the weekly import">
+
+Build a Power Query that imports the warehouse export: promote headers, set data types explicitly, trim the category names, remove unwanted columns, filter out blanks.
+
+Then unpivot `RawUsage` into a tall table so average usage can be calculated from it properly.
+
+**You should now be able to** replace the source file and press <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>F5</Kbd>.
+
+</Milestone>
+
+<Milestone n="6" title="Summarise and hand over">
+
+A `Summary` sheet with: total stock value, value at risk (Critical plus Low), value obsolete (over 365 days), count of SKUs to reorder, and a pivot of stock value by category and warehouse with a slicer.
+
+Protect the formula columns, unlock only what should be edited, and add a Last Refreshed stamp.
+
+**You should now be able to** hand the ops head a workbook that answers "what do I order and what do I clear" on open.
+
+<Shot id="8.P3.4" />
+
+</Milestone>
+
+## Solution walkthrough
+
+<Walkthrough>
+
+**Table columns in `Stock`:**
+
+<FormulaBlock>
+```
+ClosingQty    =[@OpeningQty]+[@Received]-[@Issued]
+StockValue    =[@ClosingQty]*[@UnitCost]
+AvgMonthly    =IFERROR(AVERAGEIFS(Usage[Qty],Usage[SKU],[@SKU]),0)
+DaysCover     =IFERROR([@ClosingQty]/([@AvgMonthly]/30),999)
+DaysSinceIssue =IF([@LastIssueDate]="",999,TODAY()-[@LastIssueDate])
+Status        =IFERROR(VLOOKUP([@DaysCover],Rates!$A$2:$B$5,2,1),"Unclassified")
+AgeBucket     =IFERROR(VLOOKUP([@DaysSinceIssue],Rates!$D$2:$E$5,2,1),"Unknown")
+```
+</FormulaBlock>
+
+Note `DaysCover` returns `999` rather than an error when average usage is zero — a SKU with no usage has effectively infinite cover, and 999 keeps it sortable and lands it in the Overstocked band correctly. Returning `""` would break the lookup that follows.
+
+**The reorder list** — dynamic array version:
+
+<FormulaBlock>
+```
+=LET(rows, FILTER(Stock,(Stock[Status]="Critical")+(Stock[Status]="Low"),"Nothing to order"),
+     SORT(rows, 5, 1))
+```
+</FormulaBlock>
+
+**Quantity to order,** brought up to target cover and rounded up to pack size:
+
+<FormulaBlock>
+```
+=CEILING(MAX(0,([@AvgMonthly]/30*Rates!$B$8)-[@ClosingQty]),[@PackSize])
+```
+</FormulaBlock>
+
+The `MAX(0,...)` prevents a negative order quantity, and `CEILING` rounds up to a whole pack — you cannot order two-thirds of a carton (Lesson 3.4).
+
+**Order-by date,** working backwards from lead time:
+
+<FormulaBlock>
+```
+=WORKDAY(TODAY()+[@DaysCover]-[@LeadTimeDays],0,Holidays)
+```
+</FormulaBlock>
+
+**Conditional formatting,** most serious rule first with Stop If True:
+
+<FormulaBlock>
+```
+=$K2="Critical"                  red fill        Stop If True
+=$K2="Low"                       amber fill      Stop If True
+=$L2="Obsolete (365+ days)"      purple border
+=$K2="Overstocked"               grey fill
+```
+</FormulaBlock>
+
+</Walkthrough>
+
+## How this is marked
+
+<Rubric>
+
+| Criterion | Weight | What good looks like |
+|---|---|---|
+| **Derived columns correct** | 20% | Closing quantity, days of cover and ageing all reconcile against a manual check of five SKUs. Zero-usage SKUs handled without errors. |
+| **Policy in data, not formulas** | 20% | Band tables on a Rates sheet. Changing a threshold updates every SKU. No nested IF for status. |
+| **Reorder list usable as-is** | 20% | Only actionable SKUs. Quantities rounded up to pack size, never negative. Dates account for lead time. |
+| **Visual clarity** | 15% | Rules ordered correctly with Stop If True. A glance identifies what needs action. |
+| **Automation** | 15% | Power Query import with types set explicitly. Unpivot used for the usage data. One-click refresh. |
+| **Handover quality** | 10% | Protected, labelled, Last Refreshed stamp, usable by someone who didn't build it. |
+
+**A pass is 70%.** The criterion that separates a good submission from a passing one is **policy in data** — a workbook where the ops head can change the reorder threshold herself has solved the problem in the brief. One where she has to ask you hasn't.
+
+</Rubric>
+
+<Submit />
+
+<Callout type="tip">
+This is the last project in the course. When you've submitted it, you have three workbooks that between them use almost every technique here — Tables, lookups, band tables, validation, conditional formatting, pivots, dashboards, dynamic arrays and Power Query. **Those three files are your portfolio.** Take them to an interview; they demonstrate more than any certificate.
+</Callout>

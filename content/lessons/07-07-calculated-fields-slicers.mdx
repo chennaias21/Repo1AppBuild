@@ -1,0 +1,257 @@
+---
+id: "7.7"
+module: 7
+lesson: 7
+slug: "calculated-fields-slicers"
+title: "Calculated Fields, Slicers and Timelines"
+shortTitle: "Calculated Fields & Slicers"
+stage: "Advanced"
+durationMin: 13
+access: "paid"
+objectives:
+  - "Add a calculated field so the pivot does maths the source doesn't"
+  - "Connect one slicer to several pivots — the basis of a dashboard"
+  - "Know the trap that makes calculated fields give wrong averages"
+keys: ["Alt+N+SF", "Alt+F5"]
+datasets: ["Sales_Transactions"]
+starterFile: "starter/07-07-calc-fields-slicers.xlsx"
+solutionFile: "solution/07-07-calc-fields-slicers.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 3
+prev: "7.6"
+next: "7.8"
+videoUrl: null
+---
+
+## Why this matters
+
+Your source has Units and UnitPrice but not Revenue. Your pivot needs margin percentage, average order value, revenue per head. A calculated field does that arithmetic inside the pivot, so it recalculates with every filter. And slicers are what turn several separate pivots into one dashboard that responds to a single click.
+
+## How it works
+
+### Calculated fields
+
+**PivotTable Analyze → Fields, Items & Sets → Calculated Field.** Give it a name and a formula using field names in square brackets:
+
+<FormulaBlock>
+```
+Revenue        = Units * UnitPrice
+Margin %       = (Revenue - Cost) / Revenue
+Avg Order Val  = Revenue / OrderCount
+```
+</FormulaBlock>
+
+The field then appears in the field list like any other and can go into Values.
+
+<Shot id="7.7.1" />
+
+**The trap that catches everyone:** a calculated field operates on the **sum** of each field, not row by row.
+
+So `Margin % = (Revenue - Cost) / Revenue` in a region row computes *(sum of revenue − sum of cost) ÷ sum of revenue*. For a ratio that's correct and it's what you want. But a calculated field like `Units * UnitPrice` computes *sum of units × sum of unit price*, which is meaningless — 100 units summed against 54,000 summed gives an enormous wrong number.
+
+<Callout type="warning">
+**Rule: calculated fields are safe for ratios and differences, wrong for products.** If you need `Units × UnitPrice`, add that column to the **source** (a Table calculated column does it row by row) and pivot on the result. Only use a calculated field when summing first still gives the right answer.
+</Callout>
+
+### Calculated items
+
+Same menu, but these create a new *row* by combining existing rows — `North + South = "Combined North"`. Useful occasionally, and they disable some other pivot features. Prefer grouping rows, or a source column, where you can.
+
+### Slicers
+
+**Insert → Slicer** on a pivot, or **PivotTable Analyze → Insert Slicer**. Pick the fields you want as clickable buttons.
+
+Two reasons they matter more than dropdown filters. The active filter is **visible** — a dropdown gives no sign a filter is on, which is how people report one region's figures believing them to be company-wide. And one slicer can drive **several pivots at once**.
+
+<Shot id="7.7.2" />
+
+### Connecting one slicer to many pivots
+
+Right-click the slicer → **Report Connections** → tick every pivot it should control.
+
+This is the mechanism behind every Excel dashboard: four pivots, three charts, one slicer row at the top. Click `North` and everything updates together.
+
+<Callout type="tip">
+The pivots must share the **same source data** to connect to one slicer. If they're built on different ranges — even identical copies — Report Connections won't list them. This is another reason to build every pivot on one Table.
+</Callout>
+
+### Timelines
+
+**Insert → Timeline** — a slicer for dates only. Drag a handle to select a range, and switch between Days, Months, Quarters and Years. It needs a genuine date field, same as grouping.
+
+## Do it
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Date | Units | UnitPrice |
+| **2** | SO1001 | North | 12-Jan-2026 | 12 | 54000 |
+| **3** | SO1002 | South | 28-Jan-2026 | 30 | 12500 |
+| **4** | SO1003 | North | 14-Feb-2026 | 8 | 54000 |
+| **5** | SO1004 | East | 03-Feb-2026 | 45 | 1800 |
+
+1. Convert to a Table named `Orders`. Add a **Revenue** column in the Table: `=[@Units]*[@UnitPrice]`.
+2. Build a pivot: Region → Rows, Revenue → Values.
+
+### Now see the calculated-field trap
+
+3. Add a calculated field named `Wrong Revenue` with the formula `=Units * UnitPrice`. Put it in Values.
+4. Compare it with the real Revenue column. **It's wildly larger** — it multiplied the summed units by the summed unit prices.
+5. Delete it. This is why step 1 added Revenue to the *source*.
+
+<Shot id="7.7.3" />
+
+### A calculated field that is correct
+
+6. Add a `Cost` column to the Table: `=[@Revenue]*0.65`.
+7. Add a calculated field `Margin %` with `=(Revenue - Cost) / Revenue`. Format as a percentage.
+8. This one is right, because the ratio of sums is the correct regional margin.
+
+### Slicers across two pivots
+
+9. Build a **second** pivot from the same Table on the same sheet — say Date grouped by Month → Rows, Revenue → Values.
+10. Click the first pivot → **Insert Slicer** → tick **Region**.
+11. Click `North`. Only the first pivot responds.
+12. Right-click the slicer → **Report Connections** → tick **both** pivots. Now one click filters both.
+
+13. **Insert → Timeline** → tick Date. Drag to select Feb–Mar and switch the granularity to Months.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `N` + `S` + `F` | Inserts a slicer | Making an active filter visible, and driving several pivots at once | Tick Region, then set Report Connections |
+| `Alt` + `F5` | Refreshes the active pivot | After source changes — calculated fields and slicer selections survive | Adding a new month of orders |
+| `Ctrl` + click a slicer button | Multi-selects or deselects | Comparing two regions without clearing the whole slicer | Ctrl+click North then South |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Calculated field multiplying two columns** | An absurdly large number, no error | Add the column to the source instead |
+| Calculated field for an average of averages | A figure that doesn't match a manual check | Use `Show Values As`, or compute in the source |
+| Slicer only controls one pivot | Clicking it leaves other pivots unchanged | Right-click → Report Connections → tick all |
+| Pivots built on different ranges | Report Connections lists nothing to connect | Build every pivot on the same Table |
+| Timeline greyed out | You think the feature is missing | The date field holds text — fix the source |
+| Calculated **items** used freely | Grouping and some Show Values As options stop working | Prefer grouping or a source column |
+| Slicer left filtered when sharing | Recipients see a subset and believe it's everything | Clear filters, or leave the slicer visible so it's obvious |
+
+</MistakeTable>
+
+<Callout type="story">
+**Vinod, Sales Analyst.** His regional pack had a calculated field `Revenue = Units * UnitPrice`, because the source only held units and price. For a single order it looked right. At regional level the numbers were about forty times too large.
+
+He assumed the pivot was double-counting and spent an afternoon rebuilding it. The pivot was fine. A calculated field operates on the *sums*: for North it computed 20 units × 108,000 unit price, rather than summing (12 × 54,000) and (8 × 54,000).
+
+The fix was to add Revenue as a calculated column in the source Table, where it computes row by row, and pivot on that.
+
+**Calculated fields sum first, then calculate.** For ratios and differences that's correct. For products it's meaningless — and the result is a plausible-looking number rather than an error, which is why it survives review.
+</Callout>
+
+## Practice
+
+<Exercise id="7.7.e1">
+
+<Scenario>
+Build a two-pivot mini-dashboard driven by one slicer, with a correct margin calculation.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/07-07-calc-fields-slicers.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Date | Units | UnitPrice |
+| **2** | SO1001 | North | 12-Jan-2026 | 12 | 54000 |
+| **3** | SO1002 | South | 28-Jan-2026 | 30 | 12500 |
+| **4** | SO1003 | North | 14-Feb-2026 | 8 | 54000 |
+| **5** | SO1004 | East | 03-Feb-2026 | 45 | 1800 |
+| **6** | SO1005 | West | 19-Mar-2026 | 22 | 12500 |
+| **7** | SO1006 | North | 22-Mar-2026 | 60 | 1800 |
+| **8** | SO1007 | South | 08-Apr-2026 | 15 | 54000 |
+
+</Dataset>
+
+<Task>
+
+1. Convert to a Table named `Orders`. Add `Revenue` as a Table column, then `Cost` at 65% of revenue.
+2. Build Pivot A: Region → Rows, Revenue → Values.
+3. Add a calculated field `Bad Revenue = Units * UnitPrice` and put it in Values. Compare it with the real Revenue for North. How far out is it?
+4. Delete the bad field. Add a calculated field `Margin %` as `(Revenue - Cost) / Revenue`, formatted as a percentage. Why is this one correct?
+5. Build Pivot B on the same Table: Date grouped by Month → Rows, Revenue → Values.
+6. Insert a Region slicer. Click `North` — which pivots respond?
+7. Use Report Connections so the slicer drives both. Confirm one click filters both.
+8. Insert a Timeline on Date. Select February to March and check both pivots respond.
+
+</Task>
+
+<Expected>
+North real revenue = 1,188,000 · Bad Revenue for North = 80 units × 109,800 = 8,784,000, roughly 7× too high · Margin % = 35% for every region
+</Expected>
+
+<Solution>
+
+```
+1. Revenue: =[@Units]*[@UnitPrice]      Cost: =[@Revenue]*0.65
+3. PivotTable Analyze → Fields, Items & Sets → Calculated Field
+   Name: Bad Revenue   Formula: = Units * UnitPrice
+4. Name: Margin %      Formula: = (Revenue - Cost) / Revenue
+6. Insert → Slicer → Region
+7. Right-click slicer → Report Connections → tick both pivots
+8. Insert → Timeline → Date
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 shows the trap concretely.** North's three orders are 12 × 54,000, 8 × 54,000 and 60 × 1,800 — a real total of 1,188,000. The calculated field sums units to 80 and unit prices to 109,800, multiplies them, and returns 8,784,000. No error, just a number that's badly wrong in a way you'd only catch by checking against a known figure.
+
+**Step 4 is correct for a specific reason.** `(Revenue − Cost) / Revenue` uses the *sums* of revenue and cost, and the ratio of sums is the genuine regional margin. That's the dividing line: **sums-then-divide is valid, sums-then-multiply is not.** When in doubt, add the column to the source Table, where it computes row by row.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "7.7.q1",
+    type: "truefalse",
+    question: "A calculated field with the formula = Units * UnitPrice gives the same result as adding a Revenue column to the source and summing it.",
+    correct: false,
+    explanation: "A calculated field operates on the sums of each field, so it multiplies total units by total unit price rather than summing each row's product. For a region with orders of 12×54,000 and 60×1,800 that produces a number several times too large — with no error. Calculated fields are safe for ratios and differences, wrong for products; add the column to the source Table instead, where it calculates row by row."
+  },
+  {
+    id: "7.7.q2",
+    type: "decision",
+    question: "You have four pivots on a dashboard sheet and want one Region slicer to control all of them. What's required?",
+    options: [
+      "All four pivots must be built on the same source data, then set Report Connections",
+      "Insert a separate slicer for each pivot and align them",
+      "Group the pivots using the Selection Pane",
+      "Copy the slicer three times, once per pivot"
+    ],
+    correct: 0,
+    explanation: "Right-click the slicer → Report Connections lists every pivot sharing the same source, and ticking them makes one click filter all. Pivots built on different ranges — even identical copies of the same data — won't appear in that list, which is another reason to build everything on one Table. Options 2 and 4 give you four independent filters that immediately fall out of sync."
+  },
+  {
+    id: "7.7.q3",
+    type: "mcq",
+    question: "Insert → Timeline is greyed out on your pivot table. What's the cause?",
+    options: [
+      "The pivot has no Values field yet",
+      "The date field contains text dates rather than genuine date serials",
+      "Timelines require Microsoft 365",
+      "A slicer is already connected to the pivot"
+    ],
+    correct: 1,
+    explanation: "A Timeline is a date-only slicer and needs real date serials, exactly as pivot grouping does. Text dates disable it entirely — the same root cause that greys out Group in Lesson 7.6. Fix the source with Text to Columns, setting the DMY or MDY order explicitly, then refresh. Whenever a date-dependent pivot feature is unavailable, check the data type before you look at the pivot."
+  }
+]

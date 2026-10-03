@@ -1,0 +1,275 @@
+---
+id: "6.4"
+module: 6
+lesson: 4
+slug: "advanced-filter"
+title: "Advanced Filter and Extracting Records"
+shortTitle: "Advanced Filter"
+stage: "Intermediate"
+durationMin: 10
+access: "paid"
+objectives:
+  - "Extract matching records to a new location instead of hiding rows"
+  - "Build a criteria range that expresses OR conditions"
+  - "Pull a unique list of values out of a column"
+keys: ["Alt+A+Q", "Ctrl+Shift+L"]
+datasets: ["Sales_Transactions", "HR_Employee_Master"]
+starterFile: "starter/06-04-advanced-filter.xlsx"
+solutionFile: "solution/06-04-advanced-filter.xlsx"
+functions: ["FILTER", "UNIQUE"]
+excelVersion: "all"
+shotCount: 3
+prev: "6.3"
+next: "6.5"
+videoUrl: null
+---
+
+## Why this matters
+
+AutoFilter hides rows in place. Sometimes you need the matching records *somewhere else* — a separate sheet to send to a regional manager, a clean extract for a mail merge, or a unique list of departments to build a dropdown from. That's Advanced Filter, and it does two things AutoFilter can't: OR conditions across different columns, and extraction to a new location.
+
+## How it works
+
+Advanced Filter needs a **criteria range** — a small block on the sheet with headers matching your data, and the conditions written underneath.
+
+**The layout rule is the whole trick:**
+
+<FormulaBlock>
+```
+Conditions on the SAME row      = AND
+Conditions on DIFFERENT rows    = OR
+```
+</FormulaBlock>
+
+So this criteria range means *"North AND more than 20 units"*:
+
+| Region | Units |
+|---|---|
+| North | >20 |
+
+And this means *"North OR South"*, regardless of units:
+
+| Region | Units |
+|---|---|
+| North | |
+| South | |
+
+And this means *"North with over 20 units, OR South with any units"*:
+
+| Region | Units |
+|---|---|
+| North | >20 |
+| South | |
+
+<Shot id="6.4.1" />
+
+That last pattern is what AutoFilter genuinely cannot do. AutoFilter combines columns with AND only — you can't ask for "Sales team earning over 700k, or anyone in Ops regardless of salary" in one pass.
+
+<Callout type="warning">
+The criteria headers must **match your data headers exactly** — same spelling, no trailing spaces. A mismatch doesn't error; the filter just silently ignores that condition and returns more rows than you expected. Copy the headers rather than retyping them.
+</Callout>
+
+### Running it
+
+**Data → Advanced** (or <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>Q</Kbd>) and fill three boxes:
+
+| Box | What goes in it |
+|---|---|
+| List range | Your data, including headers |
+| Criteria range | The criteria block, including its headers |
+| Copy to | Where the extract should land — only enabled if you chose "Copy to another location" |
+
+Tick **Unique records only** to deduplicate the output.
+
+<Shot id="6.4.2" />
+
+### Extracting a unique list
+
+Point the list range at one column, leave the criteria range empty, tick **Unique records only**, and copy to a blank cell. You get every distinct value once — which is exactly what you need to build a data validation dropdown (Lesson 6.7).
+
+<Callout type="tip">
+On Microsoft 365, `=UNIQUE(Orders[Region])` does this in one formula and updates live. `=FILTER()` handles the conditional extraction. Advanced Filter still matters because it works in every version, and because a criteria range is something a non-technical colleague can edit without touching a formula.
+</Callout>
+
+### Its one real limitation
+
+Advanced Filter output is a **snapshot**. Change the source data and the extract doesn't update — you re-run the filter. `FILTER()` and `UNIQUE()` are live. If you're on 365 and the extract needs to stay current, use those instead.
+
+## Do it
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | OrderID | Region | Product | Units |
+| **2** | SO1001 | North | Laptop | 12 |
+| **3** | SO1002 | South | Monitor | 30 |
+| **4** | SO1003 | North | Laptop | 8 |
+| **5** | SO1004 | East | Keyboard | 45 |
+| **6** | SO1005 | West | Monitor | 22 |
+| **7** | SO1006 | North | Keyboard | 60 |
+
+### An AND condition
+
+1. **Copy** A1:D1 to **F1:I1** — copy, don't retype.
+2. In **G2** type `North`. In **I2** type `>20`.
+3. <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>Q</Kbd>. Choose **Copy to another location**.
+4. List range: `$A$1:$D$7` · Criteria range: `$F$1:$I$2` · Copy to: `$F$6`
+5. OK. You get SO1006 only — North *and* over 20 units.
+
+### An OR condition
+
+6. Clear the extract. In **G3** type `South` and leave I3 empty.
+7. Criteria range is now `$F$1:$I$3` — two condition rows.
+8. Re-run. You get SO1006 (North, >20) **and** both South orders, whatever their units.
+
+### Unique list
+
+9. In **K1** type `Region` — matching the data header exactly.
+10. <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>Q</Kbd> → Copy to another location.
+11. List range: `$B$1:$B$7` · Criteria range: **leave empty** · Copy to: `$K$3` · tick **Unique records only**.
+12. You get North, South, East, West — once each.
+
+<Shot id="6.4.4" />
+
+13. On 365, compare: `=UNIQUE(B2:B7)` in one cell gives the same result and stays current.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `A` + `Q` | Opens the Advanced Filter dialog | OR conditions across columns, or extracting to a new location | After building the criteria range |
+| `Ctrl` + `Shift` + `L` | Toggles AutoFilter | Checking a simple condition before building a criteria range — often AutoFilter is enough | Quick single-column check |
+| `F5` then the range | Jumps to and selects a named range | Re-selecting your criteria block on a crowded sheet | Type `$F$1:$I$3` into the Name Box |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Criteria header doesn't match the data header** | Condition silently ignored, too many rows returned | Copy the headers, never retype them |
+| Blank row inside the criteria range | Matches everything — the blank row is "no condition" | Keep criteria rows contiguous |
+| Criteria range selection excludes the headers | The first condition is read as a header | Always include the header row |
+| Expecting the extract to update | It's a snapshot | Re-run, or use `FILTER()` on 365 |
+| `>20` typed in a text-formatted cell | Treated as literal text, matches nothing | Ensure the criteria cell is General format |
+| Copy-to destination has existing data | Excel overwrites it without asking | Extract to an empty area |
+| Using it for a simple single-column filter | Slower than AutoFilter for no benefit | AutoFilter unless you need OR or extraction |
+
+</MistakeTable>
+
+<Callout type="story">
+**Naveen, HR Shared Services.** Every month he sent each of four regional managers a list of their own employees. His method: filter the master to one region, select the visible rows, copy, paste into a new workbook, save, email. Four times. About forty minutes, and twice he pasted the wrong region because he'd forgotten to clear the previous filter.
+
+He rebuilt it with Advanced Filter: four criteria cells on a control sheet, four extract areas, and a recorded macro (Lesson 10.6) that re-ran all four. The monthly task became one button and two minutes.
+
+The detail that made it reliable rather than just faster: **he copied the header text into the criteria range instead of typing it.** His first attempt had typed `Region ` with a trailing space, and the filter had silently ignored that condition and returned all 240 employees to every regional file. That would have been a genuine data-sharing problem, and nothing about the output looked wrong.
+</Callout>
+
+## Practice
+
+<Exercise id="6.4.e1">
+
+<Scenario>
+Extract three different employee lists from a master file, including one that AutoFilter cannot produce, plus a unique department list for a dropdown.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/06-04-advanced-filter.xlsx">
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | EmpID | Name | Dept | CTC |
+| **2** | E1001 | Anil Kumar | Sales | 640000 |
+| **3** | E1002 | Meera Nair | HR | 520000 |
+| **4** | E1003 | Rahul Shah | Sales | 810000 |
+| **5** | E1004 | Sneha Rao | Finance | 470000 |
+| **6** | E1005 | Kabir Menon | Ops | 920000 |
+| **7** | E1006 | Divya Iyer | Sales | 725000 |
+| **8** | E1007 | Arjun Das | HR | 580000 |
+| **9** | E1008 | Nisha Roy | Ops | 690000 |
+
+</Dataset>
+
+<Task>
+
+1. Build a criteria range by **copying** A1:D1 to F1:I1.
+2. Extract everyone in Sales earning more than 700,000. How many rows?
+3. Now extract **Sales earning over 700,000, OR anyone in Ops regardless of salary.** Could AutoFilter do this in one pass?
+4. Extract a unique list of departments to a blank area, for use as a dropdown source later.
+5. Deliberately break it: change your criteria header from `Dept` to `Dept ` with a trailing space and re-run. How many rows come back, and does anything warn you?
+6. Fix the header. Then extract everyone earning between 500,000 and 750,000 — this needs two conditions on the same column.
+7. On Microsoft 365, reproduce step 3 with a single `FILTER` formula.
+8. Add a new employee to the source data. Does your step 2 extract update?
+
+</Task>
+
+<Expected>
+Step 2: 2 rows (Rahul, Divya) · Step 3: 4 rows — no, AutoFilter combines columns with AND only · Step 4: Sales, HR, Finance, Ops · Step 5: all 8 rows, with no warning · Step 6: 3 rows (Meera 520,000, Arjun 580,000, Nisha 690,000) · Step 8: no — the extract is a snapshot
+</Expected>
+
+<Hint>
+For step 6, two conditions on the same column need the header twice, side by side, with one condition under each.
+</Hint>
+
+<Solution>
+
+```
+Step 2 criteria:          Dept    CTC
+                          Sales   >700000
+
+Step 3 criteria:          Dept    CTC
+                          Sales   >700000
+                          Ops
+
+Step 4: List range $C$1:$C$9 · Criteria range empty · tick Unique records only
+
+Step 6 criteria:          CTC        CTC
+                          >=500000   <=750000
+
+Step 7: =FILTER(A2:D9,((C2:C9="Sales")*(D2:D9>700000))+(C2:C9="Ops"),"None")
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 is why Advanced Filter still exists.** AutoFilter joins columns with AND, so "Sales over 700k" and "all of Ops" cannot be asked together — you'd have to run two filters and combine the results by hand. A second criteria row expresses it directly, because different rows mean OR.
+
+**Step 5 is the failure mode worth remembering.** A trailing space in the criteria header makes Excel unable to match it to a data column, so it treats that condition as absent. With both conditions ignored, every row matches. Nothing errors, nothing warns, and you get a full extract that looks like a successful filter — which, in Naveen's case, would have meant sending every region the whole company's data. Copy headers; never retype them.
+
+**Step 6 shows the same-column pattern.** Excel allows a header to appear twice in a criteria range, and conditions on the same row are ANDed — so `>=500000` under one `CTC` and `<=750000` under the other gives a between. It looks odd and it's the correct construction.
+
+**Step 8 is the limitation to keep in mind.** Advanced Filter writes a snapshot. `FILTER()` from step 7 is live, so on Microsoft 365 that's the better tool for anything that needs to stay current. Advanced Filter earns its place in older versions, and when a colleague needs to change the criteria without touching a formula.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "6.4.q1",
+    type: "mcq",
+    question: "In an Advanced Filter criteria range, what does placing two conditions on different rows mean?",
+    options: ["AND — both must be true", "OR — either can be true", "The second row is ignored", "NOT — exclude matching rows"],
+    correct: 1,
+    explanation: "Same row means AND, different rows mean OR. This is the whole layout logic of a criteria range, and it's what lets Advanced Filter express conditions AutoFilter cannot — AutoFilter joins columns with AND only, so \"Sales over 700k OR anyone in Ops\" needs a second criteria row."
+  },
+  {
+    id: "6.4.q2",
+    type: "truefalse",
+    question: "An Advanced Filter extract updates automatically when the source data changes.",
+    correct: false,
+    explanation: "The output is a snapshot — you re-run the filter to refresh it. On Microsoft 365, FILTER() and UNIQUE() return live results that update as the source changes, so prefer those when currency matters. Advanced Filter still earns its place in older versions, and when a colleague needs to change criteria in cells rather than edit a formula."
+  },
+  {
+    id: "6.4.q3",
+    type: "formula",
+    question: "On Microsoft 365, write a formula extracting rows from A2:D9 where column C equals \"Sales\" and column D is above 700000, showing \"None\" if nothing matches.",
+    accept: ["=FILTER(A2:D9,(C2:C9=\"Sales\")*(D2:D9>700000),\"None\")", "=FILTER(A2:D9,(C2:C9=\"Sales\")*(D2:D9>700000),\"None found\")"],
+    explanation: "Multiply conditions with * for AND and add them with + for OR — so (cond1)*(cond2) requires both. Each condition needs its own parentheses. The third argument replaces what would otherwise be a #CALC! error when nothing matches, which is the same fallback-value decision as IFERROR in Lesson 4.4."
+  }
+]

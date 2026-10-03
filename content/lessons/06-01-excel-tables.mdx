@@ -1,0 +1,254 @@
+---
+id: "6.1"
+module: 6
+lesson: 1
+slug: "excel-tables"
+title: "Excel Tables — Structured References and Why Tables Change Everything"
+shortTitle: "Excel Tables"
+stage: "Intermediate"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Convert a range to a Table and understand what you gain"
+  - "Write formulas with structured references instead of cell addresses"
+  - "Use a Table as a lookup source and a chart source that grows by itself"
+keys: ["Ctrl+T", "Ctrl+Shift+T"]
+datasets: ["HR_Employee_Master", "Sales_Transactions"]
+starterFile: "starter/06-01-tables.xlsx"
+solutionFile: "solution/06-01-tables.xlsx"
+functions: ["SUBTOTAL"]
+excelVersion: "all"
+shotCount: 3
+prev: "5.5"
+next: "6.2"
+videoUrl: null
+---
+
+## Why this matters
+
+Every range problem you've hit so far — formulas that don't extend to new rows, lookup ranges that need re-locking, pivot tables that miss the last 50 records, charts that ignore new data — has one fix. Press <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd>. This is the most underused feature in Excel and the highest-value ten seconds in this course.
+
+## How it works
+
+A Table is a named range that knows its own boundaries and grows automatically.
+
+Select any cell in your data and press <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd>. Confirm the header row. That's it.
+
+<Shot id="6.1.1" />
+
+**What you get immediately:**
+
+| | |
+|---|---|
+| Filter buttons on every header | No need to add them |
+| Banded row formatting | Readable without any work |
+| **Headers freeze when you scroll** | Even without Freeze Panes |
+| A name — `Table1`, rename it | Usable in formulas anywhere |
+| **Auto-expansion** | Type in the row below and the Table absorbs it |
+
+That last one is the whole point. Add a row and every formula, pivot table, chart and lookup pointing at the Table includes it. No range editing, anywhere.
+
+### Structured references
+
+Inside a Table, formulas use column names instead of addresses:
+
+<FormulaBlock>
+```
+=[@Units]*[@UnitPrice]           this row's Units × this row's UnitPrice
+=SUM(Sales[Revenue])             the whole Revenue column
+=AVERAGE(Sales[Revenue])         same, averaged
+=SUMIFS(Sales[Revenue],Sales[Region],"North")
+```
+</FormulaBlock>
+
+`[@Column]` means *this row*. `Table[Column]` means *the whole column*.
+
+<Shot id="6.1.2" />
+
+Three things improve at once. The formula says what it means — `[@Units]*[@UnitPrice]` is readable where `=D2*E2` isn't. References can't drift, so `$` signs mostly stop mattering. And typing a formula in the first row of a Table column **fills the entire column automatically**.
+
+<Callout type="tip">
+Rename the Table the moment you create it. Click inside it, go to **Table Design → Table Name**, and type something meaningful — `Sales`, `EmpMaster`, `Attendance`. `=SUM(Sales[Revenue])` is self-documenting; `=SUM(Table3[Revenue])` tells the next reader nothing.
+</Callout>
+
+### The Total Row
+
+**Table Design → Total Row** adds a row at the bottom with a dropdown per column. It uses `SUBTOTAL`, not `SUM` — which means **it respects filters**. Filter to one region and the total shows that region only.
+
+This is why a Table's Total Row is safe where a manual `=SUM()` below your data is not: a manual total gets filtered, sorted and counted as if it were a record (Lesson 2.3).
+
+<Callout type="warning">
+Tables and merged cells cannot coexist. If <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd> refuses or produces something strange, you have merged cells — unmerge them first (Lesson 2.5). Tables also can't contain blank rows inside the data.
+</Callout>
+
+## Do it
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Product | Units | UnitPrice |
+| **2** | SO1001 | North | Laptop | 12 | 54000 |
+| **3** | SO1002 | South | Monitor | 30 | 12500 |
+| **4** | SO1003 | North | Laptop | 8 | 54000 |
+| **5** | SO1004 | East | Keyboard | 45 | 1800 |
+
+1. Click any cell in the data. Press <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd>. Confirm "My table has headers". OK.
+2. **Table Design → Table Name** → type `Sales`.
+3. In **F1** type `Revenue` and press Enter. The Table extends to include it.
+4. In **F2** type `=[@Units]*[@UnitPrice]` and press Enter. **The whole column fills.** You never dragged anything.
+
+5. **Table Design → Total Row.** In the Revenue total cell, choose **Sum** from the dropdown.
+6. Filter Region to `North`. The total changes to North only — because it's `SUBTOTAL`, not `SUM`.
+7. Clear the filter.
+
+### Auto-expansion
+
+8. Click the cell directly below the last row — inside the Total Row, press <Kbd>Tab</Kbd> from the last cell, or just type in the row beneath the Table.
+9. Enter a new order. **Revenue calculates itself and the total updates.** No formula copied, no range edited.
+
+<Shot id="6.1.4" />
+
+### Referencing a Table from elsewhere
+
+10. On another sheet: `=SUM(Sales[Revenue])` — the entire column, whatever its length becomes.
+11. `=SUMIFS(Sales[Revenue],Sales[Region],"North")` — conditional, and still self-extending.
+12. Add three more orders to the Table. Both formulas update with no intervention.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `T` | Converts the range to a Table | **The first thing you do with any dataset**, before formulas, pivots or charts | Click inside the data, press Ctrl+T, Enter |
+| `Ctrl` + `Shift` + `T` | Toggles the Total Row | You need a filter-aware total without writing SUBTOTAL | Adds the row with a dropdown per column |
+| `Tab` in the last cell | Adds a new row to the Table | Fast data entry — formulas and formatting come with it | Reaching the end of the last row |
+| `Ctrl` + `A` inside a Table | Selects the Table's data, then the whole Table | Copying just the records without the headers | Press once for data, twice for everything |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| Leaving the Table named `Table1` | Formulas nobody can read six months later | Rename it immediately in Table Design |
+| Merged cells in the range | <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd> refuses or misbehaves | Unmerge first (Lesson 2.5) |
+| A manual `=SUM()` below the Table | It gets absorbed into the Table as a data row | Use the Total Row instead |
+| Blank rows inside the data | The Table stops at the gap | Remove blank rows before converting |
+| Expecting `$` to matter | Structured references don't drift, so locking is mostly irrelevant | Use `[@Column]`, not `$D$2` |
+| Two headers with the same name | Excel silently renames the second to `Region2` | Give every column a distinct header |
+| Deleting the Table but expecting formulas to survive | `#REF!` everywhere | Convert to Range instead of deleting |
+
+</MistakeTable>
+
+<Callout type="story">
+**Kiran, Sales MIS.** His weekly dashboard ran on named ranges he re-pointed by hand every Monday after pasting the new week's orders — about fifteen minutes of editing ranges across four pivot tables and six charts.
+
+One Monday he pasted 340 rows but updated only three of the four pivot ranges. The dashboard reported revenue 18% below actual. It went to the sales director, who questioned the figures against his own CRM report. Kiran spent the morning reconciling before finding the un-updated range.
+
+He converted the source data to a Table that afternoon. Every pivot, chart and formula now points at `Orders[...]`, and pasting new rows requires nothing but a refresh.
+
+**Ranges are a maintenance task you have to remember. Tables aren't.** Fifteen minutes a week for a year is roughly two working days spent doing something <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd> does for free.
+</Callout>
+
+## Practice
+
+<Exercise id="6.1.e1">
+
+<Scenario>
+Convert a sales extract to a Table, build calculated columns with structured references, and prove that new data flows through without touching anything.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/06-01-tables.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Product | Units | UnitPrice |
+| **2** | SO1001 | North | Laptop | 12 | 54000 |
+| **3** | SO1002 | South | Monitor | 30 | 12500 |
+| **4** | SO1003 | North | Laptop | 8 | 54000 |
+| **5** | SO1004 | East | Keyboard | 45 | 1800 |
+| **6** | SO1005 | West | Monitor | 22 | 12500 |
+| **7** | SO1006 | North | Keyboard | 60 | 1800 |
+
+</Dataset>
+
+<Task>
+
+1. Convert to a Table and name it `Orders`.
+2. Add a `Revenue` column: Units × UnitPrice, using structured references.
+3. Add a `Band` column: `High` if Revenue is at or above 500,000, else `Standard`.
+4. Turn on the Total Row and set Revenue to Sum. Note the figure.
+5. Filter Region to `North`. What happens to the total, and why?
+6. Clear the filter. On a blank area, write a formula totalling the whole Revenue column by Table name.
+7. Write a second formula totalling Revenue for `North` only, using `SUMIFS` with structured references.
+8. Now add two new orders in the row below the Table. Check: did Revenue and Band calculate themselves? Did the Total Row update? Did both formulas from steps 6 and 7 update?
+
+</Task>
+
+<Expected>
+Step 4 total = 1,725,600 · Step 5: total drops to North only (1,188,000) because the Total Row uses SUBTOTAL · Step 8: everything updates with no intervention
+</Expected>
+
+<Solution>
+
+```
+Revenue: =[@Units]*[@UnitPrice]
+Band:    =IF([@Revenue]>=500000,"High","Standard")
+
+Step 6: =SUM(Orders[Revenue])
+Step 7: =SUMIFS(Orders[Revenue],Orders[Region],"North")
+```
+
+</Solution>
+
+<Why>
+
+**Step 5 is the distinction that makes the Total Row worth using.** It generates `=SUBTOTAL(109,[Revenue])`, and `SUBTOTAL` ignores rows hidden by a filter. A manual `=SUM(F2:F7)` beneath the data would keep showing the full figure while the visible rows showed only North — so the total contradicts what's on screen, and nobody can tell which number is right.
+
+**Step 8 is the whole lesson.** Two new rows and nothing needed editing: the calculated columns extended, the Total Row moved down and recalculated, and both external formulas picked up the new records because `Orders[Revenue]` means "that column, whatever length it is". Compare Kiran's fifteen-minute Monday.
+
+**On step 3:** `[@Revenue]` references a column you created in step 2, in the same Table, on the same row. That readability is the second benefit — `=IF([@Revenue]>=500000,...)` tells a reviewer what's being tested, where `=IF(F2>=500000,...)` requires them to go and look at what F is.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "6.1.q1",
+    type: "mcq",
+    question: "You add 200 new rows beneath an Excel Table that feeds three pivot tables and two charts. What do you need to update?",
+    options: [
+      "The pivot source ranges and the chart data ranges",
+      "Nothing — refresh the pivots and everything includes the new rows",
+      "The Table's range definition in Table Design",
+      "Only the charts; pivots update automatically"
+    ],
+    correct: 1,
+    explanation: "A Table expands to absorb adjacent new rows, and anything referencing it by name follows. Pivots need a refresh to re-read the data, but their source doesn't change. This is the single biggest reason to convert a range to a Table before building anything on it — it removes range maintenance as a category of work, and with it the risk of updating three sources out of four."
+  },
+  {
+    id: "6.1.q2",
+    type: "truefalse",
+    question: "A Table's Total Row shows the same figure whether or not a filter is applied.",
+    correct: false,
+    explanation: "The Total Row uses SUBTOTAL, which ignores rows hidden by a filter — so filtering to one region shows that region's total. That's exactly what you want, and it's why the Total Row is safer than a manual =SUM() below the data. A manual SUM would keep displaying the full total while the visible rows showed a subset, leaving two contradictory numbers on screen."
+  },
+  {
+    id: "6.1.q3",
+    type: "decision",
+    question: "You've just pasted a 5,000-row export that will feed lookups, a pivot table and a chart. What's your first action?",
+    options: [
+      "Press Ctrl+T to convert it to a Table and rename it",
+      "Add filter buttons and freeze the header row",
+      "Define a named range covering the data",
+      "Build the pivot table first, then tidy the source"
+    ],
+    correct: 0,
+    explanation: "Ctrl+T takes ten seconds and delivers filter buttons, frozen headers, banded formatting, a usable name and auto-expansion at once — so options 2 and 3 become unnecessary. Doing it first also means every formula and pivot you build afterwards references the Table rather than a fixed range, which is what makes next month's refresh a paste-and-refresh instead of a range-editing exercise. Option 4 is the common habit and it's the one that creates the maintenance burden."
+  }
+]

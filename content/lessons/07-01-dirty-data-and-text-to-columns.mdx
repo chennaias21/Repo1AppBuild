@@ -1,0 +1,237 @@
+---
+id: "7.1"
+module: 7
+lesson: 1
+slug: "dirty-data-and-text-to-columns"
+title: "Dirty Data Checklist & Text to Columns"
+shortTitle: "Cleaning & Text to Columns"
+stage: "Advanced"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Run a six-point check on any export before you trust it"
+  - "Split one column into several with Text to Columns"
+  - "Fix text-numbers and text-dates in one pass"
+keys: ["Alt+A+E", "Ctrl+Shift+~"]
+datasets: ["Messy_HR_Data"]
+starterFile: "starter/07-01-cleaning.xlsx"
+solutionFile: "solution/07-01-cleaning.xlsx"
+functions: ["LEN", "TRIM", "ISNUMBER", "SUMPRODUCT"]
+excelVersion: "all"
+shotCount: 3
+prev: "6.7"
+next: "7.2"
+videoUrl: null
+---
+
+## Why this matters
+
+Every pivot table, lookup and chart you build from here rests on the data being clean. Dirty data doesn't error — it produces confident wrong answers. Five minutes of checking before you start saves the afternoon you'd otherwise spend wondering why your numbers don't reconcile.
+
+## How it works
+
+### The six-point check
+
+Run these on any file you didn't create. Two minutes, and it catches almost everything.
+
+| # | Check | How |
+|---|---|---|
+| 1 | **Real size** | <Kbd>Ctrl</Kbd>+<Kbd>End</Kbd>. Jumps to row 60,000 on 300 rows of data? Stray formatting. |
+| 2 | **Gaps** | <Kbd>Ctrl</Kbd>+<Kbd>↓</Kbd> down each key column. Different stopping points mean missing values. |
+| 3 | **Text-numbers** | `=SUMPRODUCT(--ISTEXT(E2:E500))` on every numeric column. Anything but 0 is a problem. |
+| 4 | **Hidden spaces** | `=SUMPRODUCT(--(LEN(A2:A500)<>LEN(TRIM(A2:A500))))` |
+| 5 | **Text dates** | Left-aligned dates, or a Date column offering *Text* filters |
+| 6 | **Duplicates** | `=COUNTA(A2:A500)` against `=SUMPRODUCT(1/COUNTIF(A2:A500,A2:A500))` |
+
+<Callout type="tip">
+Keep these six formulas in a `_Check` sheet in your template. Paste a new export, glance at six numbers, and you know within seconds whether the data is safe to build on.
+</Callout>
+
+### Text to Columns
+
+**Data → Text to Columns** (<Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>E</Kbd>) splits one column into several. Three steps:
+
+**Step 1 — Delimited or Fixed width.** Delimited if a character separates the parts (`Anil Kumar`, `MUM-E1001`). Fixed width if the parts always occupy the same character positions.
+
+**Step 2 — choose the delimiter.** Space, comma, tab, semicolon, or Other for anything else. The preview pane shows where the splits will land — always look at it.
+
+**Step 3 — set each column's data type.** This is the step people skip and it's the most valuable one. Click a column in the preview and choose General, Text or Date. Set the Date order explicitly — DMY or MDY.
+
+<Shot id="7.1.2" />
+
+<Callout type="warning">
+Text to Columns **overwrites the columns to the right without asking.** Splitting a name into two columns will destroy whatever sits in the next column. Insert enough blank columns first, every time.
+</Callout>
+
+### The two uses nobody teaches
+
+**Fixing text-numbers.** Select the column, run Text to Columns, click straight through — Next, Next, Finish. The final step re-applies the column's data type, converting text-numbers to real numbers. No formula, no helper column.
+
+**Fixing text-dates safely.** At step 3, choose **Date** and set the order. This is safer than `DATEVALUE`, because `03/04/2026` is ambiguous — `DATEVALUE` guesses from your regional settings and can silently produce the wrong date for every row. Text to Columns makes you state the order.
+
+## Do it
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee Code | Full Name | CTC |
+| **2** | MUM-E1001 | Anil Kumar | 640000 |
+| **3** | PUN-E1002 | Meera Nair | '520000 |
+| **4** | BLR-E1003 | Rahul Shah | '810000 |
+
+C3 and C4 are text — entered with a leading apostrophe.
+
+1. Run the check: in **E1** put `=SUMPRODUCT(--ISTEXT(C2:C4))` → **2**. Two text-numbers confirmed.
+2. In **E2** put `=SUM(C2:C4)` → **640000**, not 1,970,000. SUM silently skipped both.
+
+3. Select **C2:C4**. <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>E</Kbd> → Next → Next → **Finish**.
+4. E1 now shows **0** and E2 shows **1,970,000**. Four clicks, no formula.
+
+### Split a column
+
+5. **Insert two blank columns** after B — right-click column C header → Insert, twice.
+6. Select **B2:B4**. <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>E</Kbd> → **Delimited** → Next → tick **Space** → Next.
+7. At step 3, set both columns to **Text**. Finish. First and last names are now separate.
+
+<Shot id="7.1.4" />
+
+### See the overwrite damage
+
+8. Undo. Now run the same split **without** inserting blank columns first.
+9. Column C — the CTC — is gone, replaced by surnames. Nothing warned you beyond a generic "there's already data here" prompt that's easy to click through.
+10. Undo.
+
+<Shot id="7.1.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `A` + `E` | Opens Text to Columns | Splitting a column, or converting text-numbers in four clicks | Select the column, Alt+A+E, Next, Next, Finish |
+| `Ctrl` + `Shift` + `~` | Applies General format | Checking whether a "date" is a real date serial or text | A date that stays looking like a date is text |
+| `Ctrl` + `End` | Jumps to the last used cell | First check on any new file — reveals stray formatting bloat | Row 60,000 on a 300-row file means trouble |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Not inserting blank columns first** | The column to the right is silently destroyed | Insert as many blanks as you'll create |
+| Skipping step 3's data type | Leading zeros in IDs vanish; dates read wrong | Set each column to Text or Date explicitly |
+| `DATEVALUE` on ambiguous dates | Every date silently wrong by month/day swap | Text to Columns with the order stated |
+| Cleaning the raw data sheet in place | You redo the whole clean-up next month | Clean on a copy; keep raw untouched (Lesson 2.1) |
+| Trusting SUM without checking types | Understated totals, no error | Run check 3 before any aggregation |
+| Splitting on Space when names have middle names | Three columns for some rows, two for others | Split on the *first* space only, using FIND (Lesson 4.5) |
+
+</MistakeTable>
+
+<Callout type="story">
+**Manoj, Finance Executive.** His monthly expense reconciliation was always off against the travel portal's own figure — sometimes by a few thousand, sometimes not at all. He spent two months cross-checking claims by hand before someone showed him `=SUMPRODUCT(--ISTEXT(D2:D600))`.
+
+It returned **47**. Forty-seven claims — the ones raised through the mobile app rather than the web portal — exported the amount with a trailing space, making them text. SUM ignored all 47. The discrepancy was never random; it was exactly the sum of those rows.
+
+He added Text to Columns to his monthly routine. The problem never recurred and the reconciliation went from two hours to twenty minutes. **The check takes ten seconds. Not running it cost him two months.**
+</Callout>
+
+## Practice
+
+<Exercise id="7.1.e1">
+
+<Scenario>
+An HR export needs checking and cleaning before you build anything on it.
+</Scenario>
+
+<Dataset name="Messy_HR_Data" starter="starter/07-01-cleaning.xlsx">
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | Code | Full Name | DOJ | CTC |
+| **2** | MUM-E1001 | Anil Kumar | 12-03-2021 | 640000 |
+| **3** | PUN-E1002 | ` Meera  Nair ` | 05-07-2022 | '520000 |
+| **4** | BLR-E1003 | Rahul Shah | 19-01-2020 | '810000 |
+| **5** | MUM-E1004 | Sneha Rao | 28-09-2023 | 470000 |
+| **6** | HYD-E1005 | Kabir Menon | 03-02-2024 | '590000 |
+
+Dates in column C are stored as **text**.
+
+</Dataset>
+
+<Task>
+
+1. Run the six-point check. How many text-numbers in D? How many cells in B have hidden spaces?
+2. `=SUM(D2:D6)` — what does it return, and what should it be?
+3. Fix column D with Text to Columns. Re-run the check and the SUM.
+4. Fix column C: convert the text dates to real dates, setting the order to **DMY** explicitly. Confirm they right-align.
+5. Insert two blank columns after B, then split Full Name into First and Last. Set both to Text.
+6. Clean the spaces in B before splitting — what happens if you split `" Meera  Nair "` without trimming first?
+
+</Task>
+
+<Expected>
+Step 1: 3 text-numbers, 1 cell with hidden spaces · Step 2: returns 1,110,000; should be 3,030,000 · Step 6: the leading space makes the first split column empty
+</Expected>
+
+<Solution>
+
+```
+Check 3: =SUMPRODUCT(--ISTEXT(D2:D6))                              → 3
+Check 4: =SUMPRODUCT(--(LEN(B2:B6)<>LEN(TRIM(B2:B6))))             → 1
+
+Step 3: select D2:D6 → Alt+A+E → Next → Next → Finish
+Step 4: select C2:C6 → Alt+A+E → Next → Next → Column data format: Date, DMY → Finish
+Step 6: =TRIM(B2) in a helper column, Paste Values back, then split
+```
+
+</Solution>
+
+<Why>
+
+**Step 2 is why the check matters.** `=SUM(D2:D6)` returns 1,110,000 with no error, no warning, no flag — it simply skips the three text cells. Reported as payroll, you'd have understated it by 1.9 million and had no way to know. This is the defining characteristic of dirty data: it fails in a way that looks like success.
+
+**Step 6 is the ordering rule.** `" Meera  Nair "` split on Space gives you an empty first column, then `Meera`, then an empty column, then `Nair` — because every space is a delimiter, including the leading one and the doubled one. **Always `TRIM` before you split.** Getting the order backwards produces columns that look like missing data.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "7.1.q1",
+    type: "formula",
+    question: "Write a formula that counts how many cells in D2:D500 are text rather than numbers.",
+    accept: ["=SUMPRODUCT(--ISTEXT(D2:D500))", "=COUNTIF(D2:D500,\"*\")"],
+    explanation: "ISTEXT returns an array of TRUE/FALSE, the double minus converts those to 1/0, and SUMPRODUCT adds them. Run this on every numeric column of a new export — anything other than 0 means SUM will silently skip those rows and understate your total with no error."
+  },
+  {
+    id: "7.1.q2",
+    type: "mcq",
+    question: "You're about to split a Name column into First and Last. What must you do first?",
+    options: [
+      "Sort the column alphabetically",
+      "Insert blank columns to the right of the Name column",
+      "Format the column as Text",
+      "Remove the header row"
+    ],
+    correct: 1,
+    explanation: "Text to Columns overwrites the columns to its right, and the only warning is a generic prompt that's easy to click through. Splitting into two columns destroys whatever sits in the next column — which in an HR export is often salary or joining date. Insert as many blank columns as you're about to create, every time."
+  },
+  {
+    id: "7.1.q3",
+    type: "scenario",
+    question: "A CSV export gives dates as 03/04/2026. Your tenure calculations return #VALUE!. Why is Text to Columns safer than DATEVALUE here?",
+    options: [
+      "DATEVALUE only works on Microsoft 365",
+      "03/04/2026 is ambiguous — Text to Columns makes you state DMY or MDY, while DATEVALUE guesses from regional settings",
+      "DATEVALUE cannot handle slashes as separators",
+      "Text to Columns is faster on large datasets"
+    ],
+    correct: 1,
+    explanation: "Is that 3 April or 4 March? DATEVALUE resolves it using your machine's regional settings and will silently produce the wrong date for every ambiguous value — a bug you may not notice for months, because the dates all look plausible. Text to Columns step 3 requires you to state the source order explicitly, so the conversion is correct by construction rather than by luck."
+  }
+]

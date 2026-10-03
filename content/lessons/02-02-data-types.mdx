@@ -1,0 +1,247 @@
+---
+id: "2.2"
+module: 2
+lesson: 2
+slug: "data-types"
+title: "Data Types Excel Understands"
+shortTitle: "Data Types"
+stage: "Beginner"
+durationMin: 12
+access: "free"
+objectives:
+  - "Tell text, numbers, dates and logicals apart on sight"
+  - "Explain why dates are really numbers"
+  - "Diagnose and fix numbers stored as text"
+keys: ["Ctrl+Shift+~", "Ctrl+;"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/02-02-data-types.xlsx"
+solutionFile: "solution/02-02-data-types.xlsx"
+functions: ["ISNUMBER", "ISTEXT", "SUMPRODUCT", "VALUE", "DATEVALUE"]
+excelVersion: "all"
+shotCount: 5
+prev: "2.1"
+next: "2.3"
+videoUrl: null
+---
+
+## Why this matters
+
+This is the most important lesson in Module 2. Numbers stored as text are the single most common data problem in business Excel — your SUM returns the wrong total, no error appears, and nothing on screen looks unusual. Five minutes here saves you from a category of bug that costs people whole afternoons.
+
+## How it works
+
+Excel stores five kinds of thing:
+
+| Type | Example | Aligns |
+|---|---|---|
+| **Text** | Names, departments, `E1001` | **Left** |
+| **Number** | Anything you'd do maths on | **Right** |
+| **Date / Time** | Secretly a number — see below | **Right** |
+| **Logical** | `TRUE` / `FALSE` | Centre |
+| **Error** | `#N/A`, `#VALUE!` | Centre |
+
+<Shot id="2.2.1" />
+
+**The alignment rule is your free diagnostic.** Type something and don't format it. Right-aligned means Excel thinks it's a number or date. Left-aligned means text. **A column of left-aligned "numbers" is your bug, found before you started looking.**
+
+### Dates are numbers wearing a costume
+
+Excel counts days from 1 January 1900. So `1` is 1-Jan-1900, and `12-Sep-2026` is really `46,277`. Time is the decimal part: `0.5` is noon, `0.75` is 18:00.
+
+Press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>~</Kbd> on any date to see the number underneath.
+
+This matters practically:
+
+- **Subtract them:** `=B2-A2` gives days between — that's tenure, age, invoice ageing, time-to-hire
+- **Add to them:** `=A2+90` is ninety days later
+- **Compare them:** `=IF(A2>TODAY(),"Future","Past")`
+
+None of it works if the date is text. And system exports produce text dates constantly.
+
+### Finding text-numbers
+
+<FormulaBlock>
+```
+=ISNUMBER(E2)                      TRUE if it's a real number
+=ISTEXT(E2)                        TRUE if it's text
+=SUMPRODUCT(--ISTEXT(E2:E250))     how many text cells in the column
+```
+</FormulaBlock>
+
+Run that last one on every numeric column of a new dataset. Anything other than `0` means SUM will silently skip those rows.
+
+<Callout type="warning">
+`=SUM(E2:E8)` on a column with three text cells returns a total that's short by those three values — **with no error and no warning.** If you reported it, you'd have understated the figure and had no way to know. That's why SUM being "wrong" is so dangerous: it isn't wrong in a way that looks wrong.
+</Callout>
+
+<Callout type="tip">
+`Ctrl+;` inserts a **static** date. `=TODAY()` inserts a **live** one that changes every time the file opens. Use `Ctrl+;` to record when something happened; use `=TODAY()` for "how old is this now". Mixing them up means every historic record shows today's date, permanently.
+</Callout>
+
+## Do it
+
+1. In A1:A5, type without formatting: `Anil Kumar` · `640000` · `12-Mar-2026` · `=5>3` · `=1/0`
+2. Observe: A1 left, A2 right, A3 right, A4 centred showing `TRUE`, A5 showing `#DIV/0!`.
+3. Select A3 and press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>~</Kbd>. The date becomes **46093**. That's what a date actually is. Press <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd>.
+
+<Shot id="2.2.2" />
+
+### Create the bug and find it
+
+4. In B1 type `500`. In B2 type `'500` — the leading apostrophe forces text.
+5. B1 is right-aligned; B2 is left-aligned with a small green triangle.
+6. In B3: `=SUM(B1:B2)`. It returns **500**, not 1000. The text value was ignored.
+7. In B4: `=ISNUMBER(B2)` → **FALSE**. That's your test.
+
+<Shot id="2.2.3" />
+
+### Four ways to fix it
+
+8. **The green triangle** — select the cells, click the yellow warning icon, choose **Convert to Number**. Quickest for a few cells.
+9. **Text to Columns** — select the column, **Data → Text to Columns → Next → Next → Finish**. Four clicks, works on a whole column, no formula. This is the one to use.
+10. **Paste Special Multiply** — type `1` somewhere, copy it, select the text-numbers, <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>V</Kbd> → **Multiply**. Works when the others don't.
+11. **VALUE()** in a helper column — `=VALUE(B2)`, then Paste Values back over the original.
+
+<Shot id="2.2.4" />
+
+### Text dates
+
+12. If `12-03-2021` is left-aligned, it's text. `=TODAY()-D2` returns `#VALUE!`.
+13. Fix with **Text to Columns**, and at step 3 choose **Date** and set the order to **DMY** explicitly.
+
+<Shot id="2.2.5" />
+
+That explicit order matters: `03/04/2026` is ambiguous, and `DATEVALUE` guesses from your regional settings — silently producing the wrong date for every row.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `Shift` + `~` | Applies General format — strips the display mask | **The fastest truth-teller in Excel.** A date becomes a number; text stays looking like text. | Diagnosing any suspicious cell |
+| `Ctrl` + `;` | Inserts today's date as a **static** value | Recording when something happened — a date received, an approval | Never `=TODAY()` for this |
+| `Ctrl` + `Shift` + `3` | Date format | Turning a serial back into a readable date | After `DATEVALUE` |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Assuming a number is a number** | SUM returns 0 or a short total, silently | Check alignment; run `SUMPRODUCT(--ISTEXT(range))` |
+| Typing `1,20,000` with separators by hand | It becomes text | Type `120000` and apply a format |
+| `=TODAY()` for a permanent record date | Every historic record shows today, forever | `Ctrl+;` |
+| Storing `0012345` as a number | Leading zeros vanish | Format the column as Text before entry |
+| `DATEVALUE` on ambiguous dates | Wrong by a month/day swap, on every row | Text to Columns with the order stated |
+| Mixing text and numbers in one column | Sorting produces nonsense; lookups fail | One data type per column |
+| Storing a number and its unit together | `640000 INR` is text and will never sum | Number in one column, unit in the header |
+
+</MistakeTable>
+
+<Callout type="story">
+**Manoj, Finance Executive.** His monthly expense reconciliation was always off against the travel portal's own figure — sometimes by a few thousand, sometimes not at all. He spent two months cross-checking claims by hand.
+
+Then someone showed him `=SUMPRODUCT(--ISTEXT(D2:D600))`. It returned **47**.
+
+Forty-seven claims — the ones raised through the mobile app rather than the web portal — exported the amount with a trailing space, making them text. SUM ignored all 47. The discrepancy was never random; it was exactly the sum of those rows.
+
+He added Text to Columns to his monthly routine and the problem never returned. **The check takes ten seconds. Not running it cost him two months.**
+</Callout>
+
+## Practice
+
+<Exercise id="2.2.e1">
+
+<Scenario>
+Validate an HR export before building anything on it.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/02-02-data-types.xlsx">
+
+Enter this exactly — the values in E6:E8 need a leading apostrophe to simulate text-numbers.
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | EmpID | Name | Dept | DOJ | CTC |
+| **2** | E1001 | Anil Kumar | Sales | 12-Mar-2021 | 640000 |
+| **3** | E1002 | Meera Nair | HR | 05-Jul-2022 | 520000 |
+| **4** | E1003 | Rahul Shah | Sales | 19-Jan-2020 | 810000 |
+| **5** | E1004 | Sneha Rao | Finance | 28-Sep-2023 | 470000 |
+| **6** | E1005 | Kabir Menon | Ops | 03-Feb-2024 | '590000 |
+| **7** | E1006 | Divya Iyer | Sales | 14-Nov-2021 | '725000 |
+| **8** | E1007 | Arjun Das | HR | 22-Jun-2022 | '480000 |
+
+</Dataset>
+
+<Task>
+
+1. In G1, total the CTC column. What do you get, and what should it be?
+2. In G2, count how many CTC cells are text.
+3. Identify the problem rows by alignment alone.
+4. Fix them with Text to Columns. Re-check G1 and G2.
+5. In F2, calculate each employee's tenure in days from DOJ to today, filled down. Excel may format the result oddly — what do you press to see the actual number?
+6. In G4, show the underlying serial number of the DOJ in D2 without changing that cell.
+7. In G5, write a formula returning TRUE only if every value in E2:E8 is now a number.
+
+</Task>
+
+<Expected>
+Step 1: 2,440,000 — should be 4,235,000 · Step 2: 3 · Step 3: rows 6, 7, 8 are left-aligned with green triangles · Step 5: press `Ctrl+Shift+~`
+</Expected>
+
+<Solution>
+
+```
+G1: =SUM(E2:E8)
+G2: =SUMPRODUCT(--ISTEXT(E2:E8))
+F2: =TODAY()-D2                    then Ctrl+Shift+~ to see it as a number
+G4: =N(D2)                         → 44267
+G5: =SUMPRODUCT(--ISNUMBER(E2:E8))=ROWS(E2:E8)
+```
+
+</Solution>
+
+<Why>
+
+**Step 1 is the lesson in one number.** `=SUM(E2:E8)` returns 2,440,000 with no error, no warning and no visual flag — it simply skips the three text cells. Report that as payroll and you've understated it by 1.8 million with no way of knowing.
+
+**Step 5 catches almost everyone.** `=TODAY()-D2` returns a number of days, but because you subtracted dates Excel often auto-formats the result *as a date* — so you see something like `04-Sep-1914` rather than `2,006`. Nothing is wrong with the formula; the display is misleading. <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>~</Kbd> reveals the real value, and it's the same keystroke that exposes a date's serial number in step 6.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "2.2.q1",
+    type: "mcq",
+    question: "A column of salary figures is left-aligned. What does that most likely mean?",
+    options: [
+      "Someone applied left alignment for style",
+      "The values are stored as text and won't calculate",
+      "The column is too narrow",
+      "The values are negative"
+    ],
+    correct: 1,
+    explanation: "Excel right-aligns numbers and dates by default and left-aligns text. Unless someone deliberately changed it, a left-aligned \"number\" is text — and SUM, AVERAGE and every arithmetic operation will silently ignore it. Confirm with =ISNUMBER(cell). This alignment check is free and catches the most common data problem in business Excel."
+  },
+  {
+    id: "2.2.q2",
+    type: "truefalse",
+    question: "In Excel, the date 15-Aug-2026 and the number 46,249 are fundamentally the same stored value, displayed differently.",
+    correct: true,
+    explanation: "Excel stores dates as serial numbers counting days from 1-Jan-1900, and the date format is purely a display layer — press Ctrl+Shift+~ on any date to see the number underneath. This is exactly why you can subtract two dates to get days, or add 30 to get a month later: you're doing arithmetic on integers."
+  },
+  {
+    id: "2.2.q3",
+    type: "formula",
+    question: "Write a formula that counts how many cells in D2:D500 hold text rather than numbers.",
+    accept: ["=SUMPRODUCT(--ISTEXT(D2:D500))", "=COUNTIF(D2:D500,\"*\")"],
+    explanation: "ISTEXT returns an array of TRUE/FALSE, the double minus coerces those to 1/0, and SUMPRODUCT adds them. Run this on every numeric column of a new export — anything other than 0 means your totals will be short by those rows, with no error to alert you. It's the check that would have saved Manoj two months."
+  }
+]

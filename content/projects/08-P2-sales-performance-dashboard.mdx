@@ -1,0 +1,198 @@
+---
+id: "8.P2"
+module: 8
+type: "project"
+slug: "sales-performance-dashboard"
+title: "Sales Performance Dashboard"
+shortTitle: "Sales Dashboard Project"
+stage: "Business-Ready"
+estimatedMin: 220
+access: "paid"
+skillsUsed: ["Tables", "Pivot Tables", "GETPIVOTDATA", "Slicers", "Combo Charts", "Dynamic Arrays", "Conditional Formatting"]
+lessonsApplied: ["6.1", "7.5", "7.6", "7.7", "7.8", "8.1", "8.2", "8.3", "8.4", "8.5"]
+datasets: ["Sales_Transactions", "Customer_Master"]
+starterFile: "starter/08-P2-sales-dashboard-start.xlsx"
+solutionFile: "solution/08-P2-sales-dashboard-complete.xlsx"
+submission: true
+shotCount: 4
+prev: "8.P1"
+next: "8.P3"
+---
+
+## The brief
+
+You're in sales operations at a company selling IT hardware across four regions. The national sales director currently receives three separate spreadsheets each Monday — one from each regional manager, plus a summary you build by hand. He reads none of them properly because none answers his actual question: *are we on target, and if not, where?*
+
+He has asked for "one page I can look at in thirty seconds." That's the whole brief, and it's a harder constraint than it sounds.
+
+## What you'll build
+
+<Deliverable>
+
+- [ ] One dashboard sheet, no scrolling, readable at 1366×768
+- [ ] Five KPI tiles: revenue MTD, versus target, margin %, order count, overdue payments
+- [ ] Revenue-versus-target conditionally formatted against a threshold held in a cell
+- [ ] A revenue trend chart by month, and a revenue-by-region chart sorted descending
+- [ ] A combo chart showing revenue as columns against margin % as a line
+- [ ] Region and Category slicers driving every pivot and chart at once
+- [ ] A top-ten customers list built with a dynamic array, resizing itself
+- [ ] A visible Last Refreshed stamp
+- [ ] Five-sheet structure so next month is paste-and-refresh
+
+</Deliverable>
+
+## The data
+
+**`RawOrders`** — around 2,000 records: `OrderID`, `Date`, `Region`, `Salesperson`, `CustID`, `Product`, `Category`, `Units`, `UnitPrice`, `Cost`, `PaymentStatus`
+
+**`RawCustomers`** — 150 records: `CustID`, `CustomerName`, `City`, `Segment`, `Industry`, `AccountOwner`, `CreditLimit`
+
+**`Targets`** — monthly revenue target per region
+
+<Callout type="warning">
+There is **no Revenue column.** You have Units and UnitPrice. Add revenue as a calculated column in the source Table — not as a pivot calculated field, which would multiply the summed units by the summed price and return a number several times too large (Lesson 7.7).
+</Callout>
+
+Expect the usual problems: a few text-numbers in `UnitPrice`, inconsistent region spellings, some orders referencing a `CustID` not in the customer master, and dates as text in part of the file.
+
+## Milestones
+
+<Milestone n="1" title="Clean, structure and calculate">
+
+Six-point check on both sheets. Fix the text-numbers, standardise the region spellings, convert the text dates with the order stated explicitly.
+
+Convert to Tables named `Orders` and `Customers`. Add `Revenue` and `Margin` as Table columns, and pull `CustomerName` and `Segment` in from the customer master, handling IDs that don't exist.
+
+**You should now be able to** total revenue and get a figure that matches a manual spot-check of ten rows.
+
+<Shot id="8.P2.1" />
+
+</Milestone>
+
+<Milestone n="2" title="Decide what belongs on the page">
+
+Before building anything, apply the test from Lesson 8.3 to every candidate metric: *if this number changed, would the sales director do anything differently?*
+
+Write down your five KPIs and the action each triggers. Write down three metrics you're deliberately excluding and why.
+
+**You should now be able to** justify every element you're about to build. This milestone produces a plan, not a sheet.
+
+</Milestone>
+
+<Milestone n="3" title="Build the pivots">
+
+On a `Pivots` sheet, build every pivot the dashboard needs — all from the `Orders` Table so one slicer can drive them.
+
+You'll need: revenue total, revenue by month, revenue by region, margin by month, order count, overdue payment total, and revenue by customer.
+
+**You should now be able to** read every figure your KPI tiles need from a pivot somewhere on this sheet.
+
+</Milestone>
+
+<Milestone n="4" title="Build the tiles and charts">
+
+Five KPI tiles, each `GETPIVOTDATA` wrapped in `IFERROR`. Never a positional reference.
+
+Revenue versus target compares against the `Targets` figure — conditionally formatted red below 100%, using the threshold from a cell.
+
+Then three charts: a line for the monthly trend, a bar sorted descending by region, and a combo with revenue as columns and margin % as a line on a secondary axis. Apply the four default fixes to each, hide all field buttons, and turn grand totals off.
+
+**You should now be able to** read the dashboard's headline story without touching anything.
+
+<Shot id="8.P2.2" />
+
+</Milestone>
+
+<Milestone n="5" title="Wire up the interactivity">
+
+Add Region and Category slicers. Use Report Connections to attach them to **every** pivot — then click a region and confirm every tile and every chart moves. Any element that doesn't is a missed connection.
+
+Add a top-ten customers list using a dynamic array, sorted by revenue descending, so it resizes as the data changes.
+
+**You should now be able to** answer "how is the North region doing in Laptops" in two clicks.
+
+<Shot id="8.P2.3" />
+
+</Milestone>
+
+<Milestone n="6" title="Finish it and test the refresh">
+
+Gridlines and headings off. One brand colour, one accent, greys. Add a Last Refreshed cell stamped with <Kbd>Ctrl</Kbd>+<Kbd>;</Kbd>.
+
+Then the real test: paste 200 new orders into `RawOrders`, press <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>F5</Kbd>, and check every figure updated. Clear all slicers before saving.
+
+**You should now be able to** produce next month's dashboard in under two minutes.
+
+<Shot id="8.P2.4" />
+
+</Milestone>
+
+## Solution walkthrough
+
+<Walkthrough>
+
+**Table columns in `Orders`:**
+
+<FormulaBlock>
+```
+Revenue       =[@Units]*[@UnitPrice]
+Margin        =[@Revenue]-[@Cost]
+CustomerName  =IFNA(XLOOKUP([@CustID],Customers[CustID],Customers[CustomerName]),"Unknown customer")
+Segment       =IFNA(XLOOKUP([@CustID],Customers[CustID],Customers[Segment]),"Unclassified")
+Overdue       =IF([@PaymentStatus]="Overdue",[@Revenue],0)
+```
+</FormulaBlock>
+
+**KPI tiles** — type `=` and click the pivot cell so Excel writes `GETPIVOTDATA`, then wrap:
+
+<FormulaBlock>
+```
+Revenue MTD    =IFERROR(GETPIVOTDATA("Revenue",Pivots!$A$3),0)
+vs Target      =IFERROR(RevenueMTD/Targets!$B$2,0)          format as %
+Margin %       =IFERROR(TotalMargin/RevenueMTD,0)
+Order Count    =IFERROR(GETPIVOTDATA("OrderID",Pivots!$A$20),0)
+Overdue        =IFERROR(GETPIVOTDATA("Overdue",Pivots!$A$28),0)
+```
+</FormulaBlock>
+
+**Top ten customers** — one formula, self-resizing:
+
+<FormulaBlock>
+```
+=TAKE(SORT(UNIQUE(Orders[CustomerName]),1,1),10)        names only, alphabetical
+
+better — by revenue:
+=LET(names, UNIQUE(Orders[CustomerName]),
+     revs,  SUMIF(Orders[CustomerName],names,Orders[Revenue]),
+     TAKE(SORTBY(names,revs,-1),10))
+```
+</FormulaBlock>
+
+The `LET` version is worth reading closely: it builds a distinct customer list, totals revenue for each, sorts the names by those totals, and takes the first ten. No helper columns and no pivot.
+
+**Combo chart:** Revenue as Clustered Column on the primary axis, Margin % as Line on the secondary. Label both axes and start both at zero — Lesson 8.2's story is exactly what happens if you don't.
+
+</Walkthrough>
+
+## How this is marked
+
+<Rubric>
+
+| Criterion | Weight | What good looks like |
+|---|---|---|
+| **One page, thirty seconds** | 20% | No scrolling at 1366×768. The headline story is obvious without interaction. |
+| **Curation** | 15% | Five to seven elements. Milestone 2's written justification exists and holds up. |
+| **Tile integrity** | 20% | Every tile `GETPIVOTDATA` wrapped in `IFERROR`. No positional references anywhere. |
+| **Interactivity** | 15% | Every pivot and chart connected. Clicking a slicer moves everything, with nothing left stale. |
+| **Chart choices** | 15% | Type matched to the data. Sorted descending. Four default fixes applied. Both combo axes labelled and starting at zero. |
+| **Refreshability** | 15% | 200 new rows flow through on one refresh. Last Refreshed stamp present. |
+
+**A pass is 70%.** The criterion people lose most on is **tile integrity** — a positional reference works perfectly until a region has no sales, and then it silently shows the wrong region's figure. That single failure costs 20% here because it's the one that reaches a director undetected.
+
+</Rubric>
+
+<Submit />
+
+<Callout type="warning">
+Before submitting, run the interactivity check properly: click through **every** slicer value and watch **every** tile and chart. A dashboard showing a mixture of two filter states — one region's leavers beside a company-wide total — produces ratios that are meaningless and look entirely plausible.
+</Callout>

@@ -1,0 +1,260 @@
+---
+id: "3.3"
+module: 3
+lesson: 3
+slug: "cell-references"
+title: "Cell References — Relative, Absolute and Mixed"
+shortTitle: "Cell References"
+stage: "Intermediate"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Predict how a reference changes when a formula is copied"
+  - "Use $ to lock rows, columns or both — deliberately"
+  - "Build a two-way grid with a single formula"
+keys: ["F4", "Ctrl+`"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/03-03-references.xlsx"
+solutionFile: "solution/03-03-references.xlsx"
+functions: ["SUM"]
+excelVersion: "all"
+shotCount: 5
+prev: "3.2"
+next: "3.4"
+videoUrl: null
+---
+
+## Why this matters
+
+This is the most important lesson in the module — everything from here depends on it. One misplaced `$` produced 2,280 plausible-looking but wrong numbers in a compensation model that nearly went to a leadership meeting. The rule takes two minutes to learn.
+
+## How it works
+
+When you copy a formula, Excel adjusts the references **relative to how far it moved**. Copy `=A1*2` from B1 down to B2 and it becomes `=A2*2`. Copy it right to C1 and it becomes `=B1*2`.
+
+That's usually exactly what you want — it's why one formula can serve 5,000 rows. But sometimes a reference must *not* move. That's the `$`.
+
+| Written | When copied |
+|---|---|
+| `A1` | Both parts move |
+| `$A$1` | Neither moves |
+| `$A1` | Row moves, **column stays** |
+| `A$1` | Column moves, **row stays** |
+
+**The `$` locks whatever comes immediately after it.** `$A1` locks the column A. `A$1` locks the row 1. That's the whole rule.
+
+<Shot id="3.3.1" />
+
+### The two-question test
+
+For each reference, ask:
+
+1. *Copying **down**, should this reference move down?* If no → `$` before the row number.
+2. *Copying **across**, should it move across?* If no → `$` before the column letter.
+
+Work through both questions for every reference and you'll never guess again.
+
+<Callout type="tip">
+`F4` cycles the types. Put the cursor anywhere inside a reference — you don't need to select it — and press `F4` repeatedly: `A1` → `$A$1` → `A$1` → `$A1` → back. Much faster than typing dollar signs, and you can't mistype it.
+</Callout>
+
+### The two-way grid
+
+This is where mixed references earn their keep. Salaries down the side, hike percentages across the top:
+
+<FormulaBlock>
+```
+=$A2*(1+B$1)
+ │         │
+ │         └── B$1 — row 1 locked (hike always from row 1), column free
+ └──────────── $A2 — column A locked (salary always from column A), row free
+```
+</FormulaBlock>
+
+The two references are locked in **opposite** directions. One formula fills the entire grid.
+
+<Callout type="warning">
+`$` prevents drift when you **copy**, not when you **restructure**. Insert a row above your header and Excel updates `B$1` to `B$2` automatically — absolute references are not immune to insertion. For anything maintained over time, named ranges (Lesson 3.6) or Tables (Lesson 6.1) are more robust.
+</Callout>
+
+## Do it
+
+### A single locked rate
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | | **Rate** | **5%** |
+| **2** | Salesperson | Sales | Commission |
+| **3** | Anil | 450000 | ? |
+| **4** | Meera | 620000 | ? |
+| **5** | Rahul | 380000 | ? |
+
+1. Click **C3**. Type `=B3*`, click **C1**, press <Kbd>F4</Kbd> → `=B3*$C$1`. Enter → 22,500.
+2. Double-click the fill handle. Click C4 — it reads `=B4*$C$1`. The B moved; the C1 didn't.
+3. Change C1 to `7%`. All three update.
+
+<Shot id="3.3.2" />
+
+4. Now remove the dollars — `=B3*C1` — and refill. Rows 4 and 5 point at blank cells and the word "Salesperson". **That's what a missing `$` does.**
+
+### The two-way grid
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | Salary \ Hike | 5% | 8% | 10% | 12% |
+| **2** | 400000 | | | | |
+| **3** | 550000 | | | | |
+| **4** | 700000 | | | | |
+
+5. Click **B2**. Type `=`, click **A2**, press <Kbd>F4</Kbd> **three times** → `$A2`.
+6. Type `*(1+`, click **B1**, press <Kbd>F4</Kbd> **twice** → `B$1`. Type `)`. Enter → 420,000.
+7. Copy B2, select **B2:E4**, paste.
+8. Check C3 — `=$A3*(1+C$1)` → 550000 × 1.08 = **594,000**. Check E4 — 700000 × 1.12 = **784,000**.
+
+<Shot id="3.3.3" />
+
+### Break it deliberately
+
+9. In a spare area, build the same grid with `=A2*(1+B1)` — no dollars at all. Fill across and down.
+10. Click C3 — it reads `=B3*(1+C2)`, pointing at another result cell and an empty cell. Nonsense.
+11. Press <Kbd>Ctrl</Kbd>+<Kbd>`</Kbd> to show all formulas. The drift is visible across the whole grid at once.
+
+<Shot id="3.3.4" />
+
+### The expanding range
+
+12. In a column of monthly revenue, put `=SUM($B$2:B2)` beside the first month and fill down.
+13. Row 3 becomes `=SUM($B$2:B3)`, row 4 `=SUM($B$2:B4)`. The start is locked, the end grows — **a running total in one formula.**
+
+<Shot id="3.3.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F4` in formula edit | Cycles relative → absolute → mixed | **Every time you need a `$`.** Cursor anywhere in the reference. | `A1` → `$A$1` → `A$1` → `$A1` |
+| `Ctrl` + `` ` `` | Shows every formula | Diagnosing a bad fill — the drift is visible across the grid | Compare row 2's formula with row 200's |
+| `Ctrl` + `[` | Jumps to the cells a formula references | Tracing where a value actually comes from | Click the formula, press it |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **No `$` on a fixed rate** | Row 2 works, rows 3+ reference blanks or text | `F4` on the rate reference |
+| `$` on everything | Every cell in the fill shows the same value | Lock only what must not move |
+| Locking the wrong part in a grid | Rows work but columns don't, or vice versa | Apply the two-question test to each reference |
+| `A$1` when you meant `$A1` | The reference drifts in the unexpected direction | The `$` locks what **follows** it |
+| Assuming the formula is wrong when the *reference* is | You rewrite working logic | `Ctrl` + `` ` `` to see where references point |
+| Expecting `$` to survive a row insertion | References shift anyway | Named ranges or Tables for anything maintained |
+
+</MistakeTable>
+
+<Callout type="story">
+**Ramesh, Compensation Analyst.** He built an appraisal model: 380 employees down the rows, six hike percentages across the columns, so leadership could see the payroll impact of each scenario.
+
+He built it with `=A2*(1+B1)` — no dollars. The first cell was right. Everything else drifted. The grid produced **2,280 numbers, all plausible-looking, essentially all wrong.**
+
+He caught it only because the total for the 5% scenario came out *higher* than the 12% scenario, which is impossible. Had the drift been less dramatic, the model would have gone into a leadership meeting.
+
+The fix was two `$` signs.
+
+He now fills one cell right and one cell down, checks both against a manual calculation, and only then fills the rest. Five extra seconds, and it has caught three similar errors since.
+</Callout>
+
+## Practice
+
+<Exercise id="3.3.e1">
+
+<Scenario>
+Build an appraisal impact model for leadership review.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/03-03-references.xlsx">
+
+| | A | B | C | D | E | F |
+|---|---|---|---|---|---|---|
+| **1** | Employee | Current CTC | **6%** | **8%** | **10%** | **12%** |
+| **2** | Anil Kumar | 640000 | | | | |
+| **3** | Meera Nair | 1250000 | | | | |
+| **4** | Rahul Shah | 810000 | | | | |
+| **5** | Sneha Rao | 470000 | | | | |
+| **6** | Kabir Menon | 920000 | | | | |
+| **7** | Divya Iyer | 725000 | | | | |
+
+Also: **L1** `Bonus %` = `15%`
+
+</Dataset>
+
+<Task>
+
+1. In C2, write **one** formula for the revised CTC that will fill correctly across C2:F7. Not six formulas.
+2. Fill C2 across to F2, then C2:F2 down to row 7. Verify C2 = 678,400 and F7 = 812,000.
+3. In B8, total the current CTC. In C8:F8, total each scenario.
+4. In C9:F9, calculate the increase over current total. In C10:F10, express it as a percentage of current payroll.
+5. In H2, calculate each employee's bonus as current CTC × the rate in L1, so changing L1 updates every row.
+6. In J2, build a running total of current CTC using an expanding range — row 2 shows 640,000, row 3 shows 1,890,000.
+7. Insert a row above row 1, pushing everything down. Do your formulas still work? Undo.
+8. Press <Kbd>Ctrl</Kbd>+<Kbd>`</Kbd> and confirm the `$` pattern is consistent across the whole grid.
+
+</Task>
+
+<Expected>
+C2 = 678,400 · F7 = 812,000 · B8 = 4,815,000 · C8 = 5,103,900 · F8 = 5,392,800 · running total at row 7 = 4,815,000
+</Expected>
+
+<Solution>
+
+```
+C2: =$B2*(1+C$1)
+B8: =SUM(B2:B7)
+C8: =SUM(C2:C7)          fill across to F8
+C9: =C8-$B$8
+C10: =C9/$B$8            format as %
+H2: =$B2*$L$1
+J2: =SUM($B$2:B2)        fill down
+```
+
+</Solution>
+
+<Why>
+
+**The two references in `=$B2*(1+C$1)` are locked in opposite directions**, and that's the whole trick. Walk it through: copying *down*, we want the CTC to move from B2 to B3, so the row is free; copying *across*, we still want column B, so the column is locked → `$B2`. For the hike, copying down we still want row 1, so the row is locked; copying across we want C1 to become D1, so the column is free → `C$1`.
+
+**Step 7 is a deliberate trap.** Inserting a row pushes the hike percentages from row 1 to row 2, and Excel **automatically updates your formulas to `C$2`**. Absolute references protect against drift when you *copy*, not when you *restructure* — which is precisely why named ranges and Tables are more robust for anything that will be maintained.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "3.3.q1",
+    type: "mcq",
+    question: "You write =A1*B1 in C1 and copy it to C5. What does C5 contain?",
+    options: ["=A1*B1", "=A5*B5", "=A1*B5", "=A5*B1"],
+    correct: 1,
+    explanation: "Both references are relative, so both adjust by the distance moved — four rows down. This is the default behaviour and it's what lets a single formula serve an entire column. The $ is how you opt out of it for a specific reference."
+  },
+  {
+    id: "3.3.q2",
+    type: "truefalse",
+    question: "$A1 locks the row number so it won't change when you copy the formula down.",
+    correct: false,
+    explanation: "$A1 locks the COLUMN. The $ locks whatever comes immediately after it, and what follows here is the letter A — so the column stays at A while the row is free to change. To lock the row you'd write A$1. Reading it aloud as \"dollar-A, one\" helps: the dollar is attached to the A."
+  },
+  {
+    id: "3.3.q3",
+    type: "formula",
+    question: "Rates run across row 1 (B1:F1) and quantities down column A (A2:A20). Write the single formula for B2 that fills correctly across the whole B2:F20 grid.",
+    accept: ["=$A2*B$1", "=B$1*$A2"],
+    explanation: "Column A locked with the row free so it moves down; row 1 locked with the column free so it moves across. This two-way grid pattern is worth memorising as a shape rather than deriving each time — and it's the exact formula whose absence produced Ramesh's 2,280 wrong numbers."
+  }
+]

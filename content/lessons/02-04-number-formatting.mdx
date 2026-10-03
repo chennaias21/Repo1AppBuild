@@ -1,0 +1,258 @@
+---
+id: "2.4"
+module: 2
+lesson: 4
+slug: "number-formatting"
+title: "Number Formatting"
+shortTitle: "Number Formatting"
+stage: "Beginner"
+durationMin: 12
+access: "free"
+objectives:
+  - "Apply currency, percentage and date formats correctly"
+  - "Write custom formats for business reporting"
+  - "Understand why formatting never changes the stored value"
+keys: ["Ctrl+1", "Ctrl+Shift+~"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/02-04-number-formatting.xlsx"
+solutionFile: "solution/02-04-number-formatting.xlsx"
+functions: ["ROUND", "TEXT"]
+excelVersion: "all"
+shotCount: 5
+prev: "2.3"
+next: "2.5"
+videoUrl: null
+---
+
+## Why this matters
+
+Formatting is a mask, not a change. The cell holds `0.4567`; you apply Percentage and it displays `46%`. Every formula still uses `0.4567`. Miss that distinction and you'll spend an afternoon wondering why two cells showing 46% add up to 91% instead of 92% — and a finance team will reject your report over a one-rupee discrepancy.
+
+## How it works
+
+### The formats that matter at work
+
+| Format | Use for |
+|---|---|
+| **Number** | Quantities, counts |
+| **Currency** | A single standalone amount |
+| **Accounting** | **Any column of money** — symbol at the cell edge, decimals aligned, zero as `-` |
+| **Percentage** | Rates, growth, attrition |
+| **Date / Time** | Any date or time column |
+| **Text** | IDs with leading zeros, like `0012345` |
+| **Custom** | Anything you define |
+
+**Accounting versus Currency** is a small thing people notice. Currency puts `₹640,000` with the symbol tight against the number. Accounting pushes the `₹` to the cell's left edge, aligns all the decimal points, and shows zero as a dash. In a column, Accounting looks right and Currency looks amateur.
+
+<Shot id="2.4.1" />
+
+### Custom formats
+
+Four sections separated by semicolons:
+
+<FormulaBlock>
+```
+positive ; negative ; zero ; text
+
+#,##0;[Red](#,##0);"-";@
+   │      │            │  └── text shown as itself
+   │      │            └───── zero shown as a dash
+   │      └────────────────── negatives in red, in brackets
+   └───────────────────────── 1234 becomes 1,234
+```
+</FormulaBlock>
+
+The codes worth knowing:
+
+| Code | Input | Shows |
+|---|---|---|
+| `#,##0` | 1234567 | `1,234,567` |
+| `#,##0,` | 6400000 | `6,400` (thousands) |
+| `#,##0,,"M"` | 6400000 | `6M` (millions) |
+| `0.0%` | 0.0854 | `8.5%` |
+| `#,##0;[Red](#,##0)` | −450 | red `(450)` |
+| `[h]:mm` | 1.5 | `36:00` — hours past 24 |
+| `"EMP-"0000` | 12 | `EMP-0012` |
+| `;;;` | anything | blank on screen |
+| `dd-mmm-yyyy` | 46277 | `12-Sep-2026` |
+
+**Each trailing comma divides the display by 1,000.** That's the dashboard trick — `#,##0,,"M"` keeps a KPI tile readable while the cell still holds the full value.
+
+<Callout type="warning">
+`[h]:mm` with square brackets lets hours exceed 24. Without them, a 43-hour week displays as `19:00` because Excel wraps at a day. **Every total-hours cell in every timesheet needs the brackets**, and it's the most common formatting bug in HR and payroll workbooks.
+</Callout>
+
+<Callout type="tip">
+Comma scaling works for thousands and millions but **not for lakhs or crores** — a lakh is 100,000, which isn't a power of 1,000, so no comma combination produces it. Use a formula instead: `=TEXT(B2/100000,"0.0")&"L"`. A lot of online advice assumes millions and quietly fails here.
+</Callout>
+
+## Do it
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | Name | CTC | Hike | Variance |
+| **2** | Anil Kumar | 640000 | 0.085 | 24000 |
+| **3** | Meera Nair | 1250000 | 0.12 | −18000 |
+| **4** | Rahul Shah | 810000 | 0.065 | 0 |
+
+1. Select column B. **Home → Number Format → Accounting.** Click **Decrease Decimal** twice.
+2. Select column C. Press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>5</Kbd> for Percentage, then **Increase Decimal** once → `8.5%`.
+3. Select column D. Press <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → **Custom** → type `#,##0;[Red](#,##0);"-"` → OK.
+4. Row 3 shows red `(18,000)`. Row 4 shows `-`.
+
+<Shot id="2.4.2" />
+
+### Prove formatting isn't rounding
+
+5. In F1 and F2 both type `2.567`. Format both to 2 decimals — both display `2.57`.
+6. In F3: `=F1+F2`. It displays **5.13**, because the true total is 5.134.
+7. In G1 and G2: `=ROUND(2.567,2)`. In G3: `=G1+G2` → **5.14**.
+
+**5.13 versus 5.14.** Two cells. Scale that to a 400-row payroll register and finance sends it back.
+
+<Shot id="2.4.3" />
+
+### The dashboard scale trick
+
+8. In H1 put `6400000`. Press <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → Custom → `#,##0,,"M"` → it shows `6M`.
+9. Click H1 — the formula bar still shows `6400000`. The value is untouched.
+
+<Shot id="2.4.4" />
+
+### The timesheet bug
+
+10. In J1 put `43` hours as a time value — enter `43:00`. Format it `h:mm` → it shows **19:00**.
+11. Change the format to `[h]:mm` → **43:00**.
+
+<Shot id="2.4.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `1` | Format Cells dialog | Custom formats, and everything else | Select the range first |
+| `Ctrl` + `Shift` + `~` | General format — strips all formatting | Seeing the real stored value behind a mask | A date becomes its serial number |
+| `Ctrl` + `Shift` + `5` | Percentage | Rate columns | Attrition, hike, margin |
+| `Ctrl` + `Alt` + `V` then `T` | Pastes formats only | Applying a house style to another range | Copy a formatted cell first |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Believing display rounding rounds the value** | A column of displayed figures doesn't add to the displayed total | `ROUND()` the values if exactness matters |
+| `h:mm` on totals over 24 hours | 43 hours shows as 19:00 | `[h]:mm` |
+| Typing `₹` into cells by hand | The value becomes text; SUM breaks | Use an Accounting format |
+| Expecting `%` format to divide by 100 | You type `45` and get `4500%` | Type `45%` or `0.45` |
+| Currency on a column of money | Symbols and decimals don't align | Accounting |
+| Formatting as Text then entering numbers | They won't calculate | Text format is for IDs with leading zeros only |
+| Dividing values to scale a dashboard | Every downstream formula is now out by a factor of a million | Use a number format, never change the data |
+
+</MistakeTable>
+
+<Callout type="story">
+**Shreya, MIS Analyst.** Her revenue dashboard showed each region rounded to the nearest lakh — `₹64L`, `₹41L`, `₹38L`, `₹27L` — with a total of `₹171L`.
+
+The regional heads added the four themselves: 64 + 41 + 38 + 27 = 170. They flagged it as an error in a leadership meeting. Twice.
+
+The dashboard was correct. The true values were 64.4, 40.8, 38.3 and 27.2, totalling 170.7 — which displayed as 171. Display rounding, working exactly as designed.
+
+Her fix wasn't the maths. It was showing one decimal place, so the arithmetic was visible and the figures reconciled on sight.
+
+**When people can't reconcile your numbers by eye, they stop trusting the whole report** — even when it's right.
+</Callout>
+
+## Practice
+
+<Exercise id="2.4.e1">
+
+<Scenario>
+Format a raw compensation extract into a report you'd send to a CHRO.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/02-04-number-formatting.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | Name | CTC | Hike | Effective | Variance |
+| **2** | Anil Kumar | 640000 | 0.085 | 45383 | 24000 |
+| **3** | Meera Nair | 1250000 | 0.12 | 45748 | −18000 |
+| **4** | Rahul Shah | 810000 | 0.065 | 45383 | 0 |
+| **5** | Kabir Menon | 9200000 | 0.155 | 45748 | −45000 |
+
+</Dataset>
+
+<Task>
+
+1. Format B as Accounting with no decimals, C as Percentage with 1 decimal, D as `dd-mmm-yyyy`.
+2. Format E with a custom code: positives with a comma separator, negatives in red brackets, zero as a dash.
+3. In G2, display CTC in millions using a custom format only — no formula. Confirm the formula bar still shows the full value.
+4. In H2, put `=B2` and format it so the cell appears blank but the value still works. Test with `=H2*2` in I2.
+5. In J2, put `=ROUND(C2,2)` and compare it with C2 formatted to 1 decimal. Explain the difference in one line.
+6. Display CTC in lakhs — 640000 as `6.4L`. Try a custom format first, then explain why a formula is needed.
+7. Enter `43:00` in a cell and format it so it shows 43 hours, not 19.
+
+</Task>
+
+<Expected>
+Step 2: `24,000` / red `(18,000)` / `-` · Step 3: `6M`, formula bar shows 640000 · Step 6: no comma combination gives lakhs · Step 7: `[h]:mm`
+</Expected>
+
+<Solution>
+
+```
+B: Ctrl+1 → Accounting → 0 decimals
+C: Ctrl+1 → Custom → 0.0%
+D: Ctrl+1 → Custom → dd-mmm-yyyy
+E: Ctrl+1 → Custom → #,##0;[Red](#,##0);"-"
+G2: =B2  then  Ctrl+1 → Custom → #,##0,,"M"
+H2: =B2  then  Ctrl+1 → Custom → ;;;
+Step 6: =TEXT(B2/100000,"0.0")&"L"
+Step 7: Ctrl+1 → Custom → [h]:mm
+```
+
+</Solution>
+
+<Why>
+
+**Step 6 teaches something most Excel advice gets wrong.** Each trailing comma divides the display by exactly 1,000, so two commas give millions. But a lakh is 100,000 — not a power of 1,000 — so **there is no comma combination that produces lakhs.** `0.0,,"L"` on 640000 shows `0.6L`, not `6.4L`.
+
+The honest answer is a formula: `=TEXT(B2/100000,"0.0")&"L"`. Keep the original number in its own column for any calculation, because the TEXT result is text. If you're building reports in an Indian business context this matters — the comma trick works for M and B but not L and Cr, and knowing that saves twenty minutes of fighting the format dialog.
+
+**Step 5's answer:** `ROUND` changes the stored value to 0.09; the format leaves it at 0.085 and only displays 8.5%. Formatting is a mask; ROUND is surgery.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "2.4.q1",
+    type: "mcq",
+    question: "A cell contains 0.4567 and is formatted as Percentage with 0 decimals, displaying 46%. What value does a formula referencing it use?",
+    options: ["46", "0.46", "0.4567", "46%"],
+    correct: 2,
+    explanation: "Number formatting changes only what you see. The stored value is untouched and is what every formula, chart and pivot table uses. This is why a column displaying 46%, 46%, 46% can total 137% rather than 138% — the displayed figures were each rounded for display, the real ones weren't."
+  },
+  {
+    id: "2.4.q2",
+    type: "truefalse",
+    question: "Applying Percentage format to a cell containing 45 will display 45%.",
+    correct: false,
+    explanation: "It displays 4500%, because Percentage format multiplies the stored value by 100. To get 45% you type 45% directly — Excel then stores 0.45 — or type 0.45 into an already-formatted cell. This catches people constantly when pasting raw percentage figures from another system."
+  },
+  {
+    id: "2.4.q3",
+    type: "formula",
+    question: "Write the custom number format code that displays positives with a thousands separator, negatives in red inside parentheses, and zeros as a dash.",
+    accept: ["#,##0;[Red](#,##0);\"-\"", "#,##0;[Red](#,##0);\"-\";@"],
+    explanation: "Three sections separated by semicolons: positive, negative, zero. The colour code must come at the start of its section. Add a fourth section with @ if you also want to control how text displays in that cell. This exact code is the standard for any variance or difference column in a business report."
+  }
+]

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getRazorpayClient } from "@/lib/razorpay";
-import { effectivePricePaise, getTier } from "@/lib/tiers";
+import { effectivePricePaise, getTier, normalisePromo, priceWithPromo } from "@/lib/tiers";
 
 /**
  * Creates a Razorpay order. Only the plan id is read from the request; the
@@ -20,12 +20,14 @@ export async function POST(request: Request) {
   const tier = typeof body?.tier === "string" ? getTier(body.tier) : undefined;
   if (!tier) return NextResponse.json({ error: "Choose a plan." }, { status: 400 });
 
-  const amountPaise = effectivePricePaise(tier);
+  // An unknown promo code is ignored by the server; the pricing page validates it first.
+  const promo = normalisePromo(body?.promo);
+  const amountPaise = priceWithPromo(effectivePricePaise(tier), promo);
   const razorpay = getRazorpayClient();
   const order = await razorpay.orders.create({
     amount: amountPaise,
     currency: "INR",
-    notes: { user_id: user.id, email: user.email ?? "", tier: tier.id },
+    notes: { user_id: user.id, email: user.email ?? "", tier: tier.id, promo: promo ?? "" },
   });
 
   const { error } = await createAdminClient().from("payments").insert({

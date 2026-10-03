@@ -1,0 +1,264 @@
+---
+id: "4.6"
+module: 4
+lesson: 6
+slug: "text-functions-2"
+title: "Text Functions Part 2 — UPPER, PROPER, CONCAT, TEXTJOIN, SUBSTITUTE, TEXT"
+shortTitle: "Text Functions 2"
+stage: "Intermediate"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Standardise inconsistent capitalisation across a column"
+  - "Join fields together with TEXTJOIN, and know why it beats CONCAT"
+  - "Use TEXT to control how a number or date appears inside joined text"
+keys: ["Ctrl+Alt+V", "F9"]
+datasets: ["HR_Employee_Master", "Customer_Master"]
+starterFile: "starter/04-06-text-join.xlsx"
+solutionFile: "solution/04-06-text-join.xlsx"
+functions: ["UPPER", "LOWER", "PROPER", "CONCAT", "TEXTJOIN", "SUBSTITUTE", "REPLACE", "TEXT"]
+excelVersion: "all"
+shotCount: 5
+prev: "4.5"
+next: "4.7"
+videoUrl: null
+---
+
+## Why this matters
+
+Lesson 4.5 pulled text apart. This one puts it back together and makes it consistent. Building an email address from a name, standardising `SALES`/`sales`/`Sales` into one value, writing "Anil Kumar — Sales — joined 12-Mar-2021" for a letter: all of that lives here.
+
+## How it works
+
+### Case functions
+
+<FormulaBlock>
+```
+=UPPER(A2)    "anil kumar" → "ANIL KUMAR"
+=LOWER(A2)    "Anil Kumar" → "anil kumar"
+=PROPER(A2)   "anil kumar" → "Anil Kumar"
+```
+</FormulaBlock>
+
+<Shot id="4.6.1" />
+
+`PROPER` capitalises the first letter of every word. Useful and imperfect — it turns `McDonald` into `Mcdonald` and `IBM` into `Ibm`. On names and company fields, check the output rather than trusting it.
+
+### Joining
+
+<FormulaBlock>
+```
+=A2&" "&B2                          the & operator — fine for two things
+=CONCAT(A2," ",B2)                  same result, function form
+=TEXTJOIN(", ",TRUE,A2,B2,C2)       delimiter once, skips blanks
+           │     │
+           │     └── TRUE = ignore empty cells
+           └──────── the separator, written once
+```
+</FormulaBlock>
+
+**`TEXTJOIN` is the one to learn.** Two things make it better than `CONCAT` or `&`:
+
+You write the separator **once** instead of between every pair. And that `TRUE` skips blanks — so joining `City`, `State`, `Country` when State is empty gives `Mumbai, India`, not `Mumbai, , India`.
+
+<Shot id="4.6.2" />
+
+`TEXTJOIN` also accepts a whole range: `=TEXTJOIN(", ",TRUE,A2:D2)`.
+
+<Callout type="warning">
+`TEXTJOIN` and `CONCAT` need Excel 2019 or Microsoft 365. On 2016 and earlier they return `#NAME?` — fall back to `&` or the older `CONCATENATE`.
+</Callout>
+
+### Replacing
+
+<FormulaBlock>
+```
+=SUBSTITUTE(A2,"-","/")         replaces by CONTENT   — every "-" becomes "/"
+=SUBSTITUTE(A2,"-","/",2)       only the 2nd occurrence
+=REPLACE(A2,4,1,"/")            replaces by POSITION  — 1 char at position 4
+```
+</FormulaBlock>
+
+`SUBSTITUTE` when you know *what* to replace. `REPLACE` when you know *where*.
+
+### TEXT — the one people miss
+
+Joining a date or number into text destroys its formatting:
+
+<FormulaBlock>
+```
+=A2&" joined on "&D2          →  "Anil Kumar joined on 44267"
+=A2&" joined on "&TEXT(D2,"dd-mmm-yyyy")  →  "Anil Kumar joined on 12-Mar-2021"
+```
+</FormulaBlock>
+
+The `&` operator strips a date back to its serial number. `TEXT` is how you keep it readable.
+
+<Callout type="tip">
+`TEXT` is also the practical answer to Indian lakh/crore formatting, which custom number formats can't do cleanly: `=TEXT(B2/100000,"0.0")&"L"` turns 640000 into `6.4L`. Remember the result is text — keep the original number in its own column for any calculation.
+</Callout>
+
+## Do it
+
+An HR export with inconsistent case and separate name fields.
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | First | Last | Dept | DOJ |
+| **2** | anil | KUMAR | sales | 12-Mar-2021 |
+| **3** | MEERA | nair | HR | 05-Jul-2022 |
+| **4** | Rahul | Shah | Sales | 19-Jan-2020 |
+
+1. **E2** — `=PROPER(A2)&" "&PROPER(B2)` → `Anil Kumar`
+2. **F2** — `=UPPER(C2)` → `SALES`. Now all three department values match.
+3. **G2** — the email: `=LOWER(A2)&"."&LOWER(B2)&"@company.com"` → `anil.kumar@company.com`
+
+<Shot id="4.6.3" />
+
+4. **H2** — a joined summary with `TEXTJOIN`: `=TEXTJOIN(" — ",TRUE,PROPER(A2)&" "&PROPER(B2),PROPER(C2))` → `Anil Kumar — Sales`
+5. **I2** — add the date and watch it break: `=H2&", joined "&D2` → `Anil Kumar — Sales, joined 44267`
+6. **J2** — fix it: `=H2&", joined "&TEXT(D2,"dd-mmm-yyyy")` → `Anil Kumar — Sales, joined 12-Mar-2021`
+
+<Shot id="4.6.4" />
+
+### Make the standardisation permanent
+
+7. Select E2:F4 → copy → **Paste Values** over the original columns → delete the helpers. The formulas were the tool; the values are the result.
+
+<Shot id="4.6.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `Alt` + `V` then `V` | Paste Values | Converting a cleaned/standardised column into real data before deleting the helper | The final step of every text clean-up |
+| `F9` on a nested part | Evaluates that piece | Checking what `PROPER` or `TEXT` returned inside a long join | Select `TEXT(D2,"dd-mmm-yyyy")` |
+| `Alt` + `Enter` | Line break inside a formula | Laying out a long `TEXTJOIN` with several arguments | One argument per line |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Joining a date with `&`** | `44267` instead of `12-Mar-2021` | Wrap it in `TEXT(D2,"dd-mmm-yyyy")` |
+| Trusting `PROPER` on names and brands | `Mcdonald`, `Ibm`, `Jp Morgan` | Check the output; fix exceptions by hand |
+| `CONCAT` or `TEXTJOIN` on Excel 2016 | `#NAME?` | Use `&` or `CONCATENATE` |
+| `TEXTJOIN` with the second argument FALSE | `Mumbai, , India` on blank fields | `TRUE` to skip blanks |
+| Deleting source columns before Paste Values | The joined column becomes `#REF!` | Paste Values first |
+| Forgetting `TEXT` output is text | It won't SUM, won't sort numerically | Keep the number in its own column |
+| Standardising case without trimming first | `"Sales "` becomes `"SALES "` — still mismatched | `TRIM` before `UPPER` (Lesson 4.5) |
+
+</MistakeTable>
+
+<Callout type="story">
+**Tanvi, Admin Executive.** Twelve months of visitor logs, about 4,000 rows, typed by hand. When her manager asked for visits by company, the pivot table returned 340 distinct companies. The real number was 61 — the rest were `Infosys`, `infosys`, `INFOSYS`, `Infosys Ltd` and `Infosys ` with a trailing space.
+
+She fixed it with `=PROPER(TRIM(B2))`, which collapsed most of the variants, then hand-corrected the remaining `Ltd`/`Limited` differences. Two hours, and she pasted the values back over the source so the fix was permanent.
+
+**The order matters: `TRIM` before `PROPER`.** Standardising the case of `"Infosys "` gives you `"Infosys "` — still a separate category. Trimming first is what actually merges them.
+</Callout>
+
+## Practice
+
+<Exercise id="4.6.e1">
+
+<Scenario>
+A customer list from two different systems, with inconsistent case and separate address fields — some of which are empty.
+</Scenario>
+
+<Dataset name="Customer_Master" starter="starter/04-06-text-join.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | Contact First | Contact Last | City | State | Signup Date |
+| **2** | anil | KUMAR | mumbai | Maharashtra | 12-Mar-2024 |
+| **3** | MEERA | nair | pune | | 05-Jul-2024 |
+| **4** | Rahul | SHAH | bengaluru | Karnataka | 19-Jan-2025 |
+| **5** | sneha | rao | hyderabad | | 28-Sep-2025 |
+
+</Dataset>
+
+<Task>
+
+1. **F2** — full name, properly capitalised.
+2. **G2** — a login email: firstname.lastname@client.com, all lowercase.
+3. **H2** — location as `City, State` using `TEXTJOIN`, skipping the blank states. Check rows 3 and 5 have no trailing comma.
+4. **I2** — the same location using `&` instead. What do rows 3 and 5 look like now?
+5. **J2** — a one-line summary: `Anil Kumar (Mumbai, Maharashtra) — signed up 12-Mar-2024`. The date must be readable.
+6. **K2** — `=PROPER(C2)` on the city. Now try it on a value like `new delhi ncr` — does `PROPER` handle it acceptably?
+
+</Task>
+
+<Expected>
+F2 `Anil Kumar` · G2 `anil.kumar@client.com` · H3 `Pune` with no trailing comma · I3 `Pune, ` with a trailing comma and space · J2 `Anil Kumar (Mumbai, Maharashtra) — signed up 12-Mar-2024`
+</Expected>
+
+<Solution>
+
+```
+F2: =PROPER(A2)&" "&PROPER(B2)
+G2: =LOWER(A2)&"."&LOWER(B2)&"@client.com"
+H2: =TEXTJOIN(", ",TRUE,PROPER(C2),D2)
+I2: =PROPER(C2)&", "&D2
+J2: =F2&" ("&H2&") — signed up "&TEXT(E2,"dd-mmm-yyyy")
+K2: =PROPER(C2)
+```
+
+</Solution>
+
+<Why>
+
+**Steps 3 and 4 are the comparison that makes `TEXTJOIN` worth learning.** With `&`, a blank state gives you `Pune, ` — a trailing comma and space that looks like missing data and will show up in every report that uses the field. With `TEXTJOIN` and `TRUE`, the blank is simply skipped and you get `Pune`.
+
+On two fields that difference is cosmetic. On five address fields where any of them might be empty, `&` produces `Mumbai, , , India, ` and you'd need a nested IF per field to clean it. `TEXTJOIN` handles it with one argument.
+
+**Step 5 is where `TEXT` earns its place.** Written as `=F2&" — signed up "&E2`, the date becomes `45363`. The `&` operator strips a date to its underlying serial number, and there is no way to prevent that except `TEXT`. Any time you join a date or a formatted number into a sentence, `TEXT` is required, not optional.
+
+**Step 6 shows `PROPER`'s limits honestly.** `new delhi ncr` becomes `New Delhi Ncr` — the acronym is wrong. `PROPER` capitalises the first letter of every word and has no concept of acronyms, Scottish or Irish prefixes, or brand styling. On a 150-row customer list, run `PROPER` to get 95% of the way and then scan the output for the exceptions. Don't assume it's finished.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "4.6.q1",
+    type: "formula",
+    question: "Cell F2 holds a name and E2 holds a date. Write a formula producing: Anil Kumar joined on 12-Mar-2021.",
+    accept: ["=F2&\" joined on \"&TEXT(E2,\"dd-mmm-yyyy\")", "=CONCAT(F2,\" joined on \",TEXT(E2,\"dd-mmm-yyyy\"))", "=TEXTJOIN(\"\",TRUE,F2,\" joined on \",TEXT(E2,\"dd-mmm-yyyy\"))"],
+    explanation: "Without TEXT, the & operator strips the date back to its serial number and you get \"joined on 44267\". TEXT applies a display format and returns it as text, which is exactly what you want inside a sentence. This applies to any formatted number joined into text — currency and percentages behave the same way."
+  },
+  {
+    id: "4.6.q2",
+    type: "scenario",
+    question: "You join City, State and Country with =C2&\", \"&D2&\", \"&E2. For customers with no State recorded, the output reads \"Pune, , India\". What's the cleanest fix?",
+    options: [
+      "Wrap each field in an IF to test for blanks",
+      "Use =TEXTJOIN(\", \",TRUE,C2,D2,E2) — the TRUE skips blanks",
+      "Use SUBSTITUTE to remove double commas afterwards",
+      "Fill the empty State cells with a placeholder"
+    ],
+    correct: 1,
+    explanation: "TEXTJOIN's second argument does exactly this job — TRUE ignores empty cells, so the separator isn't inserted for them. Option 1 works but needs one IF per field and gets unwieldy past three fields. Option 3 is fragile: it would also affect legitimate double commas and needs a second pass for trailing ones. Option 4 changes the source data to work around a formatting problem, which is the wrong trade."
+  },
+  {
+    id: "4.6.q3",
+    type: "decision",
+    question: "A company name column contains \"infosys\", \"INFOSYS\", \"Infosys \" and \"Infosys Ltd\". You need one consistent value. What order do you apply the functions in?",
+    options: [
+      "TRIM first, then PROPER — then hand-fix the Ltd variants",
+      "PROPER first, then TRIM",
+      "UPPER everything so case can't differ",
+      "SUBSTITUTE each variant individually"
+    ],
+    correct: 0,
+    explanation: "TRIM must come first. Applying PROPER to \"Infosys \" gives \"Infosys \" — the trailing space survives and it remains a separate category in every pivot table. Trimming first is what actually merges the variants. The Ltd/Limited difference is a genuine content difference rather than a formatting one, so no function resolves it — that needs a decision about which form is canonical, then a manual fix or a lookup table. Option 3 standardises case but leaves the whitespace problem and produces shouty output."
+  }
+]

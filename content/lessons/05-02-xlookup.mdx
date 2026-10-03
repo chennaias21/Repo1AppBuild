@@ -1,0 +1,280 @@
+---
+id: "5.2"
+module: 5
+lesson: 2
+slug: "xlookup"
+title: "XLOOKUP — The Modern Replacement"
+shortTitle: "XLOOKUP"
+stage: "Intermediate"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Replace VLOOKUP with XLOOKUP and explain why it's safer"
+  - "Look leftwards, and handle not-found without IFNA"
+  - "Return several columns at once"
+keys: ["F4", "Ctrl+`"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/05-02-xlookup.xlsx"
+solutionFile: "solution/05-02-xlookup.xlsx"
+functions: ["XLOOKUP"]
+excelVersion: "365"
+shotCount: 3
+prev: "5.1"
+next: "5.3"
+videoUrl: null
+---
+
+## Why this matters
+
+VLOOKUP has three real flaws: it can't look leftwards, it breaks silently when a column is inserted, and it defaults to the wrong match type. XLOOKUP fixes all three. If you're on Microsoft 365, it should be your default lookup from now on.
+
+## How it works
+
+You name the two ranges instead of counting columns.
+
+<FormulaBlock>
+```
+=XLOOKUP(A2, $H$2:$H$251, $J$2:$J$251, "Not found")
+         │    │             │            │
+         │    │             │            └── what to show if not found (optional)
+         │    │             └─────────────── the column to RETURN from
+         │    └───────────────────────────── the column to SEARCH in
+         └────────────────────────────────── what to look for
+```
+</FormulaBlock>
+
+<Shot id="5.2.1" />
+
+Three things change, and each removes a whole class of bug:
+
+**No column counting.** You point at the return column directly. Insert a column anywhere in the master and the formula still points at the right data, because it references the column rather than its position.
+
+**It looks in any direction.** Search column J, return column H — that's leftwards, which VLOOKUP cannot do at all.
+
+**Exact match is the default.** No fourth argument to forget. The commonest VLOOKUP error is structurally impossible here.
+
+And the fourth argument is a built-in not-found handler, so you don't need `IFNA`:
+
+<FormulaBlock>
+```
+=XLOOKUP(A2,$H$2:$H$251,$J$2:$J$251,"Not in master")
+```
+</FormulaBlock>
+
+<Callout type="warning">
+XLOOKUP needs **Microsoft 365 or Excel 2021**. On Excel 2019 and earlier it returns `#NAME?`. If you're sharing a file with people on older versions, use INDEX MATCH (Lesson 5.3) instead — it works everywhere and is equally robust.
+</Callout>
+
+### Returning several columns at once
+
+Give it a multi-column return range and it spills across:
+
+<FormulaBlock>
+```
+=XLOOKUP(A2, $H$2:$H$251, $I$2:$K$251)
+```
+</FormulaBlock>
+
+One formula fills three cells — name, department and CTC. Write it once in C2 and the results appear in C2, D2 and E2.
+
+<Shot id="5.2.2" />
+
+<Callout type="tip">
+The spill only works if the cells to the right are empty. If D2 already holds something, you get `#SPILL!`. Clear the cells or return one column at a time.
+</Callout>
+
+### The fifth and sixth arguments
+
+<FormulaBlock>
+```
+=XLOOKUP(value, lookup_range, return_range, [if_not_found], [match_mode], [search_mode])
+                                                              │             │
+                                                              │             └── -1 = search from the bottom
+                                                              └── -1 = next smaller, 1 = next larger, 2 = wildcards
+```
+</FormulaBlock>
+
+`search_mode` of `-1` is genuinely useful: it finds the **last** match rather than the first. For "what was this employee's most recent designation" against a history table sorted by date, that's exactly what you want — and VLOOKUP simply cannot do it.
+
+## Do it
+
+Same attendance and master setup as Lesson 5.1.
+
+| | A | B | | H | I | J | K |
+|---|---|---|---|---|---|---|---|
+| **1** | EmpID | Days | | EmpID | Name | Dept | CTC |
+| **2** | E1003 | 24 | | E1001 | Anil Kumar | Sales | 640000 |
+| **3** | E1001 | 19 | | E1002 | Meera Nair | HR | 520000 |
+| **4** | E1005 | 22 | | E1003 | Rahul Shah | Sales | 810000 |
+
+1. Click **C2**. Type `=XLOOKUP(`
+2. Click **A2**, type `,`
+3. Select **H2:H4**, press <Kbd>F4</Kbd>, type `,`
+4. Select **I2:I4**, press <Kbd>F4</Kbd>, type `,`
+5. Type `"Not in master")` and press <Kbd>Enter</Kbd> → `Rahul Shah`
+6. Fill down.
+
+<Shot id="5.2.3" />
+
+7. Now insert a column between H and I in the master. **The formula still returns the correct name** — compare that with what happened to VLOOKUP in Lesson 5.1 step 9.
+
+### Look leftwards
+
+8. Suppose you have a name and need the EmpID — searching column I, returning column H.
+9. **F2**: `=XLOOKUP("Rahul Shah",$I$2:$I$4,$H$2:$H$4,"Not found")` → `E1003`
+10. VLOOKUP cannot do this at all. This is the reason INDEX MATCH existed for twenty years.
+
+### Return three columns in one formula
+
+11. Clear C2:E4. In **C2**: `=XLOOKUP(A2,$H$2:$H$4,$I$2:$K$4)`
+12. Name, department and CTC appear across C, D and E. Fill down and all three columns populate.
+13. Now type something into D2 and watch `#SPILL!` appear. Clear it again.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F4` | Locks the range to absolute | Both the lookup and return ranges, every time | Select `H2:H251`, press F4 |
+| `Ctrl` + `` ` `` | Shows formulas | Confirming a spilled multi-column return came from one formula, not three | C2 shows the formula; D2 and E2 are empty |
+| `Ctrl` + `Shift` + `Enter` | *(not needed)* | XLOOKUP spills automatically — this is a 2019-and-earlier array habit to unlearn | — |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Using it on Excel 2019 or earlier** | `#NAME?` | INDEX MATCH instead — works in every version |
+| Lookup and return ranges different heights | `#VALUE!` | Both must span the same number of rows |
+| Multi-column return into occupied cells | `#SPILL!` | Clear the cells to the right |
+| Ranges not locked | Wrong results on lower rows | <Kbd>F4</Kbd> on both ranges |
+| Adding `IFNA` as well | Works, but redundant | The 4th argument already handles not-found |
+| Expecting the last match by default | Returns the first match | `search_mode` = `-1` |
+| Trailing spaces or mismatched data types | `#N/A`, or your not-found text | Same as VLOOKUP — `LEN` and `ISNUMBER` |
+
+</MistakeTable>
+
+<Callout type="story">
+**Meenakshi, HR Analyst.** Her headcount dashboard ran on twelve VLOOKUPs against the employee master. A colleague inserted a "Location" column into the master to support a new report.
+
+Nothing errored. Every one of the twelve lookups continued to return a value — just from the column one to the left of the intended one. Designation showed department, department showed date of joining, and CTC showed the manager's name, which displayed as `#VALUE!` in the salary calculations downstream. That `#VALUE!` was the only visible symptom, and it was three columns away from the actual cause.
+
+She rebuilt all twelve as XLOOKUP. Six months later someone inserted two more columns and nothing broke at all.
+
+**VLOOKUP's column index is a position, and positions move.** XLOOKUP references the column itself, so restructuring the source is no longer a risk.
+</Callout>
+
+## Practice
+
+<Exercise id="5.2.e1">
+
+<Scenario>
+Rebuild a lookup-heavy report with XLOOKUP, then prove it survives a restructure of the source table.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/05-02-xlookup.xlsx">
+
+**Report** (A:B)
+
+| | A | B |
+|---|---|---|
+| **1** | EmpID | Days |
+| **2** | E1003 | 24 |
+| **3** | E1001 | 19 |
+| **4** | E1005 | 22 |
+| **5** | E9999 | 24 |
+| **6** | E1002 | 21 |
+
+**Master** (H:L)
+
+| | H | I | J | K | L |
+|---|---|---|---|---|---|
+| **1** | EmpID | Name | Dept | Designation | CTC |
+| **2** | E1001 | Anil Kumar | Sales | Manager | 640000 |
+| **3** | E1002 | Meera Nair | HR | Executive | 520000 |
+| **4** | E1003 | Rahul Shah | Sales | Sr Manager | 810000 |
+| **5** | E1004 | Sneha Rao | Finance | Analyst | 470000 |
+| **6** | E1005 | Kabir Menon | Ops | Lead | 920000 |
+
+</Dataset>
+
+<Task>
+
+1. **C2** — the name, with `Not in master` as the not-found result. Lock both ranges. Fill down.
+2. **D2** — one formula returning Name, Dept, Designation and CTC across four columns. Clear C first if needed.
+3. Now insert a new column between I and J in the master. Do your formulas still return the right data?
+4. Undo. Then rebuild step 1 as a VLOOKUP, insert the column again, and compare what happens.
+5. **J2** (somewhere clear) — given the name `Kabir Menon`, return his EmpID. This is a leftward lookup.
+6. **K2** — return the CTC, and if the employee isn't in the master, return `0` so the column still sums.
+
+</Task>
+
+<Expected>
+C2 `Rahul Shah` · C5 `Not in master` · Step 3: XLOOKUP still correct · Step 4: VLOOKUP now returns the wrong column · Step 5: `E1005`
+</Expected>
+
+<Solution>
+
+```
+C2: =XLOOKUP(A2,$H$2:$H$6,$I$2:$I$6,"Not in master")
+D2: =XLOOKUP(A2,$H$2:$H$6,$I$2:$L$6)
+J2: =XLOOKUP("Kabir Menon",$I$2:$I$6,$H$2:$H$6,"Not found")
+K2: =XLOOKUP(A2,$H$2:$H$6,$L$2:$L$6,0)
+
+Step 4 comparison:
+=VLOOKUP(A2,$H$2:$L$6,2,0)     → after the insert, column 2 is the new blank column
+```
+
+</Solution>
+
+<Why>
+
+**Steps 3 and 4 are the entire argument for switching.** XLOOKUP's return range `$I$2:$I$6` moves with the insert — Excel adjusts it to `$J$2:$J$6` automatically, because it's a reference to a range, and references follow their cells. VLOOKUP's `2` is a count, and counts don't move. Column 2 of the range is now whatever happens to sit in that position.
+
+The failure is worse than an error. VLOOKUP returns the new blank column's contents, so you get empty cells that look like missing data, and you'll go looking at the source records rather than the formula.
+
+**Step 5 is what VLOOKUP genuinely cannot do.** Its lookup value must be in the first column of the table, so returning something to the *left* of the search column is structurally impossible. For twenty years the answer was INDEX MATCH; XLOOKUP just takes two range arguments and doesn't care about direction.
+
+**Step 6's `0` is a deliberate choice, not a default.** It keeps the column summable. `"Not in master"` would break the SUM with `#VALUE!`, and `""` would keep SUM working but exclude the row from AVERAGE. Same decision as Lesson 4.4 — the fallback value is business logic sitting in a formula argument.
+
+**One thing to notice in step 2:** the multi-column spill means D2 holds a formula and E2, F2, G2 hold nothing at all. Press `Ctrl` + `` ` `` to see it — three columns of data from one formula. Convenient, and worth knowing so an empty-looking E2 doesn't alarm you.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "5.2.q1",
+    type: "truefalse",
+    question: "XLOOKUP needs a fourth argument set to 0 for exact matching, the same as VLOOKUP.",
+    correct: false,
+    explanation: "Exact match is XLOOKUP's default, so there's nothing to remember and nothing to forget. Its fourth argument is the not-found result instead — what to display when no match exists, replacing the need for IFNA. The optional fifth argument (match_mode) is where you'd deliberately ask for approximate matching or wildcards."
+  },
+  {
+    id: "5.2.q2",
+    type: "formula",
+    question: "EmpIDs are in A2 downward. The master has EmpID in H2:H300 and designation in K2:K300. Write an XLOOKUP for B2 that shows \"Not found\" when there's no match.",
+    accept: ["=XLOOKUP(A2,$H$2:$H$300,$K$2:$K$300,\"Not found\")", "=XLOOKUP(A2,$H$2:$H$300,$K$2:$K$300,\"not found\")"],
+    explanation: "You point at the return column directly rather than counting positions, so inserting a column into the master can't break it. Both ranges need locking with F4, and they must span the same number of rows or you get #VALUE!. The fourth argument handles not-found internally — no IFNA needed."
+  },
+  {
+    id: "5.2.q3",
+    type: "decision",
+    question: "You're building a workbook that will be shared with a team, some of whom are still on Excel 2019. You need a robust lookup that won't break when columns are inserted. What do you use?",
+    options: [
+      "INDEX MATCH — it's equally robust and works in every Excel version",
+      "XLOOKUP, and ask the team to upgrade",
+      "VLOOKUP, since it works everywhere",
+      "XLOOKUP with an IFERROR fallback for older versions"
+    ],
+    correct: 0,
+    explanation: "XLOOKUP returns #NAME? on Excel 2019 and earlier, and option 4 doesn't help — IFERROR can't rescue a function the version doesn't recognise, it just hides the failure. INDEX MATCH (Lesson 5.3) references the return column directly like XLOOKUP does, so it survives column insertions, looks in any direction, and works in every version ever shipped. That combination of robustness and compatibility is exactly why it remains the professional default in mixed-version environments."
+  }
+]

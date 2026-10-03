@@ -1,0 +1,265 @@
+---
+id: "3.7"
+module: 3
+lesson: 7
+slug: "auditing-formulas"
+title: "Auditing Formulas — Trace, Evaluate and Show Formulas"
+shortTitle: "Auditing Formulas"
+stage: "Intermediate"
+durationMin: 10
+access: "paid"
+objectives:
+  - "Find where a wrong number comes from, instead of guessing"
+  - "Step through a long formula to see exactly where it breaks"
+  - "Spot the cells where someone typed over a formula"
+keys: ["Ctrl+`", "F5"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/03-07-auditing.xlsx"
+solutionFile: "solution/03-07-auditing.xlsx"
+functions: ["SUM", "IFERROR"]
+excelVersion: "all"
+shotCount: 5
+prev: "3.6"
+next: "4.1"
+videoUrl: null
+---
+
+## Why this matters
+
+Sooner or later you'll inherit a workbook that produces a number nobody can explain, or your own model will return something that's clearly wrong. These five tools turn a twenty-minute hunt into a two-minute check — and the first one finds the most common cause of a silently broken model: a cell where someone typed a value over your formula.
+
+## How it works
+
+### Show Formulas — <Kbd>Ctrl</Kbd>+<Kbd>`</Kbd>
+
+Displays every formula on the sheet instead of its result. Press again to return.
+
+This is the fastest way to review a workbook you didn't build. **What you're looking for: a cell in a formula column that has no `=`.** That's where someone "corrected" a figure by hand, and it has never updated since.
+
+<Shot id="3.7.1" />
+
+### Trace Precedents and Dependents
+
+**Formulas → Trace Precedents** draws arrows *to* the cells feeding the selected cell. **Trace Dependents** draws arrows *to* the cells that depend on it.
+
+Precedents answer "where does this number come from?" Dependents answer "what breaks if I change this?" — which is the question to ask before editing anything in a model you don't fully understand.
+
+`Ctrl` + `[` jumps straight to the precedents; `Ctrl` + `]` to the dependents. **Remove Arrows** clears them.
+
+<Shot id="3.7.2" />
+
+### Evaluate Formula
+
+**Formulas → Evaluate Formula** steps through a calculation one operation at a time. Click **Evaluate** repeatedly and watch each piece resolve until the error appears.
+
+Slower than `F9` but it shows the *whole* sequence, which is what you want on a deeply nested formula where you don't yet know which part is wrong.
+
+### F9 on a fragment
+
+Press <Kbd>F2</Kbd> to edit, select just one part of the formula with the mouse, press <Kbd>F9</Kbd>. Excel replaces that fragment with its result.
+
+**Press <Kbd>Esc</Kbd>, not Enter** — Enter would commit the evaluated fragment as a hard-coded value, permanently replacing your formula.
+
+<Callout type="warning">
+That Esc-versus-Enter distinction matters. Pressing Enter after an `F9` bakes the current result into the formula as a literal number. The cell then shows the right answer today and never updates again — exactly the silent staleness this lesson exists to find.
+</Callout>
+
+### Go To Special — the systematic sweep
+
+<Kbd>F5</Kbd> → **Special** selects cells by type:
+
+| Option | Finds |
+|---|---|
+| **Formulas → Errors** | Every error cell at once, with a count in the status bar |
+| **Constants** | Typed values — in a formula column, these are your bugs |
+| **Formulas** | Every formula cell, for protecting or colouring |
+| **Row differences** | The one cell that breaks a pattern |
+
+<Callout type="tip">
+`F5` → Special → **Constants** on a column that should be entirely formulas is the single most valuable audit in Excel. Whatever it selects is a cell someone typed over — the commonest way a working model quietly becomes wrong.
+</Callout>
+
+## Do it
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee | Basic | PF |
+| **2** | Anil Kumar | 45000 | `=B2*0.12` |
+| **3** | Meera Nair | 62000 | `=B3*0.12` |
+| **4** | Rahul Shah | 38000 | **`4560`** |
+| **5** | Sneha Rao | 51000 | `=B5*0.12` |
+
+C4 is a typed number — someone "fixed" it.
+
+1. In C7: `=SUM(C2:C5)`. Everything looks fine.
+2. Press <Kbd>Ctrl</Kbd>+<Kbd>`</Kbd>. **C4 stands out immediately** — it's the only cell in the column without an `=`.
+3. Press <Kbd>Ctrl</Kbd>+<Kbd>`</Kbd> again to return.
+
+<Shot id="3.7.3" />
+
+4. Now find it systematically: select C2:C5, press <Kbd>F5</Kbd> → **Special** → **Constants** → OK. **C4 alone is selected.**
+5. Change B4 to `50000`. C4 still shows 4,560 — it will never update.
+6. Restore the formula: `=B4*0.12`.
+
+### Trace where a number comes from
+
+7. Click C7 → **Formulas → Trace Precedents.** Arrows point to C2:C5.
+8. Click B2 → **Trace Dependents.** Arrows show what depends on it.
+9. **Formulas → Remove Arrows** to clear.
+
+<Shot id="3.7.4" />
+
+### Step through a formula
+
+10. In E2 build something deliberately awkward: `=IFERROR(B2/(C2-C2),"Div zero")`
+11. **Formulas → Evaluate Formula.** Click **Evaluate** repeatedly — watch `C2-C2` become `0`, then the division error appear, then `IFERROR` catch it.
+12. Now try `F9`: press <Kbd>F2</Kbd>, select `(C2-C2)`, press <Kbd>F9</Kbd> → it shows `0`. Press <Kbd>Esc</Kbd>.
+13. Do it again but press **Enter** instead. The formula now contains a literal `0` where the calculation was. Press <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> — and note that was a genuine, permanent change.
+
+### Find every error at once
+
+14. Create two errors somewhere — `=1/0` and `=SUMM(1,2)`.
+15. Press <Kbd>F5</Kbd> → Special → **Formulas** → untick everything except **Errors** → OK. Both select; read the count in the status bar.
+
+<Shot id="3.7.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `` ` `` | Shows every formula instead of results | **First action on any inherited workbook.** The cell with no `=` is your bug. | Press again to return |
+| `F5` → Special → Constants | Selects every typed value | Auditing a formula column for cells someone overwrote | Select the column first |
+| `Ctrl` + `[` | Jumps to the cells a formula references | Tracing where a number comes from, fast | `Ctrl` + `]` for dependents |
+| `F9` on a fragment | Evaluates that piece only | Pinpointing which part of a formula is wrong | **Press Esc, never Enter** |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Pressing Enter after `F9`** | The fragment is baked in as a literal value, permanently | Always `Esc` |
+| Assuming a formula column is all formulas | One typed cell never updates, silently | `F5` → Special → Constants |
+| Wrapping an error in `IFERROR` before diagnosing | The symptom is hidden; the cause isn't fixed | `F5` → Special → Errors first, and read the count |
+| Editing a model without checking dependents | You break three downstream calculations | `Ctrl` + `]` before changing anything |
+| Trusting a named range because the formula reads correctly | The name may point at a deleted range | Name Manager (Lesson 3.6) |
+| Leaving trace arrows on | The sheet becomes unreadable | Formulas → Remove Arrows |
+
+</MistakeTable>
+
+<Callout type="story">
+**Sridhar, Payroll Executive.** His PF register had worked for eighteen months. Then an auditor queried one employee's deduction — it didn't match 12% of that person's basic.
+
+Sridhar checked the formula. It was correct. He checked the rate cell. Correct. He recalculated. No change.
+
+Eventually he pressed <Kbd>Ctrl</Kbd>+<Kbd>`</Kbd>. One cell in a column of 340 had no `=` — a plain number. Someone had typed over the formula a year earlier to "correct" a figure during a salary revision, and it had paid that fixed amount every month since, regardless of the employee's actual salary.
+
+**A typed value in a formula column is invisible in normal view and unmistakable in Show Formulas.** He now runs `F5` → Special → Constants on every formula column before each monthly filing. It takes ten seconds.
+</Callout>
+
+## Practice
+
+<Exercise id="3.7.e1">
+
+<Scenario>
+Audit an inherited payroll sheet that produces a figure nobody can explain.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/03-07-auditing.xlsx">
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | Employee | Basic | PF | HRA |
+| **2** | Anil Kumar | 45000 | `=B2*$G$1` | `=B2*$G$2` |
+| **3** | Meera Nair | 62000 | `=B3*$G$1` | `=B3*$G$2` |
+| **4** | Rahul Shah | 38000 | **`4560`** | `=B4*$G$2` |
+| **5** | Sneha Rao | 51000 | `=B5*$G$1` | **`20000`** |
+| **6** | Kabir Menon | 47000 | `=B6*$G$1` | `=B6*$G$2` |
+
+**G1** = `12%` · **G2** = `40%`. C4 and D5 are typed values.
+
+</Dataset>
+
+<Task>
+
+1. Total columns C and D. Do the figures look plausible?
+2. Press <Kbd>Ctrl</Kbd>+<Kbd>`</Kbd>. How many cells lack an `=`, and which are they?
+3. Find them systematically with `F5` → Special → Constants on C2:D6.
+4. Change B4 to `50000` and B5 to `55000`. Which cells fail to update, and what does that tell you?
+5. Restore both to proper formulas. Confirm they now respond.
+6. Click the C total and use Trace Precedents. Then click G1 and use Trace Dependents — how many cells depend on the PF rate?
+7. Build `=IFERROR(B2/(G1-G1),"Error caught")` somewhere and step through it with Evaluate Formula.
+8. Use `F9` on the `(G1-G1)` fragment. Press **Esc**. Now repeat and press **Enter** instead — what changed, and why is that dangerous?
+9. Create two errors on the sheet, then select all error cells in one action. What's the count?
+
+</Task>
+
+<Expected>
+Step 2: two cells — C4 and D5 · Step 4: C4 and D5 don't change · Step 8: pressing Enter replaces the fragment with a literal `0`, permanently
+</Expected>
+
+<Solution>
+
+```
+Step 3: select C2:D6 → F5 → Special → Constants → OK
+Step 5: C4: =B4*$G$1      D5: =B5*$G$2
+Step 6: click C7 → Formulas → Trace Precedents
+        click G1 → Formulas → Trace Dependents
+Step 9: F5 → Special → Formulas → tick only Errors → OK
+```
+
+</Solution>
+
+<Why>
+
+**Step 1's answer is yes — and that's the problem.** The totals are plausible. Nothing errors, nothing looks odd, and C4's 4,560 is a perfectly reasonable PF figure for someone on 38,000. You would never find this by looking at the results.
+
+**Step 4 is what makes it a live bug rather than a historical one.** Once B4 changes, C4 keeps paying the old amount forever. In Sridhar's case that ran for a year across a monthly statutory filing.
+
+**Step 8's Esc-versus-Enter distinction is worth internalising.** `F9` is a diagnostic; Enter turns it into a permanent edit that replaces working logic with today's answer. The irony is neat: the tool for finding baked-in values will bake one in if you press the wrong key.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "3.7.q1",
+    type: "mcq",
+    question: "You press Ctrl+` on an inherited workbook. What are you looking for?",
+    options: [
+      "Cells with the most complex formulas",
+      "Cells in a formula column that have no = sign",
+      "Cells with absolute references",
+      "Cells referencing other worksheets"
+    ],
+    correct: 1,
+    explanation: "A cell in a formula column holding a typed value is where someone \"corrected\" a figure by hand, and it has never updated since. It's invisible in normal view — the number looks entirely plausible — and unmistakable in Show Formulas. F5 → Special → Constants finds the same thing systematically, which is worth running on every formula column before a monthly filing."
+  },
+  {
+    id: "3.7.q2",
+    type: "scenario",
+    question: "A payroll figure doesn't match 12% of the employee's basic. The formula looks correct, the rate cell is correct, and recalculating changes nothing. What's the likely cause?",
+    options: [
+      "The workbook is in Manual calculation mode",
+      "That cell holds a typed value rather than the formula, so it never updates",
+      "The rate cell needs absolute references",
+      "The basic salary is stored as text"
+    ],
+    correct: 1,
+    explanation: "If the formula you're reading is correct, you may not be reading the cell that's wrong — a typed value in a formula column looks identical to a calculated one. Ctrl+` reveals it in a second. Manual calculation mode would affect every formula rather than one, and a text basic would produce #VALUE! rather than a plausible figure."
+  },
+  {
+    id: "3.7.q3",
+    type: "formula",
+    question: "You've used F9 to evaluate part of a formula and can see the result. Which key restores the formula, and what happens if you press the other one?",
+    accept: ["Esc restores it; Enter bakes the value in permanently", "Press Esc. Enter would replace the fragment with a literal value.", "Esc — Enter commits the evaluated fragment as a hard-coded value"],
+    explanation: "Esc restores the formula intact. Enter commits the evaluated fragment as a literal value, permanently replacing that part of your logic — so the cell shows the right answer today and never updates again. That's the same silent staleness this lesson exists to detect, which makes it a particularly easy mistake to make while auditing."
+  }
+]

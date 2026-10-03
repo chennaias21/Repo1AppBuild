@@ -1,0 +1,272 @@
+---
+id: "3.5"
+module: 3
+lesson: 5
+slug: "countif-sumif"
+title: "COUNTIF, COUNTIFS, SUMIF, SUMIFS and AVERAGEIFS"
+shortTitle: "COUNTIF & SUMIF Family"
+stage: "Intermediate"
+durationMin: 14
+access: "paid"
+objectives:
+  - "Count and total only the rows meeting your conditions"
+  - "Combine several conditions in one formula"
+  - "Use operators and wildcards inside criteria"
+keys: ["F4", "F9"]
+datasets: ["HR_Employee_Master", "Sales_Transactions"]
+starterFile: "starter/03-05-countif-sumif.xlsx"
+solutionFile: "solution/03-05-countif-sumif.xlsx"
+functions: ["COUNTIF", "COUNTIFS", "SUMIF", "SUMIFS", "AVERAGEIF", "AVERAGEIFS", "MAXIFS", "MINIFS"]
+excelVersion: "all"
+shotCount: 5
+prev: "3.4"
+next: "3.6"
+videoUrl: null
+---
+
+## Why this matters
+
+Lesson 3.2 totalled a whole column. Real questions are narrower: *how many Sales staff earn over 700,000? What did the North region spend on travel in September?* These functions answer conditional questions without filtering, sorting or building a pivot table — and they update automatically.
+
+## How it works
+
+### The two families
+
+**`SUMIF` / `COUNTIF`** take **one** condition. **`SUMIFS` / `COUNTIFS`** take **several** — and their argument order is different, which trips everyone up.
+
+<FormulaBlock>
+```
+=COUNTIF(range, criteria)
+=SUMIF(range, criteria, [sum_range])
+          │       │        │
+          │       │        └── what to add (omit it and Excel sums the range itself)
+          │       └─────────── the test
+          └─────────────────── where to look
+
+=COUNTIFS(range1, criteria1, range2, criteria2, ...)
+=SUMIFS(sum_range, range1, criteria1, range2, criteria2, ...)
+         │
+         └── the SUM RANGE COMES FIRST — the opposite of SUMIF
+```
+</FormulaBlock>
+
+<Callout type="warning">
+`SUMIF` puts the sum range **last**. `SUMIFS` puts it **first**. That inconsistency is Excel's fault, not yours, and it's the single most common error with these functions. **Use the `IFS` versions always**, even for one condition — then the order is consistent and you can add a second condition later without rewriting.
+</Callout>
+
+<Shot id="3.5.1" />
+
+### Writing criteria
+
+| Criteria | Matches |
+|---|---|
+| `"Sales"` | Exactly Sales (not case-sensitive) |
+| `">700000"` | Greater than — **operators go inside quotes** |
+| `">="&H1` | At or above the value in H1 — **`&` joins the operator to a reference** |
+| `"<>Sales"` | Not Sales |
+| `"*Manager*"` | Contains "Manager" anywhere |
+| `"Sales*"` | Begins with Sales |
+| `"?a*"` | Second letter is `a` |
+| `""` | Genuinely blank cells |
+| `"<>"` | Any non-blank cell |
+
+That third row is the one to memorise: **`">="&H1`**, not `">=H1"`. Without the `&`, Excel looks for cells containing the literal text ">=H1".
+
+<Callout type="tip">
+`COUNTIFS` with multiple conditions is how you find true duplicates. `=COUNTIFS($A$2:$A$500,A2,$B$2:$B$500,B2)>1` flags rows sharing **both** values — the same employee on the same date — rather than every legitimate repeat of one employee.
+</Callout>
+
+## Do it
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | Employee | Dept | Designation | CTC |
+| **2** | Anil Kumar | Sales | Manager | 640000 |
+| **3** | Meera Nair | HR | Executive | 520000 |
+| **4** | Rahul Shah | Sales | Sr Manager | 810000 |
+| **5** | Sneha Rao | Finance | Analyst | 470000 |
+| **6** | Kabir Menon | Ops | Lead | 920000 |
+| **7** | Divya Iyer | Sales | Analyst | 725000 |
+| **8** | Arjun Das | HR | Manager | 580000 |
+
+Put the threshold `700000` in **G1**.
+
+1. **F1** — count of Sales staff: `=COUNTIF($B$2:$B$8,"Sales")` → **3**
+2. **F2** — total Sales payroll: `=SUMIFS($D$2:$D$8,$B$2:$B$8,"Sales")` → **2,175,000**
+3. **F3** — average Sales salary: `=AVERAGEIFS($D$2:$D$8,$B$2:$B$8,"Sales")` → **725,000**
+
+<Shot id="3.5.2" />
+
+4. **F4** — how many earn above the threshold: `=COUNTIF($D$2:$D$8,">"&$G$1)` → **3**
+5. Change G1 to `600000`. F4 becomes **4**. The `&` is what makes that work.
+6. Now try `=COUNTIF($D$2:$D$8,">$G$1")` — it returns **0**, because Excel searched for the literal text.
+
+<Shot id="3.5.3" />
+
+### Two conditions
+
+7. **F5** — Sales staff earning above the threshold: `=COUNTIFS($B$2:$B$8,"Sales",$D$2:$D$8,">"&$G$1)` → **2**
+8. **F6** — their combined payroll: `=SUMIFS($D$2:$D$8,$B$2:$B$8,"Sales",$D$2:$D$8,">"&$G$1)`
+
+Note the sum range comes **first** in `SUMIFS`, and a range can appear twice — once as a criteria range and once as the thing being summed.
+
+### Wildcards
+
+9. **F7** — anyone with "Manager" in their designation: `=COUNTIF($C$2:$C$8,"*Manager*")` → **3** (Manager, Sr Manager, Manager)
+10. **F8** — designations beginning with "A": `=COUNTIF($C$2:$C$8,"A*")` → **2**
+
+<Shot id="3.5.4" />
+
+### Highest and lowest by condition
+
+11. **F9** — highest Sales salary: `=MAXIFS($D$2:$D$8,$B$2:$B$8,"Sales")` → **810,000**
+12. **F10** — lowest: `=MINIFS($D$2:$D$8,$B$2:$B$8,"Sales")` → **640,000**
+
+<Shot id="3.5.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F4` | Locks the ranges | **Every criteria range and sum range**, before filling down | Unlocked ranges drift and give wrong counts on lower rows |
+| `F9` on a criteria argument | Shows what the criteria actually resolves to | Debugging `">"&$G$1` — you'll see `">600000"` | Select the argument, press F9, then Esc |
+| `Ctrl` + `Shift` + `↓` | Selects the column's data | Building a criteria range quickly | But check it didn't stop at a gap |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **`SUMIF` vs `SUMIFS` argument order** | `#VALUE!` or a wrong total | `SUMIF` sum range last; `SUMIFS` first. Use `IFS` always. |
+| `">=H1"` instead of `">="&H1` | Returns 0 — Excel searched for literal text | The `&` joins the operator to the reference |
+| Ranges not locked | Counts drift on lower rows | `F4` on every range |
+| Criteria ranges of different lengths | `#VALUE!` | All ranges must span the same rows |
+| Trailing spaces in the data | `"Sales"` doesn't match `"Sales "` | `TRIM` the source (Lesson 4.5) |
+| Text-numbers in the sum range | Silently excluded from the total | Check with `ISNUMBER` (Lesson 2.2) |
+| Expecting case sensitivity | `"sales"` matches `"Sales"` | Use `SUMPRODUCT` with `EXACT` if case matters |
+| Using these for many conditions | Formulas become unreadable | Past four conditions, use a pivot table |
+
+</MistakeTable>
+
+<Callout type="story">
+**Preethi, HR Coordinator.** She built an attrition dashboard with twelve `COUNTIF` formulas, one per department. It worked perfectly for three months.
+
+In month four the figures for the last four departments came out wrong. She rebuilt the formulas twice before finding the cause: she'd written `=COUNTIF(B2:B300,"Sales")` without locking the range. Filling the formula down the summary block had shifted every range — by the twelfth row it was reading `B13:B311`, missing eleven rows of data and picking up eleven rows past the end.
+
+One `F4` on each range fixed it permanently.
+
+**An unlocked range in a COUNTIF gives you a real number from the wrong rows** — no error, and it only shows up in the formulas furthest down the block, which is where nobody looks first.
+</Callout>
+
+## Practice
+
+<Exercise id="3.5.e1">
+
+<Scenario>
+Answer eight questions from a sales dataset without filtering, sorting or building a pivot.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/03-05-countif-sumif.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Product | Salesperson | Revenue |
+| **2** | SO1001 | North | Laptop | Anil Kumar | 648000 |
+| **3** | SO1002 | South | Monitor | Meera Nair | 375000 |
+| **4** | SO1003 | North | Laptop | Anil Kumar | 432000 |
+| **5** | SO1004 | East | Keyboard | Rahul Shah | 81000 |
+| **6** | SO1005 | West | Monitor | Sneha Rao | 275000 |
+| **7** | SO1006 | North | Keyboard | Kabir Menon | 108000 |
+| **8** | SO1007 | South | Laptop | Meera Nair | 810000 |
+| **9** | SO1008 | West | Laptop | Anil Kumar | 324000 |
+
+Threshold in **H1** = `300000`
+
+</Dataset>
+
+<Task>
+
+1. How many North orders?
+2. Total North revenue — use `SUMIFS`, not `SUMIF`.
+3. Average revenue per Laptop order.
+4. How many orders exceed the threshold in H1? Reference the cell with `&`.
+5. Change H1 to `500000`. Does your answer update? If not, what's wrong?
+6. How many North orders exceed the threshold? Two conditions.
+7. Total revenue for Anil Kumar's Laptop orders specifically. Three conditions.
+8. How many salespeople have a name containing "Kumar"? Use a wildcard.
+9. Highest and lowest Laptop revenue.
+10. Deliberately remove the `$` from one formula's ranges and fill it down three rows. What happens, and why is it hard to spot?
+
+</Task>
+
+<Expected>
+1. 3 · 2. 1,188,000 · 3. 553,500 · 4. 5 at 300,000 · 6. 2 · 7. 1,404,000 · 8. 3 · 9. 810,000 and 324,000
+</Expected>
+
+<Solution>
+
+```
+1.  =COUNTIF($B$2:$B$9,"North")
+2.  =SUMIFS($E$2:$E$9,$B$2:$B$9,"North")
+3.  =AVERAGEIFS($E$2:$E$9,$C$2:$C$9,"Laptop")
+4.  =COUNTIF($E$2:$E$9,">"&$H$1)
+6.  =COUNTIFS($B$2:$B$9,"North",$E$2:$E$9,">"&$H$1)
+7.  =SUMIFS($E$2:$E$9,$D$2:$D$9,"Anil Kumar",$C$2:$C$9,"Laptop")
+8.  =COUNTIF($D$2:$D$9,"*Kumar*")
+9.  =MAXIFS($E$2:$E$9,$C$2:$C$9,"Laptop")  and  =MINIFS(...)
+```
+
+</Solution>
+
+<Why>
+
+**Step 5 is the `&` lesson.** `">"&$H$1` builds the text `">500000"` at calculation time, so the criteria follows the cell. Written as `">$H$1"` Excel searches for cells containing that literal string and returns 0 — a wrong answer that looks like "nothing matched" rather than an error.
+
+**Step 10 is Preethi's bug, reproduced.** Without `$`, filling down shifts every range by one row per row. By the third fill you're reading `E4:E11` instead of `E2:E9` — missing two rows and picking up two beyond the data. The count is still a plausible number, so nothing looks wrong, and because the error grows with distance it's the formulas furthest down the block that are worst affected. That's the part that makes it hard to spot: the first few rows are correct.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "3.5.q1",
+    type: "formula",
+    question: "Revenue is in E2:E200, regions in B2:B200, and a threshold in H1. Write a formula totalling revenue for North orders above that threshold.",
+    accept: ["=SUMIFS($E$2:$E$200,$B$2:$B$200,\"North\",$E$2:$E$200,\">\"&$H$1)", "=SUMIFS(E2:E200,B2:B200,\"North\",E2:E200,\">\"&H1)"],
+    explanation: "SUMIFS puts the sum range first, then pairs of criteria range and criteria. The operator must be joined to the cell reference with & — \">\"&$H$1 builds the text \">500000\" at calculation time, whereas \">$H$1\" makes Excel search for that literal string and return 0. Note the revenue range appears twice: once as what's being summed, once as a criteria range."
+  },
+  {
+    id: "3.5.q2",
+    type: "scenario",
+    question: "Your twelve COUNTIF formulas worked for months, then the bottom four started returning wrong figures. The formulas look correct. What's the cause?",
+    options: [
+      "The data contains trailing spaces",
+      "The ranges weren't locked with $, so filling down shifted them",
+      "COUNTIF has a row limit",
+      "The criteria need to be in quotes"
+    ],
+    correct: 1,
+    explanation: "Filling a COUNTIF down a summary block shifts unlocked ranges by one row each time, so the twelfth formula reads eleven rows too far down — missing real data and reading past the end. The result is still a plausible number with no error, and because the drift grows with distance the first few formulas are correct, which is why this is hard to spot. F4 on every range prevents it."
+  },
+  {
+    id: "3.5.q3",
+    type: "decision",
+    question: "You need a single-condition total. Use SUMIF or SUMIFS?",
+    options: [
+      "SUMIFS, even for one condition",
+      "SUMIF — it's shorter and purpose-built",
+      "Either; they're interchangeable",
+      "SUMPRODUCT, which handles both cases"
+    ],
+    correct: 0,
+    explanation: "SUMIF puts the sum range last while SUMIFS puts it first — an inconsistency in Excel's own design that causes constant errors when people switch between them. Standardising on SUMIFS means the argument order is always the same, and adding a second condition later is an append rather than a rewrite. SUMPRODUCT can do it but is harder to read and unnecessary unless you need the product of two columns (Lesson 8.6)."
+  }
+]

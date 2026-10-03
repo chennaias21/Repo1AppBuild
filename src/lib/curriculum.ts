@@ -51,7 +51,7 @@ export interface CourseMeta {
  * Never derive the curriculum by globbing content/lessons: a half-written
  * file must not appear in the nav.
  */
-export const COURSE = (raw as unknown as { course: CourseMeta }).course;
+const COURSE_RAW = (raw as unknown as { course: CourseMeta }).course;
 export const MODULES = (raw as unknown as { modules: ModuleRef[] }).modules;
 
 export type LessonWithModule = LessonRef & { module: ModuleRef };
@@ -89,3 +89,10 @@ export const FREE_LESSONS = ALL_LESSONS.filter((l) => l.access === "free");
 export function moduleMinutes(m: ModuleRef): number {
   return m.lessons.reduce((sum, l) => sum + l.durationMin, 0);
 }
+
+/** Course facts. Lesson counts come from the lessons themselves so they can never drift from the data. */
+export const COURSE: CourseMeta = {
+  ...COURSE_RAW,
+  totalLessons: ALL_LESSONS.length,
+  freeLessons: FREE_LESSONS.length,
+};

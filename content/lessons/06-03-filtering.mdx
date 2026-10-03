@@ -1,0 +1,272 @@
+---
+id: "6.3"
+module: 6
+lesson: 3
+slug: "filtering"
+title: "Filtering — AutoFilter, Number, Text and Date Filters, Slicers"
+shortTitle: "Filtering"
+stage: "Intermediate"
+durationMin: 11
+access: "paid"
+objectives:
+  - "Filter on several columns to answer a specific question"
+  - "Use number, text and date filters rather than scrolling checkbox lists"
+  - "Count and total only the visible rows with SUBTOTAL"
+keys: ["Ctrl+Shift+L", "Alt+Down"]
+datasets: ["HR_Employee_Master", "Sales_Transactions"]
+starterFile: "starter/06-03-filtering.xlsx"
+solutionFile: "solution/06-03-filtering.xlsx"
+functions: ["SUBTOTAL", "FILTER"]
+excelVersion: "all"
+shotCount: 3
+prev: "6.2"
+next: "6.4"
+videoUrl: null
+---
+
+## Why this matters
+
+Sorting reorders everything. Filtering hides what you don't need, which is usually what you actually want — *"show me the Sales team who joined this year and earn above 700,000"* is three filters and four seconds. The answer was always in the data; filtering is how you ask.
+
+## How it works
+
+<Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>L</Kbd> toggles filter buttons on the header row. Tables have them already.
+
+Click a dropdown and you get a checkbox list of every value in the column. Fine for five departments, useless for 2,000 order IDs. That's what the **search box** and the **filter types** are for.
+
+<Shot id="6.3.1" />
+
+**The filter types depend on the column's data type** — which is a practical reason the type discipline from Lesson 2.2 matters:
+
+| Column holds | Menu offers |
+|---|---|
+| Text | Equals, Begins With, Contains, Does Not Contain |
+| Numbers | Greater Than, Between, Top 10, Above Average |
+| Dates | This Month, Last Quarter, Year to Date, Between |
+
+If a date column only offers *text* filters, the dates are stored as text. The filter menu is a free diagnostic.
+
+<Callout type="tip">
+**Number Filters → Top 10** is misnamed — it does top or bottom, by count or by percent, any number. "Top 5 items" and "Bottom 15 percent" are both in there. It's the fastest way to answer "who are my best five salespeople" without sorting.
+</Callout>
+
+### Filters hide rows, and normal formulas don't notice
+
+This is the part that catches people. `=SUM(D2:D200)` returns the same figure whether or not a filter is applied, because the hidden rows are still there.
+
+<FormulaBlock>
+```
+=SUM(D2:D200)           the whole column, always
+=SUBTOTAL(109,D2:D200)  visible rows only
+=SUBTOTAL(103,B2:B200)  count of visible non-empty cells
+```
+</FormulaBlock>
+
+The function numbers are worth knowing: **109 = SUM, 101 = AVERAGE, 103 = COUNTA, 104 = MAX, 105 = MIN.** The 100-series ignores manually hidden rows as well as filtered ones; the 1–11 series ignores only filtered rows.
+
+<Shot id="6.3.2" />
+
+Or just read the **status bar** — with a filter on, it shows "24 of 180 records found" and the Sum of any selection reflects visible rows only.
+
+### Slicers — filters you can see
+
+On a Table or pivot table: **Insert → Slicer.** You get clickable buttons instead of a hidden dropdown.
+
+Two reasons they matter. The current filter is **visible** — a dropdown gives no indication that a filter is active, which is how people email a report showing one region and believe it shows all of them. And one slicer can control several pivot tables at once (Lesson 8.5), which is the foundation of a dashboard.
+
+<Shot id="6.3.3" />
+
+### FILTER() — extracting instead of hiding
+
+On Microsoft 365:
+
+<FormulaBlock>
+```
+=FILTER(Orders, Orders[Region]="North", "None found")
+        │        │                        │
+        │        │                        └── if nothing matches
+        │        └─────────────────────────── the condition
+        └──────────────────────────────────── what to return
+```
+</FormulaBlock>
+
+This *extracts* matching rows to a new location and updates live. Multiple conditions use `*` for AND and `+` for OR:
+
+<FormulaBlock>
+```
+=FILTER(Orders,(Orders[Region]="North")*(Orders[Units]>20))
+```
+</FormulaBlock>
+
+## Do it
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | EmpID | Name | Dept | DOJ | CTC |
+| **2** | E1001 | Anil Kumar | Sales | 12-Mar-2021 | 640000 |
+| **3** | E1002 | Meera Nair | HR | 05-Jul-2022 | 520000 |
+| **4** | E1003 | Rahul Shah | Sales | 19-Jan-2026 | 810000 |
+| **5** | E1004 | Sneha Rao | Finance | 28-Sep-2025 | 470000 |
+| **6** | E1005 | Kabir Menon | Ops | 03-Feb-2026 | 920000 |
+
+1. Press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>L</Kbd>. Filter arrows appear.
+2. Dept dropdown → untick Select All → tick `Sales`. Two rows remain; the others are hidden, not deleted.
+3. Note the row numbers turn **blue** and jump — 1, 2, 4. That's your signal a filter is active.
+4. CTC dropdown → **Number Filters → Greater Than** → `700000`. Now one row.
+5. Read the status bar: "1 of 5 records found".
+
+6. Clear both filters: <Kbd>Alt</Kbd>+<Kbd>D</Kbd>+<Kbd>F</Kbd>+<Kbd>F</Kbd>, or click Data → Clear.
+
+### Prove the SUM problem
+
+7. In **G1**: `=SUM(E2:E6)` → 3,360,000
+8. In **G2**: `=SUBTOTAL(109,E2:E6)` → 3,360,000. Same, so far.
+9. Filter Dept to `Sales`. **G1 still shows 3,360,000. G2 shows 1,450,000.**
+10. G1 is now contradicting what's on screen. This is why every total on a filtered sheet should be `SUBTOTAL`.
+
+### Date filters
+
+11. Clear filters. DOJ dropdown → **Date Filters → This Year**. Only 2026 joiners remain.
+12. If the menu offers *Text Filters* instead, your dates are text — fix per Lesson 2.2.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `Shift` + `L` | Toggles filter buttons on and off | Any dataset you're about to interrogate — and to clear every filter at once, toggle off then on | Adding filters to a plain range |
+| `Alt` + `↓` | Opens the filter dropdown of the active column | Filtering without reaching for the mouse — then type in the search box | Click a header cell, press Alt+↓ |
+| `Alt` + `D` + `F` + `F` | Clears all filters, keeping the buttons | Resetting before a new question, without losing the filter row | After a multi-column filter |
+| `Alt` + `;` | Selects visible cells only | Copying filtered results without the hidden rows coming along | Filter, select, Alt+; , Ctrl+C |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Using `SUM` on filtered data** | A total that contradicts the visible rows | `SUBTOTAL(109,...)` |
+| Not noticing a filter is on | You report one region's figures as the whole company | Blue row numbers and jumping row labels are the signal — or use a slicer |
+| Copying filtered rows with plain `Ctrl+C` | Hidden rows sometimes come with it | <Kbd>Alt</Kbd>+<Kbd>;</Kbd> to select visible cells first |
+| Date column offering text filters | The dates are stored as text | `DATEVALUE` or Text to Columns (Lesson 2.2) |
+| Deleting visible rows while filtered | Can silently remove hidden rows too | Filter, copy to a new sheet, work there |
+| Scrolling a 2,000-item checkbox list | Slow and error-prone | Use the search box or a Number/Text filter |
+| A blank row inside the data | The filter only covers the block above it | Remove blank rows first |
+
+</MistakeTable>
+
+<Callout type="story">
+**Deepika, Regional Sales Coordinator.** She filtered the national order book to `West` to answer a question from her regional head, then left the filter on. The next morning she took the weekly revenue figure from the summary cell — a plain `=SUM()` — and emailed it to the national sales director as the all-India total.
+
+The `SUM` was correct for the full dataset, so the number she sent was right. But she'd also screenshotted the order table beneath it, which showed West only. The director saw a total that didn't match the rows above it and assumed the total was wrong, and the next fifteen minutes of a leadership call were spent on it.
+
+Two changes fixed it permanently. Every total on that sheet became `SUBTOTAL(109,...)`, so the figure always agrees with what's visible. And she added a slicer, so an active filter is impossible to miss.
+
+**A filter is invisible state, and invisible state is how correct numbers end up looking wrong.** Blue row numbers are the only default warning, and nobody checks them.
+</Callout>
+
+## Practice
+
+<Exercise id="6.3.e1">
+
+<Scenario>
+Answer four questions from a sales dataset using filters, then build totals that stay honest when a filter is applied.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/06-03-filtering.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Product | Units | Revenue |
+| **2** | SO1001 | North | Laptop | 12 | 648000 |
+| **3** | SO1002 | South | Monitor | 30 | 375000 |
+| **4** | SO1003 | North | Laptop | 8 | 432000 |
+| **5** | SO1004 | East | Keyboard | 45 | 81000 |
+| **6** | SO1005 | West | Monitor | 22 | 275000 |
+| **7** | SO1006 | North | Keyboard | 60 | 108000 |
+| **8** | SO1007 | South | Laptop | 15 | 810000 |
+| **9** | SO1008 | West | Laptop | 6 | 324000 |
+
+</Dataset>
+
+<Task>
+
+1. Add filters. In **G1** put `=SUM(E2:E9)` and in **G2** put `=SUBTOTAL(109,E2:E9)`. Note both figures.
+2. Filter Region to `North`. Which cell now agrees with what you can see?
+3. In **G3**, count the visible orders using `SUBTOTAL`. What function number do you need?
+4. Clear filters. Use **Number Filters → Top 10** to show the top 3 orders by revenue. Which are they?
+5. Clear. Use a **Text Filter** to show only products containing the letters `top`. What does this catch, and is it what you wanted?
+6. Filter Region to `North` and Units to greater than 10. Copy the visible rows to a blank area using <Kbd>Alt</Kbd>+<Kbd>;</Kbd> first. Confirm no hidden rows came along.
+7. Insert a slicer on Region. Set it to `South` and confirm the slicer makes the active filter obvious.
+8. On Microsoft 365, write a `FILTER` formula extracting all North orders with Units above 10 to a blank area.
+
+</Task>
+
+<Expected>
+Step 1: both 3,053,000 · Step 2: only G2 (1,188,000 for North) · Step 3: `SUBTOTAL(103,A2:A9)` → 3 · Step 4: SO1007 (810,000), SO1001 (648,000), SO1003 (432,000) · Step 5: catches `Laptop` — the filter is not case-sensitive
+</Expected>
+
+<Solution>
+
+```
+G1: =SUM(E2:E9)
+G2: =SUBTOTAL(109,E2:E9)
+G3: =SUBTOTAL(103,A2:A9)
+
+Step 8: =FILTER(A2:E9,(B2:B9="North")*(D2:D9>10),"None found")
+```
+
+</Solution>
+
+<Why>
+
+**Step 2 is the lesson.** `SUM` reports 3,053,000 while the screen shows three North orders totalling 1,188,000. Neither number is wrong — they answer different questions — but having both on a sheet means a reader has to work out which is which, and they usually won't. On any sheet that will be filtered, totals should be `SUBTOTAL`.
+
+**Step 3's function number matters.** You need `103` (COUNTA) rather than `102` (COUNT), because OrderIDs are text. `SUBTOTAL(102,A2:A9)` returns 0 — the same COUNT-versus-COUNTA trap from Lesson 3.2, now wearing a different function name.
+
+**Step 6's `Alt`+`;` is the habit to keep.** Copying a filtered range with plain `Ctrl+C` can bring hidden rows with it, and you won't notice until the pasted data has more rows than you filtered to. Selecting visible cells first removes the ambiguity.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "6.3.q1",
+    type: "truefalse",
+    question: "=SUM(D2:D200) changes its result when you apply a filter to the data.",
+    correct: false,
+    explanation: "SUM reads every cell in the range whether or not it's hidden, so the total stays the same while the visible rows show a subset. That mismatch is how a correct total ends up looking wrong to a reader. Use =SUBTOTAL(109,D2:D200) for a filter-aware total, or a Table's Total Row, which uses SUBTOTAL automatically."
+  },
+  {
+    id: "6.3.q2",
+    type: "scenario",
+    question: "A date column's filter dropdown offers Text Filters — Contains, Begins With — rather than Date Filters like This Month. What does that tell you?",
+    options: [
+      "The column needs a Date number format applied",
+      "The dates are stored as text, not as date serial numbers",
+      "The filter needs to be removed and re-added",
+      "The column contains a mix of past and future dates"
+    ],
+    correct: 1,
+    explanation: "Excel offers filter types based on what the column actually contains, so text filters on a date column mean the values are text. Applying a Date format won't help — formatting changes appearance, not the stored type (Lesson 2.4). Fix it with DATEVALUE or Text to Columns, setting the DMY/MDY order explicitly. Usefully, the filter menu doubles as a free data-type diagnostic."
+  },
+  {
+    id: "6.3.q3",
+    type: "decision",
+    question: "You're building a report that colleagues will filter themselves before reading the totals. Dropdown filters or slicers?",
+    options: [
+      "Slicers — the active filter is visible on screen",
+      "Dropdown filters — they take no space",
+      "Neither; lock the sheet so nobody can filter",
+      "Both, to give people a choice"
+    ],
+    correct: 0,
+    explanation: "A dropdown gives no indication that a filter is active — the only signals are blue row numbers and gaps in the row sequence, and nobody checks those. A slicer shows the current selection as highlighted buttons, so anyone reading the report can see what it's showing. That matters most when the report leaves your hands: the commonest filter accident is someone reporting one region's figures believing them to be company-wide. Slicers also drive multiple pivots at once, which is the basis of a dashboard."
+  }
+]

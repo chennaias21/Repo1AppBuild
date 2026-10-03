@@ -1,0 +1,204 @@
+---
+id: "8.P1"
+module: 8
+type: "project"
+slug: "hr-headcount-attendance"
+title: "HR Master, Headcount & Attendance Tracker"
+shortTitle: "HR Tracker Project"
+stage: "Business-Ready"
+estimatedMin: 200
+access: "paid"
+skillsUsed: ["Tables", "XLOOKUP", "DATEDIF", "Data Validation", "COUNTIFS", "Conditional Formatting", "Pivot Tables"]
+lessonsApplied: ["6.1", "6.7", "6.6", "5.2", "4.7", "4.1", "7.1", "7.5"]
+datasets: ["HR_Employee_Master", "Attendance_Register"]
+starterFile: "starter/08-P1-hr-tracker-start.xlsx"
+solutionFile: "solution/08-P1-hr-tracker-complete.xlsx"
+submission: true
+shotCount: 4
+prev: "8.9"
+next: "8.P2"
+---
+
+## The brief
+
+You've joined a 250-person manufacturing company as an HR executive. Attendance is currently tracked in four separate spreadsheets — one per plant — and each coordinator uses their own format. Monthly headcount and attendance figures are compiled by hand, take two days, and rarely reconcile with payroll.
+
+Your HR head wants one workbook the four coordinators enter into, that produces headcount and attendance figures on demand. She has asked for it before the next payroll cycle.
+
+## What you'll build
+
+<Deliverable>
+
+- [ ] An employee master as a Table, cleaned, with tenure and status calculated
+- [ ] A controlled attendance entry sheet with dropdowns — coordinators cannot type free text
+- [ ] Employee names and departments pulled in automatically from the master by EmpID
+- [ ] Attendance exceptions flagged on sight: absences, weekend entries, duplicate records
+- [ ] A monthly summary: headcount, joiners, leavers, attrition %, attendance %
+- [ ] A per-department attendance pivot the HR head can filter
+- [ ] Protected formula columns, so coordinators can only edit what they should
+
+</Deliverable>
+
+## The data
+
+The starter file contains two sheets and some deliberate problems. Finding them is part of the work.
+
+**`RawEmployees`** — 250 records: `EmpID`, `Name`, `Dept`, `Designation`, `DOJ`, `Location`, `Gender`, `CTC`, `Status`, `ExitDate`
+
+**`RawAttendance`** — around 1,200 records: `EmpID`, `Date`, `Status`, `InTime`, `OutTime`
+
+<Callout type="warning">
+The export is realistic, which means it's dirty. Expect text-numbers in `CTC`, text dates in `DOJ`, trailing spaces in `Dept`, at least one duplicate `EmpID`, some attendance rows for employees who have left, and a few entries dated on weekends. Run the six-point check from Lesson 7.1 before you build anything on it.
+</Callout>
+
+## Milestones
+
+<Milestone n="1" title="Clean and structure the data">
+
+Run the six-point check on both sheets. Fix what you find — text-numbers, text dates, trailing spaces, duplicates. Convert both to Tables named `EmpMaster` and `Attendance`.
+
+Keep the raw sheets untouched and work on copies, so next month's export can be dropped straight in.
+
+**You should now be able to** `=SUM(EmpMaster[CTC])` and get the right total, and confirm `=SUMPRODUCT(--ISTEXT(EmpMaster[CTC]))` returns 0.
+
+<Shot id="8.P1.1" />
+
+</Milestone>
+
+<Milestone n="2" title="Add the calculated columns">
+
+In `EmpMaster`, add Table columns for tenure in years, tenure formatted as `4y 6m`, whether the employee is active, and whether they joined or left this month.
+
+Remember the blank test — an active employee has no exit date, and a blank in a date comparison reads as zero.
+
+**You should now be able to** count active employees, and this month's joiners and leavers, with three `SUM` formulas.
+
+</Milestone>
+
+<Milestone n="3" title="Build the controlled entry sheet">
+
+Create an `Entry` sheet the coordinators will use. Add data validation: `EmpID` restricted to a list from the master, `Status` restricted to Present / Absent / Half Day / Leave / WFH, `Date` restricted to the current month, `Hours` between 0 and 24.
+
+Set Error Alert to **Stop**, with messages that tell the user what to do.
+
+Pull `Name` and `Dept` in from the master by `EmpID` — leftward-safe, and handling an ID that doesn't exist.
+
+**You should now be able to** type an invalid department and be refused, and see a name appear automatically when you enter a valid EmpID.
+
+<Shot id="8.P1.2" />
+
+</Milestone>
+
+<Milestone n="4" title="Flag the exceptions">
+
+Add formula-based conditional formatting that highlights whole rows: absences, entries dated on a weekend, records for employees whose status is not Active, and duplicate Date-plus-EmpID combinations.
+
+Order the rules so the most serious wins, and use **Stop If True**.
+
+**You should now be able to** open the attendance sheet and see every problem without looking for it.
+
+<Shot id="8.P1.3" />
+
+</Milestone>
+
+<Milestone n="5" title="Build the summary and pivot">
+
+On a `Summary` sheet, produce headcount, joiners, leavers, attrition % and overall attendance %. Put the attrition target in a labelled cell on a `Rates` sheet and conditionally format the attrition figure against it.
+
+Add a pivot table of attendance status by department, with a Department slicer.
+
+**You should now be able to** hand the HR head one sheet that answers her monthly questions.
+
+<Shot id="8.P1.4" />
+
+</Milestone>
+
+<Milestone n="6" title="Protect it and test it as a coordinator">
+
+Unlock only the entry cells, then protect the entry sheet. Protect the workbook structure. Hide the lookup sheets.
+
+Then test it the way a coordinator will: type an invalid value, **paste** an invalid value, enter a duplicate, leave a field blank. Fix what gets through.
+
+**You should now be able to** hand it over without expecting a support call.
+
+</Milestone>
+
+## Solution walkthrough
+
+<Walkthrough>
+
+**Calculated columns in `EmpMaster`:**
+
+<FormulaBlock>
+```
+Tenure Yrs  =DATEDIF([@DOJ],TODAY(),"y")
+Tenure Fmt  =DATEDIF([@DOJ],TODAY(),"y")&"y "&DATEDIF([@DOJ],TODAY(),"ym")&"m"
+Active      =IF([@Status]="Active",1,0)
+Joined MTD  =IF(TEXT([@DOJ],"mmm-yyyy")=TEXT(TODAY(),"mmm-yyyy"),1,0)
+Left MTD    =IF([@ExitDate]="",0,IF(TEXT([@ExitDate],"mmm-yyyy")=TEXT(TODAY(),"mmm-yyyy"),1,0))
+```
+</FormulaBlock>
+
+**Entry sheet lookups** — `XLOOKUP` if everyone is on Microsoft 365, `INDEX MATCH` if anyone isn't:
+
+<FormulaBlock>
+```
+Name  =IFNA(XLOOKUP([@EmpID],EmpMaster[EmpID],EmpMaster[Name]),"Unknown ID")
+Dept  =IFNA(XLOOKUP([@EmpID],EmpMaster[EmpID],EmpMaster[Dept]),"")
+
+Older versions:
+Name  =IFNA(INDEX(EmpMaster[Name],MATCH([@EmpID],EmpMaster[EmpID],0)),"Unknown ID")
+```
+</FormulaBlock>
+
+**Validation source that maintains itself** — a named range `ValidIDs` referring to `=EmpMaster[EmpID]`, used as `=ValidIDs`. Data Validation rejects a Table reference directly.
+
+**Conditional formatting rules**, applied to the data range with the header row excluded:
+
+<FormulaBlock>
+```
+Absent          =$D2="Absent"                                    red fill, Stop If True
+Weekend entry   =WEEKDAY($B2,2)>5                                grey fill
+Inactive emp    =IFERROR(XLOOKUP($A2,EmpMaster[EmpID],EmpMaster[Status])<>"Active",FALSE)
+Duplicate       =COUNTIFS($A$2:$A$1300,$A2,$B$2:$B$1300,$B2)>1   bold red font
+```
+</FormulaBlock>
+
+**Summary figures:**
+
+<FormulaBlock>
+```
+Headcount     =SUM(EmpMaster[Active])
+Joiners       =SUM(EmpMaster[Joined MTD])
+Leavers       =SUM(EmpMaster[Left MTD])
+Attrition %   =IFERROR(Leavers/Headcount,0)
+Attendance %  =COUNTIFS(Attendance[Status],"Present")/COUNTA(Attendance[Status])
+```
+</FormulaBlock>
+
+**The decision worth noting:** attendance % could count Half Day as 0.5 rather than 0. The brief doesn't say. Pick one, state it on the Summary sheet, and don't let the formula make a policy decision silently.
+
+</Walkthrough>
+
+## How this is marked
+
+<Rubric>
+
+| Criterion | Weight | What good looks like |
+|---|---|---|
+| **Data integrity** | 25% | Every seeded problem found and fixed. `ISTEXT` returns 0 on numeric columns. No duplicate EmpIDs. |
+| **Controlled entry** | 20% | Validation on all four fields, Error Alert set to Stop, messages that say what to do. Paste-bypass acknowledged. |
+| **Lookups** | 15% | Handle a missing ID without showing a raw error. Version-appropriate function chosen. |
+| **Exception flagging** | 15% | All four rules work, ordered correctly, whole rows highlighted. |
+| **Summary accuracy** | 15% | Figures reconcile against a manual count. Thresholds in cells, not formulas. |
+| **Maintainability** | 10% | Tables throughout. Raw sheets untouched. Next month is paste-and-refresh. |
+
+**A pass is 70%.** The two criteria people lose most on are data integrity — because it's tempting to skip the check and start building — and maintainability, because a workbook that works once but needs rebuilding monthly hasn't solved the problem in the brief.
+
+</Rubric>
+
+<Submit />
+
+<Callout type="tip">
+Before you submit, do one thing: close the file, reopen it, and use it as a coordinator would for five minutes. Every weakness in a workbook shows up within five minutes of someone else using it, and you are the cheapest tester you will ever get.
+</Callout>

@@ -1,0 +1,269 @@
+---
+id: "2.5"
+module: 2
+lesson: 5
+slug: "cell-formatting"
+title: "Cell Formatting — Fonts, Borders, Alignment and the Merge Problem"
+shortTitle: "Cell Formatting"
+stage: "Beginner"
+durationMin: 10
+access: "free"
+objectives:
+  - "Format a dataset so it reads clearly without looking decorated"
+  - "Use alignment and wrap text correctly"
+  - "Repair a workbook that merged cells have broken"
+keys: ["Ctrl+1", "Alt+H+O+I"]
+datasets: ["Recruitment_Pipeline"]
+starterFile: "starter/02-05-cell-formatting.xlsx"
+solutionFile: "solution/02-05-cell-formatting.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 5
+prev: "2.4"
+next: "2.6"
+videoUrl: null
+---
+
+## Why this matters
+
+Good formatting follows one principle: **it should reduce the reader's effort, not demonstrate yours.** And one button on the Home tab — the one that looks most useful — breaks sorting, filtering, pivot tables and lookups. This lesson covers both.
+
+## How it works
+
+### A standard that works for any business report
+
+| Element | Treatment |
+|---|---|
+| Header row | Bold, white text on a dark fill, frozen |
+| Data rows | Plain, no fill, 11pt |
+| Text columns | Left-aligned |
+| **Number columns** | **Right-aligned — never override this** |
+| Borders | A single bottom border on the header, nothing else |
+| Column width | AutoFit, then widen slightly |
+| Emphasis | Bold **or** a light fill. Never both, never also a border. |
+
+**Never centre a column of numbers.** Centred numbers can't be compared vertically because the digits don't line up. Right alignment is the default for a reason.
+
+Use **Indent** (<Kbd>Alt</Kbd>+<Kbd>H</Kbd>+<Kbd>6</Kbd>) rather than leading spaces for hierarchy. `"  Sales"` is a different string from `"Sales"` — lookups will fail and you won't see why.
+
+<Shot id="2.5.1" />
+
+### The merge problem, stated precisely
+
+Merge & Center combines several cells into one, keeps only the top-left value, and **genuinely empties the others.**
+
+What breaks as a result:
+
+- **Sorting** — Excel refuses outright: *"To do this, all the merged cells need to be the same size"*
+- **Filtering** — the dropdown lists the value, but filtering on it returns only one row
+- **Pivot tables** — merged headers produce blank field names
+- **Lookups** — the value exists in only one of the merged cells
+- **`Ctrl+Shift+↓`** — navigation stops or behaves unpredictably
+
+<Callout type="warning">
+Sorting throws a visible error, which is actually helpful. **Filtering and pivot tables just quietly return incomplete results** — and your report is wrong in a way that looks entirely plausible. That's what makes merged cells more insidious than most Excel mistakes.
+</Callout>
+
+**The replacement:** select the cells, <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → Alignment → Horizontal → **Center Across Selection**. Visually identical. Nothing breaks. The cells stay separate and individually addressable.
+
+There is essentially no situation in a working spreadsheet where Merge & Center is the better choice.
+
+<Callout type="tip">
+`Alt` + `H` + `O` + `I` AutoFits every column, and it's worth doing after every paste. It instantly reveals truncated text you'd otherwise miss — and the `#####` that hides numbers entirely, which Excel shows rather than displaying a misleadingly shortened figure.
+</Callout>
+
+### Repairing a merged dataset
+
+Six steps, about fifteen seconds, and you'll use it more than you expect:
+
+<FormulaBlock>
+```
+1. Select the range → Home → Merge & Center  (click to unmerge)
+2. F5 → Special → Blanks → OK
+3. Type  =  then press  ↑
+4. Press Ctrl+Enter                    every blank fills from above
+5. Copy → Paste Values                 makes it permanent
+```
+</FormulaBlock>
+
+## Do it
+
+Build a deliberately broken recruitment tracker: a title merged across A1:E1, and role names merged down column A across groups of rows.
+
+1. Try to sort by the Applied date. **Excel refuses**, naming merged cells.
+2. Add a filter with <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>L</Kbd>. Open the Role dropdown — it lists both roles. Filter to one. **Only one row returns**, not three.
+
+<Shot id="2.5.2" />
+
+3. Fix it: select the merged role cells → **Home → Merge & Center** to unmerge.
+4. Press <Kbd>F5</Kbd> → **Special** → **Blanks** → OK.
+5. Type `=` then press <Kbd>↑</Kbd>. Press <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>.
+6. Copy the column → <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>V</Kbd> → **Values** → OK.
+
+<Shot id="2.5.3" />
+
+7. Now fix the title: unmerge A1:E1, then select it and press <Kbd>Ctrl</Kbd>+<Kbd>1</Kbd> → Alignment → **Center Across Selection**.
+8. Click **C1**. The Name Box says `C1` and the cell is empty and usable — but the title still appears centred.
+
+<Shot id="2.5.4" />
+
+### Format it properly
+
+9. Select the header row. Bold, dark fill, white font. Right-click the row number → Row Height → 22.
+10. Select all data → <Kbd>Alt</Kbd>+<Kbd>H</Kbd>+<Kbd>O</Kbd>+<Kbd>I</Kbd> to AutoFit columns. Widen each slightly.
+11. Apply a bottom border to the header row only. Leave the rest clean.
+12. Click B2 → **View → Freeze Panes**.
+13. Sort by date again. **It works.** Filter by role — all rows return.
+
+<Shot id="2.5.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `1` | Format Cells | **Center Across Selection** lives here, and everything else | Select A1:E1 first |
+| `Alt` + `H` + `O` + `I` | AutoFit column width | After every paste — reveals truncated content and `#####` | Ctrl+A first, then this |
+| `Alt` + `H` + `6` | Increase indent | Showing hierarchy without leading spaces | Sub-categories under a heading |
+| `Alt` + `H` + `F` + `P` | Format Painter | Copying a format to another range — double-click to apply repeatedly | Esc to stop |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Merge & Center for titles** | Sorting refuses; filters and pivots silently return partial results | Center Across Selection |
+| Centring number columns | Digits don't align; comparison becomes slow and error-prone | Leave numbers right-aligned |
+| Borders on every cell | Visual noise; the eye can't find the structure | Header border only |
+| Leading spaces for indentation | `"  Sales"` no longer matches in lookups | The Indent button |
+| `#####` in a cell | It looks like an error | The column is too narrow for a number — AutoFit it |
+| Wrap text without setting row height | Rows become wildly uneven | Set a fixed row height and align to Top |
+| Six colours in one sheet | Nothing stands out | One accent colour, one light tint |
+| Formatting entire columns | File size balloons; `Ctrl+End` goes to row 1,048,576 | Format the used range only |
+
+</MistakeTable>
+
+<Callout type="story">
+**Ajay, Sales Operations.** He inherited a regional tracker where the Region column used Merge & Center — `North` merged across rows 2–45, `South` across 46–89. It looked beautifully organised.
+
+His manager asked for sales sorted by value, descending. Excel refused, naming the merged cells.
+
+He tried a pivot table instead. The Region field came back as `North`, then `(blank)` forty-three times.
+
+The repair took under a minute: unmerge, <Kbd>F5</Kbd> → Blanks, `=`, `↑`, <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>, paste values. Every row then carried its own region. Sorting worked. The pivot worked.
+
+**The formatting that made the file look organised was the exact thing preventing it from being analysed.**
+</Callout>
+
+## Practice
+
+<Exercise id="2.5.e1">
+
+<Scenario>
+Repair and format an inherited recruitment tracker.
+</Scenario>
+
+<Dataset name="Recruitment_Pipeline" starter="starter/02-05-cell-formatting.xlsx">
+
+Build this deliberately broken version:
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | *(merge A1:D1)* RECRUITMENT TRACKER Q3 | | | |
+| **2** | Role | Candidate | Source | Applied |
+| **3** | *(merge A3:A5)* Java Developer | Anil K | LinkedIn | 45900 |
+| **4** | | Meera N | Referral | 45902 |
+| **5** | | Rahul S | Naukri | 45905 |
+| **6** | *(merge A6:A7)* QA Engineer | Sneha R | LinkedIn | 45901 |
+| **7** | | Kabir M | Referral | 45908 |
+
+</Dataset>
+
+<Task>
+
+1. Try to sort by the Applied date. What happens?
+2. Add a filter and open the Role dropdown. How many roles does it list? Filter to `Java Developer` — how many rows return, and how many should?
+3. Unmerge A3:A7 and fill the blanks using Go To Special.
+4. Convert those formulas to values. Why is this step not optional?
+5. Unmerge the title and apply Center Across Selection instead. Click C1 — what does the Name Box show?
+6. Format the header row: bold, dark fill, white text, row height 22.
+7. Format column D as `dd-mmm-yyyy`. AutoFit all columns and freeze at A3.
+8. Sort by date again and re-filter by role. Does everything work now?
+
+</Task>
+
+<Expected>
+Step 1: Excel refuses, naming merged cells · Step 2: lists two roles, but filtering returns only 1 row where 3 should · Step 5: `C1`, still a usable cell · Step 8: both work
+</Expected>
+
+<Solution>
+
+```
+3. Select A3:A7 → Home → Merge & Center (toggles off)
+   F5 → Special → Blanks → OK
+   Type  =  then ↑  then Ctrl+Enter
+4. Select A3:A7 → Ctrl+C → Ctrl+Alt+V → Values → OK
+5. Select A1:D1 → unmerge → Ctrl+1 → Alignment → Center Across Selection
+```
+
+</Solution>
+
+<Why>
+
+**Step 2 is the one worth dwelling on.** The filter dropdown *lists* both roles, so you'd reasonably assume the data is fine. But filtering to `Java Developer` returns one row, because A4 and A5 are genuinely, physically empty — merge didn't spread the value, it kept it in A3 and deleted the rest.
+
+Sorting throws a visible error, which is helpful. Filtering and pivot tables return incomplete results with no warning at all, and your report is wrong in a way that looks plausible.
+
+**Step 4 isn't optional** because after the fill, A4 contains `=A3` rather than the text. That works until someone sorts the data — then each formula follows its new position and points at whatever now sits above it, scrambling the column. Paste Values makes the repair permanent and sort-safe.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "2.5.q1",
+    type: "mcq",
+    question: "You need a report title centred across columns A to F without breaking sorting or filtering. What do you use?",
+    options: [
+      "Merge & Center",
+      "Center Across Selection",
+      "Increase Indent until it looks centred",
+      "Wrap Text"
+    ],
+    correct: 1,
+    explanation: "Found at Ctrl+1 → Alignment → Horizontal. The result is visually identical to Merge & Center, but the cells remain separate and individually addressable — so sorting, filtering, pivot tables, lookups and keyboard navigation all keep working. There is essentially no working spreadsheet where Merge & Center is the better choice."
+  },
+  {
+    id: "2.5.q2",
+    type: "decision",
+    question: "You're formatting a 12-column dataset for a leadership review. A colleague suggests a different fill colour per column to help distinguish them. Do you agree?",
+    options: [
+      "No — colour should carry meaning, and twelve fills means nothing stands out",
+      "Yes, it makes the columns easier to tell apart",
+      "Yes, but only use pale shades",
+      "Only for the numeric columns"
+    ],
+    correct: 0,
+    explanation: "Formatting exists to reduce the reader's effort, and twelve fills does the opposite — with everything emphasised, nothing is, and the eye has no anchor. Colour should be informative: a red fill for values breaching a threshold, green for targets met. To distinguish columns, use a clear header band, correct alignment by data type, adequate spacing and freeze panes. If two or three columns genuinely matter more, give those a single light tint."
+  },
+  {
+    id: "2.5.q3",
+    type: "scenario",
+    question: "A column of numbers shows ##### and a colleague says the data is corrupted. Is it?",
+    options: [
+      "Yes — the values need re-entering",
+      "No — the column is too narrow to display the number; AutoFit it",
+      "Yes — the cells are formatted as Text",
+      "No — but the formulas need recalculating"
+    ],
+    correct: 1,
+    explanation: "##### means the column can't fit the number, and Excel deliberately refuses to truncate numbers because showing 640 when the value is 640000 would be dangerously misleading. Note this only happens to numbers and dates — text simply spills or clips, which is why you'll never see it on a name column. Double-click the right border of the column header, or press Alt+H+O+I."
+  }
+]

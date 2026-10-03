@@ -1,0 +1,253 @@
+---
+id: "4.4"
+module: 4
+lesson: 4
+slug: "iferror-ifna"
+title: "IFERROR, IFNA and Handling Broken Formulas"
+shortTitle: "IFERROR & IFNA"
+stage: "Intermediate"
+durationMin: 9
+access: "paid"
+objectives:
+  - "Replace an error with something useful instead of leaving #N/A in a report"
+  - "Choose between IFERROR and IFNA deliberately"
+  - "Recognise when hiding an error is the wrong thing to do"
+keys: ["F5", "Ctrl+`"]
+datasets: ["HR_Employee_Master", "Expense_Claims"]
+starterFile: "starter/04-04-iferror.xlsx"
+solutionFile: "solution/04-04-iferror.xlsx"
+functions: ["IFERROR", "IFNA", "ISERROR", "AGGREGATE"]
+excelVersion: "all"
+shotCount: 4
+prev: "4.3"
+next: "4.5"
+videoUrl: null
+---
+
+## Why this matters
+
+One `#N/A` in a column makes the SUM below it return `#N/A` too. One `#DIV/0!` in a dashboard makes the whole tile unreadable. `IFERROR` catches errors and puts something sensible in their place — and knowing when *not* to use it matters just as much.
+
+## How it works
+
+`IFERROR` takes two things: something to try, and what to show if it fails.
+
+<FormulaBlock>
+```
+=IFERROR(B2/C2, 0)
+         │      │
+         │      └── show this if the first part errors
+         └───────── try this first
+```
+</FormulaBlock>
+
+If C2 is 0 or blank, `B2/C2` gives `#DIV/0!` — and `IFERROR` returns `0` instead.
+
+<Shot id="4.4.1" />
+
+It catches **every** error type: `#N/A` `#VALUE!` `#REF!` `#DIV/0!` `#NAME?` `#NULL!` `#NUM!`.
+
+That breadth is the problem. `#N/A` from a lookup usually means "this record doesn't exist" — often expected and fine to handle. `#REF!` means you deleted a cell a formula depended on. `#NAME?` means you misspelled a function name. Those are **bugs**, and wrapping them in `IFERROR` hides them permanently.
+
+### IFNA — the surgical version
+
+<FormulaBlock>
+```
+=IFNA(VLOOKUP(A2,Master,3,0), "Not in master")
+```
+</FormulaBlock>
+
+`IFNA` catches **only** `#N/A`. A typo in your function name still shows `#NAME?`, loudly, where you can see it.
+
+**For lookups, prefer `IFNA`.** It handles the one error you expect and leaves the ones you don't want to hide.
+
+| | Catches | Use for |
+|---|---|---|
+| `IFERROR` | All 7 error types | Division, conversions, anywhere any failure is acceptable |
+| `IFNA` | Only `#N/A` | Lookups — 2013 and later |
+
+<Callout type="warning">
+`=IFERROR(VLOOKUP(...),"")` on a lookup that's broken because you counted the column index wrong will return blank for every row, forever, and look like "no matches found". You'll debug the source data for an hour before checking the formula. This is the most common way `IFERROR` costs people time.
+</Callout>
+
+<Callout type="tip">
+To total a column that already contains errors without editing every formula, use `=AGGREGATE(9,6,D2:D200)`. The `9` means SUM, the `6` means ignore errors. Useful as a stopgap while you find the cause — not as a permanent fix.
+</Callout>
+
+## Do it
+
+Expense claims with a lookup against an employee master, and a per-claim average.
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | ClaimID | EmpID | Amount | Claims Count | Avg per Claim |
+| **2** | C001 | E1001 | 4500 | 3 | ? |
+| **3** | C002 | E1002 | 1200 | 0 | ? |
+| **4** | C003 | E9999 | 7800 | 2 | ? |
+
+1. In E2, type `=C2/D2` and fill down. Row 3 returns `#DIV/0!` because the count is 0.
+2. In F2: `=SUM(E2:E4)`. It returns `#DIV/0!` — **one bad cell poisons the total.**
+3. Fix E2: `=IFERROR(C2/D2,0)`. Fill down. Row 3 now shows 0 and the SUM works.
+
+<Shot id="4.4.2" />
+
+4. Now a lookup. In G2: `=VLOOKUP(B2,$J$2:$K$10,2,0)` against an employee master in J:K. Row 4 returns `#N/A` — E9999 isn't in the master.
+5. Wrap it with `IFNA`, not `IFERROR`: `=IFNA(VLOOKUP(B2,$J$2:$K$10,2,0),"Not in master")`
+
+<Shot id="4.4.3" />
+
+### Break it deliberately
+
+6. In H2, write the same lookup with the **wrong column index** — `3` instead of `2` on a two-column range — and wrap it in `IFERROR` with `""`:
+   `=IFERROR(VLOOKUP(B2,$J$2:$K$10,3,0),"")`
+7. Every row returns blank. It looks exactly like "no employees matched". The real error is `#REF!`, and `IFERROR` swallowed it.
+8. Now swap `IFERROR` for `IFNA` on the same broken formula. `#REF!` appears on every row — visible, diagnosable, fixable in ten seconds.
+
+<Shot id="4.4.4" />
+
+### Find errors instead of hiding them
+
+9. Press <Kbd>F5</Kbd> → **Special** → **Formulas** → untick everything except **Errors** → OK. Excel selects every error cell on the sheet at once. Read the status bar for the count.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F5` → Special → Errors | Selects every error cell on the sheet | Before wrapping anything in IFERROR — find out what's actually failing and how many | 47 cells selected → the count tells you if it's systemic |
+| `Ctrl` + `` ` `` | Shows formulas instead of results | Checking whether a column of blanks is real data or a swallowed error | A column of `""` from IFERROR looks identical to genuinely empty cells |
+| `F9` on the inner expression | Evaluates the part inside IFERROR | Seeing the actual error before it's suppressed | Select `VLOOKUP(...)` → `#REF!` |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **`IFERROR` on a lookup with a wrong column index** | Every row blank — looks like no matches exist | Use `IFNA` so structural errors stay visible |
+| Wrapping in `IFERROR` before diagnosing | The problem is hidden, not solved | `F5` → Special → Errors first |
+| `IFERROR(...,0)` in an average | The zeros drag the average down — 0 is data, blank isn't | `IFERROR(...,"")` if the value should be excluded |
+| `IFERROR(...,"")` where a number is needed | Downstream arithmetic returns `#VALUE!` | Return 0, or restructure |
+| Using `IFERROR` to mask text-numbers | The real problem is data type, not the formula | Fix the source — see Lesson 2.2 |
+| Assuming `IFNA` works in Excel 2010 | `#NAME?` | `IFNA` needs 2013+. Older: `=IF(ISNA(x),fallback,x)` |
+
+</MistakeTable>
+
+<Callout type="story">
+**Arun, MIS Analyst.** His monthly report pulled employee names into a claims sheet with `=IFERROR(VLOOKUP(...),"")`. One month every name came back blank. He assumed the HR export was broken and spent two hours comparing employee IDs between the two files, character by character, looking for whitespace and formatting mismatches.
+
+The HR export was fine. Someone had inserted a column into the master sheet, so his column index now pointed past the end of the range — a `#REF!` on every row. `IFERROR` had turned all of them into empty strings, which looked exactly like "no matches found".
+
+He switched every lookup to `IFNA`. The next time a column moved, `#REF!` appeared immediately and the fix took ten seconds. **`IFERROR` hides the errors you expect and the bugs you don't, and it can't tell the difference — so you shouldn't ask it to.**
+</Callout>
+
+## Practice
+
+<Exercise id="4.4.e1">
+
+<Scenario>
+An expense claims summary where the lookup source is incomplete and some divisions hit zero.
+</Scenario>
+
+<Dataset name="Expense_Claims" starter="starter/04-04-iferror.xlsx">
+
+**Claims** (A:D)
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | ClaimID | EmpID | Amount | Trips |
+| **2** | C001 | E1001 | 4500 | 3 |
+| **3** | C002 | E1002 | 1200 | 0 |
+| **4** | C003 | E9999 | 7800 | 2 |
+| **5** | C004 | E1003 | 15000 | 5 |
+| **6** | C005 | E8888 | 900 | 0 |
+
+**Employee master** (G:H) — note E9999 and E8888 are deliberately absent
+
+| | G | H |
+|---|---|---|
+| **1** | EmpID | Name |
+| **2** | E1001 | Anil Kumar |
+| **3** | E1002 | Meera Nair |
+| **4** | E1003 | Rahul Shah |
+
+</Dataset>
+
+<Task>
+
+1. **E2** — cost per trip (Amount ÷ Trips). Fill down. How many errors, and which type?
+2. **F2** — same thing, returning 0 on error. Then total column F.
+3. Compare `=AVERAGE(F2:F6)` against the average of only the rows that genuinely had trips. Which is correct, and why does the choice of fallback matter?
+4. **I2** — look up the employee name. Use `IFNA`, returning `Unknown employee`.
+5. Deliberately change your lookup's column index to `3` and keep `IFNA`. What appears? Now change `IFNA` to `IFERROR`. What appears?
+6. Use <Kbd>F5</Kbd> → Special → Errors on a copy of column E. How many cells does Excel select?
+
+</Task>
+
+<Expected>
+Step 1: two `#DIV/0!` errors (rows 3 and 6) · Step 2: F total = 6,500 · Step 4: rows 4 and 6 return `Unknown employee` · Step 5: `IFNA` shows `#REF!`, `IFERROR` shows `Unknown employee` on every row — indistinguishable from a genuine no-match
+</Expected>
+
+<Solution>
+
+```
+E2: =C2/D2
+F2: =IFERROR(C2/D2,0)
+I2: =IFNA(VLOOKUP(B2,$G$2:$H$4,2,0),"Unknown employee")
+
+Step 3:
+=AVERAGE(F2:F6)                 includes the zeros → 1,300
+=IFERROR(C2/D2,"") then AVERAGE  excludes them     → 2,166.67
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 is the real lesson, and it has no single right answer — which is the point.** With `0` as the fallback, AVERAGE divides by 5 and returns 1,300. With `""`, AVERAGE skips those rows and returns 2,166.67.
+
+Which is correct depends entirely on what the zero *means*. If someone submitted a claim with no trips, their cost-per-trip is undefined, not zero — excluding them is right. If the zero represents a genuine "no cost incurred", including it is right. **`IFERROR`'s fallback value is a business decision disguised as a formula argument**, and choosing `0` by reflex is how averages get quietly understated.
+
+**Step 5 is why this lesson recommends `IFNA` for lookups.** With the wrong column index, `IFNA` shows `#REF!` — a visible, diagnosable bug. `IFERROR` shows `Unknown employee` on every row, which is a plausible business outcome that you will investigate as a data problem rather than a formula problem. The two outputs look equally legitimate; only one tells you the truth.
+
+**Step 6 matters as a habit.** `F5` → Special → Errors before you wrap anything tells you how many errors exist and whether they cluster. Two errors in six rows is data. Two hundred in two hundred rows is a broken formula.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "4.4.q1",
+    type: "mcq",
+    question: "Which errors does IFNA catch?",
+    options: ["All error types", "Only #N/A", "Only #N/A and #REF!", "Only #DIV/0!"],
+    correct: 1,
+    explanation: "IFNA catches only #N/A. That narrowness is the feature — a lookup that fails because a record genuinely doesn't exist is handled, while a #REF! from a deleted column or a #NAME? from a typo stays visible where you can fix it. IFERROR catches all seven error types and cannot distinguish an expected miss from a bug."
+  },
+  {
+    id: "4.4.q2",
+    type: "decision",
+    question: "Your VLOOKUP returns #N/A for about 5% of rows because those employees genuinely left the company. The column feeds a report. What do you do?",
+    options: [
+      "Wrap it in IFNA with a clear label like \"Not in master\"",
+      "Wrap it in IFERROR with \"\" so the report looks clean",
+      "Leave the #N/A visible — errors should never be hidden",
+      "Delete those rows from the report"
+    ],
+    correct: 0,
+    explanation: "IFNA handles the one error you expect while leaving structural bugs visible, and a meaningful label like \"Not in master\" tells the reader what actually happened rather than hiding it. Option 2 uses the broader IFERROR and a blank, which destroys the information and would also mask a broken column index. Option 3 is unhelpful in a report someone else reads. Option 4 silently changes the dataset, which is worse than any error message."
+  },
+  {
+    id: "4.4.q3",
+    type: "formula",
+    question: "Write a formula for E2 that divides C2 by D2 and returns 0 if the division fails.",
+    accept: ["=IFERROR(C2/D2,0)"],
+    explanation: "IFERROR is right here because division can fail in more than one way — a zero divisor, a blank, or text in either cell — and all of those are equally acceptable to handle. But choose the fallback deliberately: 0 will be included in any AVERAGE over the column, whereas \"\" would be excluded. That choice changes the answer."
+  }
+]

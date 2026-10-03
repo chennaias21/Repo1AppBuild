@@ -1,0 +1,252 @@
+---
+id: "4.2"
+module: 4
+lesson: 2
+slug: "nested-if-ifs"
+title: "Nested IF, IFS, and When to Stop Nesting"
+shortTitle: "Nested IF & IFS"
+stage: "Intermediate"
+durationMin: 11
+access: "paid"
+objectives:
+  - "Write a nested IF that handles three or more outcomes in the right order"
+  - "Use IFS to replace deep nesting with something readable"
+  - "Recognise when a lookup table beats both"
+keys: ["Alt+Enter", "F9"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/04-02-nested-if.xlsx"
+solutionFile: "solution/04-02-nested-if.xlsx"
+functions: ["IF", "IFS", "SWITCH"]
+excelVersion: "all"
+shotCount: 4
+prev: "4.1"
+next: "4.3"
+videoUrl: null
+---
+
+## Why this matters
+
+`IF` handles two outcomes. Real business rules rarely have two. Performance ratings, salary bands, ageing buckets, commission tiers — these all have three, four or five outcomes, and you need a way to express them that you can still read in six months.
+
+## How it works
+
+Put an IF inside an IF. The `value_if_false` slot can hold another whole IF.
+
+<FormulaBlock>
+```
+=IF(B2>=90,"Outstanding",IF(B2>=75,"Exceeds",IF(B2>=60,"Meets","Needs Improvement")))
+    └─test 1─┘            └─test 2─┘          └─test 3─┘         └─catch-all
+```
+</FormulaBlock>
+
+Read it as a chain: *90 or more? No — then 75 or more? No — then 60 or more? No — then Needs Improvement.*
+
+<Shot id="4.2.1" />
+
+**The order is everything, and this is where people lose hours.** Excel stops at the first test that returns TRUE. So tests must run from the most extreme boundary inward.
+
+Get it backwards and watch:
+
+<FormulaBlock>
+```
+=IF(B2>=60,"Meets",IF(B2>=75,"Exceeds",IF(B2>=90,"Outstanding","Needs Improvement")))
+```
+</FormulaBlock>
+
+A score of 95 hits the first test — 95 *is* ≥ 60 — returns `Meets`, and stops. It never reaches the Outstanding test. **Every high performer is downgraded and the formula never errors.**
+
+For ascending thresholds, test highest first. For descending, lowest first. Either way: most extreme first.
+
+### IFS — the readable version
+
+<FormulaBlock>
+```
+=IFS(B2>=90,"Outstanding", B2>=75,"Exceeds", B2>=60,"Meets", TRUE,"Needs Improvement")
+     └test,result┘         └test,result┘     └test,result┘   └catch-all
+```
+</FormulaBlock>
+
+Pairs of test-and-result, left to right, first match wins. No bracket pile-up. The `TRUE` at the end is the catch-all — `TRUE` is always true, so it fires when nothing else matched. **Without it, an unmatched value returns `#N/A`.**
+
+<Callout type="warning">
+`IFS` needs Excel 2019 or Microsoft 365. On Excel 2016 and earlier it returns `#NAME?`. Check before building a shared file on it.
+</Callout>
+
+<Callout type="tip">
+For **exact** matches rather than ranges, `SWITCH` is cleaner than either: `=SWITCH(B2,"A","Outstanding","B","Exceeds","C","Meets","Unrated")`. It states the tested cell once instead of repeating it in every condition. Use it for grades, department codes, status abbreviations.
+</Callout>
+
+## Do it
+
+Appraisal ratings. Bands: 90+ Outstanding, 75+ Exceeds, 60+ Meets, below that Needs Improvement.
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee | Score | Rating |
+| **2** | Anil Kumar | 92 | ? |
+| **3** | Meera Nair | 78 | ? |
+| **4** | Rahul Shah | 64 | ? |
+| **5** | Kabir Menon | 90 | ? |
+| **6** | Divya Iyer | 75 | ? |
+
+1. Click **C2**. Type `=IF(B2>=90,"Outstanding",`
+2. Type `IF(B2>=75,"Exceeds",`
+3. Type `IF(B2>=60,"Meets","Needs Improvement")`
+4. Close the outer brackets: `))` — three `IF(` means three `)`. Press <Kbd>Enter</Kbd>.
+5. Fill down. **Check rows 5 and 6** — Kabir scores exactly 90 and Divya exactly 75. With `>=` they land in the higher band. With `>` they'd each drop one.
+
+<Shot id="4.2.2" />
+
+6. Make it readable: press <Kbd>F2</Kbd>, put the cursor before each inner `IF(` and press <Kbd>Alt</Kbd>+<Kbd>Enter</Kbd>. Drag the formula bar's bottom edge down. Three indented lines instead of one long string. The breaks are stored and don't affect the result.
+
+<Shot id="4.2.3" />
+
+7. Now the IFS version in D2: `=IFS(B2>=90,"Outstanding",B2>=75,"Exceeds",B2>=60,"Meets",TRUE,"Needs Improvement")` — identical results, shorter formula.
+
+### Break it deliberately
+
+8. In E2, write the bands ascending: `=IF(B2>=60,"Meets",IF(B2>=75,"Exceeds",IF(B2>=90,"Outstanding","Needs Improvement")))`
+9. Fill down. Every score of 60+ returns `Meets`. Anil's 92 and Kabir's 90 are both misrated.
+10. See why: press <Kbd>F2</Kbd>, select just `B2>=60`, press <Kbd>F9</Kbd>. It shows `TRUE`. Excel stopped there.
+
+<Shot id="4.2.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `Enter` | Line break inside a formula | Any formula with three or more nested levels — makes it reviewable | Break before each inner `IF(` |
+| `F9` on a selected test | Evaluates that piece only | Finding which test fires first when the wrong band is returned | Select `B2>=60` → `TRUE` |
+| `Ctrl` + `Shift` + `U` | Expands the formula bar | Seeing all four lines of a nested IF at once | After adding line breaks |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Tests in the wrong order** | Everyone lands in the first band. No error. | Most extreme threshold first |
+| Missing catch-all | `FALSE` (nested IF) or `#N/A` (IFS) | Nested: final `value_if_false`. IFS: `TRUE,"..."` |
+| Bracket count wrong | Excel refuses the entry | One `)` per `IF(`. Excel colour-codes the pairs. |
+| `>` where you meant `>=` | Boundary scores drop a band — and people query it | Decide inclusivity deliberately, write it down |
+| Overlapping bands | Two tests can both be TRUE; the first silently wins | Bands must be contiguous and non-overlapping |
+| Returning `"12%"` instead of `0.12` | Downstream calculations break | Return numbers when the result feeds a formula |
+| Nesting six or more levels | Unreadable; one edit breaks it | `IFS`, `SWITCH`, or a lookup table |
+
+</MistakeTable>
+
+<Callout type="story">
+**Ramesh, Compensation Analyst, 380-employee appraisal cycle.** He built the rating with a nested IF, writing the tests in the order the policy listed them — lowest band first. Every employee scoring 60 or above returned `Meets`. That was 340 of 380 people, including all 47 top performers.
+
+Nothing errored. The column filled cleanly, every value was a legitimate rating, and the distribution looked *almost* plausible — which is why it survived his own review. He caught it two days before letters went out, when a manager asked why nobody on her team had an Outstanding rating for the first time in four years.
+
+He now keeps a six-cell test block beside any banded formula: one known value per band, both boundary values, and the expected answer typed next to each. **A nested IF in the wrong order is silently wrong at scale, in a way that looks correct.** Test it against known values or you're trusting luck.
+</Callout>
+
+## Practice
+
+<Exercise id="4.2.e1">
+
+<Scenario>
+Appraisal season. Ratings, hike percentages and revised salaries for eight people, plus a check that your band logic is actually right.
+</Scenario>
+
+<Dataset name="Appraisal_Bands" starter="starter/04-02-nested-if.xlsx">
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee | Score | Current CTC |
+| **2** | Anil Kumar | 92 | 640000 |
+| **3** | Meera Nair | 78 | 1250000 |
+| **4** | Rahul Shah | 64 | 810000 |
+| **5** | Sneha Rao | 55 | 470000 |
+| **6** | Kabir Menon | 90 | 920000 |
+| **7** | Divya Iyer | 75 | 725000 |
+| **8** | Nisha Roy | 88 | 690000 |
+| **9** | Anita Kaur | | 610000 |
+
+**Bands:** 90+ Outstanding (12%) · 75–89 Exceeds (9%) · 60–74 Meets (6%) · below 60 Needs Improvement (0%)
+
+</Dataset>
+
+<Task>
+
+1. **D2** — nested IF returning the rating. Fill down.
+2. **E2** — nested IF returning the hike as a **number** (0.12, not "12%"). Format as %.
+3. **F2** — revised CTC.
+4. **G2** — same rating logic using `IFS`. Confirm D and G match exactly.
+5. Row 9 has no score. What do D, E and F return for Anita? Fix D so a blank returns `Not appraised` and E returns 0.
+6. Build a test block: one known score per band plus both boundaries (90 and 75), your expected rating typed beside each, and a check column comparing your formula's output to your expectation.
+
+</Task>
+
+<Expected>
+D2 `Outstanding` · D6 `Outstanding` (exactly 90) · D7 `Exceeds` (exactly 75) · E2 = 12% · F2 = 716,800 · Anita before the fix: `Needs Improvement`, which is wrong
+</Expected>
+
+<Solution>
+
+```
+D2: =IF(B2>=90,"Outstanding",IF(B2>=75,"Exceeds",IF(B2>=60,"Meets","Needs Improvement")))
+E2: =IF(B2>=90,0.12,IF(B2>=75,0.09,IF(B2>=60,0.06,0)))
+F2: =C2*(1+E2)
+G2: =IFS(B2>=90,"Outstanding",B2>=75,"Exceeds",B2>=60,"Meets",TRUE,"Needs Improvement")
+
+After step 5:
+D2: =IF(B2="","Not appraised",IF(B2>=90,"Outstanding",IF(B2>=75,"Exceeds",IF(B2>=60,"Meets","Needs Improvement"))))
+E2: =IF(B2="",0,IF(B2>=90,0.12,IF(B2>=75,0.09,IF(B2>=60,0.06,0))))
+
+Test block check column:
+=D2=K2        (where K holds your expected rating — should be TRUE on every row)
+```
+
+</Solution>
+
+<Why>
+
+**Step 5 repeats the blank problem from 4.1 deliberately**, because it recurs in every conditional formula you will ever write. Anita's empty score reads as 0, 0 is below 60, so she's rated `Needs Improvement` on data that doesn't exist. Columns E and F happen to return correct values by accident. Two accidental rights and one consequential wrong — and if that rating reached an appraisal letter it would be a serious problem for someone who simply hadn't been reviewed yet.
+
+**Step 6 is the habit worth taking from this lesson.** A six-row test block with expected answers you wrote down *independently* is the only reliable defence against ordering errors. There is no formula-inspection technique that catches an ordering bug as reliably, because the bug produces valid-looking output rather than an error.
+
+**On step 2:** returning `0.12` rather than `"12%"` is what makes step 3 possible. `"12%"` is text — `=C2*(1+E2)` against text gives `#VALUE!`. When a result feeds another formula, return the number and let formatting handle the display.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "4.2.q1",
+    type: "mcq",
+    question: "A formula reads =IF(B2>=60,\"Meets\",IF(B2>=75,\"Exceeds\",IF(B2>=90,\"Outstanding\",\"Needs Improvement\"))). What does it return for a score of 95?",
+    options: ["Outstanding", "Exceeds", "Meets", "#VALUE!"],
+    correct: 2,
+    explanation: "It returns Meets. Excel evaluates tests left to right and stops at the first TRUE. Since 95 is indeed at least 60, the first test fires and the formula never reaches the Exceeds or Outstanding tests. Every high performer is silently downgraded. Banded tests must run from the most extreme threshold inward — highest first when testing with >=."
+  },
+  {
+    id: "4.2.q2",
+    type: "truefalse",
+    question: "An IFS formula without a final TRUE catch-all returns a blank cell when nothing matches.",
+    correct: false,
+    explanation: "It returns #N/A. IFS has no default result, so an unmatched value produces an error. That's arguably safer than a wrong answer because it's visible, but it will break any SUM or AVERAGE over the column. Always end IFS with TRUE followed by your fallback — TRUE is always true, so it fires when nothing else has."
+  },
+  {
+    id: "4.2.q3",
+    type: "decision",
+    question: "Your rating bands have changed three times in two years, and the thresholds are hard-coded into nested IFs across four columns on six sheets. What's the right move?",
+    options: [
+      "Move the bands into a lookup table and use approximate-match VLOOKUP",
+      "Use Find & Replace to update all the thresholds at once",
+      "Convert to IFS so the formulas are shorter and easier to edit",
+      "Add a comment to each formula documenting the current bands"
+    ],
+    correct: 0,
+    explanation: "A lookup table makes the bands data rather than logic. They become cells anyone can read and edit, visible on the sheet instead of buried in formulas, and a band change is one edit that propagates everywhere. Find & Replace on numbers inside formulas is risky — the same number may be a threshold in one place and something unrelated elsewhere. IFS improves readability but leaves the thresholds hard-coded in exactly the same number of places. The rule: if a business rule changes, it belongs in a cell, not a formula."
+  }
+]

@@ -1,0 +1,243 @@
+---
+id: "4.1"
+module: 4
+lesson: 1
+slug: "if-function"
+title: "IF — Making Excel Decide"
+shortTitle: "IF Function"
+stage: "Intermediate"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Write an IF formula that returns different results based on a condition"
+  - "Use comparison operators correctly with text and numbers"
+  - "Handle blank cells so they don't get classified as zero"
+keys: ["F9", "F4"]
+datasets: ["Attendance_Register"]
+starterFile: "starter/04-01-if-basics.xlsx"
+solutionFile: "solution/04-01-if-basics.xlsx"
+functions: ["IF"]
+excelVersion: "all"
+shotCount: 4
+prev: "3.7"
+next: "4.2"
+videoUrl: null
+---
+
+## Why this matters
+
+Everything you've written so far calculates. `IF` is the first function that **decides** — and deciding is most of what a business report does. Flagging short attendance, paying overtime only when it's earned, marking expense claims that need approval: all IF.
+
+## How it works
+
+Ask a question. Do one thing if yes, another if no.
+
+<FormulaBlock>
+```
+=IF(C2>=24, "Full", "Short")
+    │        │       │
+    │        │       └── if the answer is no
+    │        └────────── if the answer is yes
+    └─────────────────── a question with a TRUE/FALSE answer
+```
+</FormulaBlock>
+
+C2 holds 24 or more → `Full`. Otherwise → `Short`.
+
+<Shot id="4.1.1" />
+
+The question uses a comparison operator:
+
+| `=` equal to | `<>` not equal to | `>` greater | `<` less | `>=` at least | `<=` at most |
+|---|---|---|---|---|---|
+
+**Text needs double quotes. Numbers never do.** `"Sales"` is text; `Sales` makes Excel hunt for a named range and return `#NAME?`. And `"24"` in quotes is text — comparing a number against it gives a wrong answer with **no error**, because Excel sorts all text as greater than all numbers.
+
+Either branch can return a calculation instead of a label, which is where IF becomes genuinely useful:
+
+<FormulaBlock>
+```
+=IF(C2>24, (C2-24)*200, 0)      overtime pay, or nothing
+=IF(C2="", "", C2*1.1)          blank stays blank
+```
+</FormulaBlock>
+
+That first one isn't decoration. Without the IF, someone who worked 19 days gets paid **minus ₹1,000**.
+
+<Callout type="tip">
+`F9` is the fastest way to debug an IF. Press `F2`, select just the question part with your mouse, press `F9` — Excel replaces it with TRUE or FALSE so you can see what it actually evaluates to. Press `Esc`, not Enter, to restore the formula.
+</Callout>
+
+<Callout type="tip">
+If both branches of your IF are identical, you don't need IF. And if all you want is a TRUE/FALSE answer, `=C2>=24` gives you that directly — no IF required. Beginners reach for IF reflexively; noticing when the comparison alone does the job means you've understood what the first argument really is.
+</Callout>
+
+## Do it
+
+Attendance review, 24 working days in the month.
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | EmpID | Name | Days Present | Status |
+| **2** | E1001 | Anil Kumar | 27 | ? |
+| **3** | E1002 | Meera Nair | 19 | ? |
+| **4** | E1003 | Rahul Shah | 24 | ? |
+| **5** | E1004 | Arjun Das | | ? |
+
+Put the threshold `24` in **G1** — never type it into the formula.
+
+1. Click **D2**, type `=IF(`
+2. Click **C2**, type `>=`
+3. Click **G1**, press <Kbd>F4</Kbd> to lock it → `$G$1`
+4. Type `,"Full","Short")` and press <Kbd>Enter</Kbd>
+5. Double-click the fill handle to fill down
+
+<Shot id="4.1.2" />
+
+6. Change G1 to `22`. Every status updates — one edit, not four formulas.
+
+**Now look at row 5.** Arjun has no days recorded, and his status says `Short`. An empty cell reads as 0 in a comparison, and 0 is less than 24. Excel has just classified a missing record as poor attendance.
+
+7. Fix it by testing for blank first:
+
+<FormulaBlock>
+```
+=IF(C2="","Not recorded",IF(C2>=$G$1,"Full","Short"))
+```
+</FormulaBlock>
+
+<Shot id="4.1.3" />
+
+8. For overtime pay, in E2: `=IF(C2>$G$1,(C2-$G$1)*200,0)` — Anil gets 600, Meera and Rahul get 0.
+
+<Shot id="4.1.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F9` on a selected part of a formula | Evaluates just that piece and shows the result | Your IF returns the wrong branch and you don't know why | Select `C2>=$G$1`, press F9 → `TRUE` |
+| `F4` | Cycles relative → absolute → mixed references | Locking a threshold so it doesn't drift when you fill down | Click G1 in the formula, press F4 → `$G$1` |
+| `Ctrl` + `` ` `` | Shows every formula on the sheet instead of results | Checking whether someone typed a value over one of your formulas | Auditing a status column before it goes out |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| Omitting the third argument — `=IF(C2>24,"Yes")` | The literal word `FALSE`, which looks deliberate | Always write it; `""` for blank |
+| Text without quotes | `#NAME?` | `"Sales"` not `Sales` |
+| **Number in quotes** — `C2>="24"` | A wrong answer and **no error at all** | Drop the quotes on numbers |
+| Forgetting blanks count as zero | Missing records classified as below threshold | Test `=""` first |
+| Hard-coding the threshold | Every formula needs editing when the rule changes | Reference a locked cell |
+
+</MistakeTable>
+
+<Callout type="story">
+**Sunita, HR Executive, 180-person IT firm.** Her monthly summary flagged anyone below 24 days for a manager conversation — `=IF(C2<24,"Review","OK")`, sent straight out.
+
+Four employees whose biometric records hadn't synced had blank day-counts. A blank reads as 0, and 0 is below 24, so all four were flagged. Two had already had an uncomfortable conversation with their manager about attendance they'd never missed.
+
+Nothing errored. The formula ran perfectly and produced a list that looked entirely legitimate. **A blank is not a zero, and Excel treats it as one unless you tell it otherwise** — so on anything where falling below a threshold has a consequence for a person, test for blank before you test for value.
+</Callout>
+
+## Practice
+
+<Exercise id="4.1.e1">
+
+<Scenario>
+Month-end attendance and overtime summary for a six-person team. 24 working days, overtime at ₹200 per extra day, anyone below 20 days needs a manager review.
+</Scenario>
+
+<Dataset name="Attendance_Register" starter="starter/04-01-if-basics.xlsx">
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | EmpID | Name | Days Present |
+| **2** | E1001 | Anil Kumar | 27 |
+| **3** | E1002 | Meera Nair | 24 |
+| **4** | E1003 | Rahul Shah | 19 |
+| **5** | E1004 | Sneha Rao | 12 |
+| **6** | E1005 | Kabir Menon | |
+| **7** | E1006 | Divya Iyer | 26 |
+
+**H1** `Working Days` = `24` · **H2** `OT Rate` = `200` · **H3** `Review Below` = `20`
+
+</Dataset>
+
+<Task>
+
+1. **D2** — `Full` if days present is at least H1, else `Short`. Reference H1, don't type 24.
+2. **E2** — overtime pay: days beyond H1 × the rate in H2, or 0.
+3. **F2** — `Review` if below H3, else blank.
+4. Fix D and F so Kabir's blank record returns `Not recorded` and is **not** flagged for review.
+5. **G2** — return TRUE/FALSE for "worked overtime" **without using IF**.
+6. **I2** — return the employee's name if they worked overtime, blank otherwise. Filter out the blanks and you have your overtime list.
+
+</Task>
+
+<Expected>
+D2 `Full` · E2 = 600 · F4 `Review` · Total overtime = 1,000 · Review count = 2 (Rahul, Sneha — **not** Kabir)
+</Expected>
+
+<Solution>
+
+```
+D2: =IF(C2="","Not recorded",IF(C2>=$H$1,"Full","Short"))
+E2: =IF(C2>$H$1,(C2-$H$1)*$H$2,0)
+F2: =IF(C2="","",IF(C2<$H$3,"Review",""))
+G2: =C2>$H$1
+I2: =IF(C2>$H$1,B2,"")
+```
+
+</Solution>
+
+<Why>
+
+**Task 5** needs no IF at all — `=C2>$H$1` already returns TRUE or FALSE. If you wrapped it in `=IF(C2>$H$1,TRUE,FALSE)`, that's three arguments doing the work of none.
+
+**Task 6** is the pattern that turns IF from a labelling tool into a data tool. Returning a *cell reference* on the true branch gives you a column containing only overtime employees. No sorting, no manual extraction — filter out the blanks and the list is done.
+
+**Task 2's structure matters.** `(C2-$H$1)*$H$2` only runs on the true branch, so it never evaluates for someone below the threshold. Written as a bare `=(C2-$H$1)*$H$2`, Rahul's 19 days would pay him −₹1,000. The IF here isn't formatting the answer; it's preventing a wrong one.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "4.1.q1",
+    type: "mcq",
+    question: "What does =IF(C2>100,\"High\") return when C2 contains 50?",
+    options: ["A blank cell", "The word FALSE", "0", "#VALUE!"],
+    correct: 1,
+    explanation: "Omitting the third argument makes Excel return the literal word FALSE — dangerous because it looks like a deliberate value rather than a mistake. Write \"\" as the third argument if you want the cell to appear blank."
+  },
+  {
+    id: "4.1.q2",
+    type: "formula",
+    question: "Days worked are in D2, the standard month is in $H$1, and the overtime rate per extra day is in $H$2. Write a formula returning overtime pay, or 0 if none was earned.",
+    accept: ["=IF(D2>$H$1,(D2-$H$1)*$H$2,0)", "=IF(D2>$H$1,$H$2*(D2-$H$1),0)"],
+    explanation: "The IF prevents a negative result — without it, anyone below the standard month gets paid a negative amount. Note both thresholds are referenced rather than typed, so a rate change is a single edit instead of one per row."
+  },
+  {
+    id: "4.1.q3",
+    type: "scenario",
+    question: "Your formula =IF(D2<20,\"Review\",\"OK\") flagged four employees whose day-counts are blank because their records haven't synced yet. What happened?",
+    options: [
+      "Excel treated the blanks as errors; wrap the formula in IFERROR",
+      "Excel treated the blanks as 0, which is below 20 — test for blank first",
+      "The operator should be <= rather than <",
+      "D2 needs an absolute reference"
+    ],
+    correct: 1,
+    explanation: "An empty cell evaluates as 0 in a numeric comparison, and 0 is below 20. Nothing errors — the formula runs correctly and produces output that looks legitimate, which is why this reaches managers before anyone catches it. Fix: =IF(D2=\"\",\"\",IF(D2<20,\"Review\",\"OK\")). The rule: on anything where falling below a threshold has a consequence for a person, test for blank before you test for value."
+  }
+]

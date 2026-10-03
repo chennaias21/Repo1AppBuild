@@ -1,0 +1,290 @@
+---
+id: "8.5"
+module: 8
+lesson: 5
+slug: "dynamic-arrays"
+title: "Dynamic Arrays — FILTER, SORT, UNIQUE, SEQUENCE"
+shortTitle: "Dynamic Arrays"
+stage: "Business-Ready"
+durationMin: 14
+access: "paid"
+objectives:
+  - "Return a whole list from one formula that resizes itself"
+  - "Extract, sort and deduplicate live, without Advanced Filter"
+  - "Chain them together to build a self-maintaining report"
+keys: ["F2", "Ctrl+`"]
+datasets: ["Sales_Transactions", "HR_Employee_Master"]
+starterFile: "starter/08-05-dynamic-arrays.xlsx"
+solutionFile: "solution/08-05-dynamic-arrays.xlsx"
+functions: ["FILTER", "SORT", "UNIQUE", "SEQUENCE", "SORTBY", "COUNTA"]
+excelVersion: "365"
+shotCount: 3
+prev: "8.4"
+next: "8.6"
+videoUrl: null
+---
+
+## Why this matters
+
+One formula that returns an entire list and resizes as the data changes. No dragging, no re-pointing ranges, no Advanced Filter snapshots to re-run. This is the biggest change to Excel formulas in twenty years, and it replaces several of the techniques you learned earlier with something simpler.
+
+## How it works
+
+A dynamic array formula returns many values from one cell. The results **spill** into the neighbouring cells, and the spill range grows or shrinks with the data.
+
+<FormulaBlock>
+```
+=UNIQUE(Orders[Region])      → a list of distinct regions, one per row
+=SORT(Orders[Region])        → sorted
+=FILTER(Orders,Orders[Region]="North")   → every North row
+=SEQUENCE(12)                → 1 to 12 down a column
+```
+</FormulaBlock>
+
+You write the formula in **one cell only**. The other cells are filled by the spill — click one and you'll see the formula greyed out in the formula bar, with a blue border around the whole range.
+
+<Shot id="8.5.1" />
+
+<Callout type="warning">
+`#SPILL!` means something is blocking the spill range. Clear the cells the formula needs to expand into. It's the commonest dynamic-array error and it's always the same fix — including when the blocker is an invisible space in a cell that looks empty.
+</Callout>
+
+### FILTER
+
+<FormulaBlock>
+```
+=FILTER(array, include, [if_empty])
+        │      │         │
+        │      │         └── what to show when nothing matches
+        │      └─────────── a condition returning TRUE/FALSE per row
+        └────────────────── what to return
+```
+</FormulaBlock>
+
+Multiple conditions use `*` for AND and `+` for OR — each wrapped in its own brackets:
+
+<FormulaBlock>
+```
+=FILTER(Orders,(Orders[Region]="North")*(Orders[Units]>20),"None")
+=FILTER(Orders,(Orders[Region]="North")+(Orders[Region]="South"),"None")
+```
+</FormulaBlock>
+
+This replaces Advanced Filter (Lesson 6.4) for most purposes, with one crucial difference: **`FILTER` is live.** Change the source and the output updates. Advanced Filter writes a snapshot you have to re-run.
+
+<Shot id="8.5.2" />
+
+### SORT and SORTBY
+
+<FormulaBlock>
+```
+=SORT(Orders,5,-1)                        by the 5th column, descending
+=SORTBY(Orders[Name],Orders[Revenue],-1)  return names, sorted by revenue
+```
+</FormulaBlock>
+
+`SORTBY` is the more useful of the two — it returns one thing sorted by *another*, so you can list salespeople ranked by revenue without showing the revenue column.
+
+### The spill reference — `#`
+
+Refer to a whole spill range with the anchor cell plus `#`:
+
+<FormulaBlock>
+```
+=COUNTA(F2#)        how many items the spill currently holds
+=SUM(G2#)           total of a spilled column
+```
+</FormulaBlock>
+
+This matters because the range changes size. `=COUNTA(F2:F20)` breaks when the list grows to 25; `=COUNTA(F2#)` never does.
+
+<Callout type="tip">
+A dynamic array is the ideal source for a data validation dropdown that maintains itself: put `=SORT(UNIQUE(Orders[Region]))` in a cell, then set the validation source to that cell's spill reference (`=$K$2#`). Add a new region to the data and it appears in the dropdown, with no named range and no Table workaround (Lesson 6.7).
+</Callout>
+
+### Chaining them
+
+The real power is nesting:
+
+<FormulaBlock>
+```
+=SORT(UNIQUE(Orders[Region]))                    distinct regions, sorted
+=SORT(FILTER(Orders,Orders[Units]>20),5,-1)      big orders, by revenue desc
+=FILTER(Orders[Name],Orders[Revenue]>500000)     just the names that qualify
+```
+</FormulaBlock>
+
+<Callout type="warning">
+Dynamic arrays need **Microsoft 365 or Excel 2021**. On Excel 2019 and earlier they return `#NAME?`. If you're sharing a workbook with anyone on an older version, build the same thing with `INDEX MATCH`, `COUNTIFS` and Advanced Filter instead.
+</Callout>
+
+## Do it
+
+Use a Table named `Orders` with `Region`, `Salesperson`, `Units`, `UnitPrice`, `Revenue`.
+
+1. In **H2**: `=UNIQUE(Orders[Region])`. A distinct list spills down. Click H3 — the formula is greyed out.
+2. In **I2**: `=SORT(UNIQUE(Orders[Region]))`. Same list, alphabetical.
+3. In **J2**: `=COUNTA(I2#)` → the count of distinct regions. Add a new region to the data and this updates on its own.
+
+4. In **L2**: `=FILTER(Orders,Orders[Region]="North","None found")`. Every North row spills out.
+5. Add a new North order to the Table. **The filtered block grows automatically.**
+6. In **L12** (or wherever is clear): `=FILTER(Orders,(Orders[Region]="North")*(Orders[Units]>20),"None")` — two conditions, ANDed.
+
+### See #SPILL!
+
+7. Type anything into a cell inside an existing spill range. The formula immediately returns `#SPILL!`.
+8. Delete what you typed. The spill returns.
+
+<Shot id="8.5.4" />
+
+### A ranked list with SORTBY
+
+9. In **N2**: `=SORTBY(Orders[Salesperson],Orders[Revenue],-1)` — salespeople ranked by revenue, revenue not shown.
+10. In **O2**: `=SORT(UNIQUE(Orders[Salesperson]))` for comparison — alphabetical rather than ranked.
+
+### A self-maintaining dropdown
+
+11. In **Q2**: `=SORT(UNIQUE(Orders[Region]))`.
+12. Select a data-entry column → <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>V</Kbd>+<Kbd>V</Kbd> → List → Source: `=$Q$2#`
+13. Add a new region to the source data. It appears in the dropdown with no further work.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F2` | Edit in place — shows the spill range border | Confirming which cell actually holds the formula | Click any spilled cell first |
+| `Ctrl` + `` ` `` | Show formulas | Seeing that one cell drives a whole block | The spilled cells appear empty |
+| `Ctrl` + `Shift` + `Enter` | *(no longer needed)* | An Excel 2019-and-earlier array habit to unlearn | Dynamic arrays spill on plain Enter |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **`#SPILL!`** | The formula can't expand | Clear the cells in its path — including apparently empty ones |
+| Trying to edit a spilled cell | "You can't change part of an array" | Edit the anchor cell only |
+| Fixed range instead of `#` | `=COUNTA(F2:F20)` breaks when the list grows | `=COUNTA(F2#)` |
+| Conditions without individual brackets | `#VALUE!` or wrong rows | `(cond1)*(cond2)`, each bracketed |
+| Using `*` when you meant `+` | AND where you wanted OR, returning far fewer rows | `*` = AND, `+` = OR |
+| No `if_empty` argument | `#CALC!` when nothing matches | Supply the third argument |
+| Building a shared file on them | `#NAME?` for colleagues on 2019 | `INDEX MATCH` and `COUNTIFS` instead |
+| Deleting the anchor cell | The whole spill vanishes | The anchor is the formula; the rest is output |
+
+</MistakeTable>
+
+<Callout type="story">
+**Sridhar, Sales Ops.** His weekly "top accounts" sheet was an Advanced Filter extract. Every Monday: open the file, select the criteria range, re-run the filter, check the output landed in the right place. Five minutes, plus the week he forgot and circulated the previous week's list as current.
+
+He replaced the whole thing with one formula:
+
+```
+=SORT(FILTER(Orders,Orders[Revenue]>500000,"None"),5,-1)
+```
+
+It's live. New orders appear, the block resizes, and there is nothing to re-run. The Monday task disappeared.
+
+One thing caught him first time: he'd left a stray heading three rows below the formula, so it returned `#SPILL!` and he assumed the syntax was wrong. **`#SPILL!` is never a syntax problem — it's always something in the way.**
+</Callout>
+
+## Practice
+
+<Exercise id="8.5.e1">
+
+<Scenario>
+Replace a manual extract-and-sort routine with live formulas, then build a dropdown that maintains itself.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/08-05-dynamic-arrays.xlsx">
+
+Table named `Orders`:
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Salesperson | Units | Revenue |
+| **2** | SO1001 | North | Anil | 12 | 648000 |
+| **3** | SO1002 | South | Meera | 30 | 375000 |
+| **4** | SO1003 | North | Anil | 8 | 432000 |
+| **5** | SO1004 | East | Rahul | 45 | 81000 |
+| **6** | SO1005 | West | Sneha | 22 | 275000 |
+| **7** | SO1006 | North | Kabir | 60 | 108000 |
+| **8** | SO1007 | South | Meera | 15 | 810000 |
+
+</Dataset>
+
+<Task>
+
+1. **H2** — a sorted list of distinct regions.
+2. **I2** — a count of distinct regions, using the spill reference so it survives the list growing.
+3. **K2** — every order above 500,000 revenue, sorted by revenue descending, showing `None` if there are no matches.
+4. **N2** — salespeople ranked by revenue using `SORTBY`, without showing the revenue.
+5. **P2** — every North **or** South order. Then change it to North **and** more than 20 units. Which operator does each need?
+6. Type a value into a cell inside one of your spill ranges. What error appears, and what's the fix?
+7. Build a data validation dropdown sourced from your region spill in H2. Add a new region to the Table and confirm it appears.
+8. Add three new orders, one of them above 500,000. Which of your formulas needed editing?
+
+</Task>
+
+<Expected>
+Step 1: East, North, South, West · Step 2: 4 · Step 3: two rows (810,000 and 648,000) · Step 5: `+` for OR, `*` for AND · Step 6: `#SPILL!` · Step 8: none
+</Expected>
+
+<Solution>
+
+```
+H2: =SORT(UNIQUE(Orders[Region]))
+I2: =COUNTA(H2#)
+K2: =SORT(FILTER(Orders,Orders[Revenue]>500000,"None"),5,-1)
+N2: =SORTBY(Orders[Salesperson],Orders[Revenue],-1)
+P2: =FILTER(Orders,(Orders[Region]="North")+(Orders[Region]="South"),"None")
+    =FILTER(Orders,(Orders[Region]="North")*(Orders[Units]>20),"None")
+Step 7: validation source =$H$2#
+```
+
+</Solution>
+
+<Why>
+
+**Step 8's answer — none — is the entire point.** Every formula references a Table column and returns a self-sizing spill, so three new orders flow through the distinct-region list, the count, the filtered extract and the ranked list without a single edit. Compare Advanced Filter, which writes a snapshot you re-run, or a fixed range like `H2:H20`, which silently truncates once the list outgrows it.
+
+**Step 2's spill reference is what makes step 8 true.** `=COUNTA(H2:H20)` looks equivalent and breaks the moment a fifth region appears beyond the range — or counts blanks if the range is oversized. `=COUNTA(H2#)` means "however big that spill currently is", so it cannot drift. Any formula that reads a dynamic array's output should use `#` rather than a guessed range.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "8.5.q1",
+    type: "formula",
+    question: "Write a formula returning every row of a Table named Orders where Region is \"North\" and Units exceeds 20, showing \"None\" if nothing matches.",
+    accept: ["=FILTER(Orders,(Orders[Region]=\"North\")*(Orders[Units]>20),\"None\")", "=FILTER(Orders,(Orders[Units]>20)*(Orders[Region]=\"North\"),\"None\")"],
+    explanation: "Multiply conditions for AND, add them for OR, and bracket each condition individually — missing brackets give #VALUE! or the wrong rows. The third argument replaces what would otherwise be a #CALC! error when nothing matches, which is the same fallback-value decision as IFERROR in Lesson 4.4."
+  },
+  {
+    id: "8.5.q2",
+    type: "mcq",
+    question: "Your FILTER formula returns #SPILL!. What's the cause?",
+    options: [
+      "The syntax is wrong — check the condition brackets",
+      "Something is occupying the cells the result needs to expand into",
+      "The source Table contains blank rows",
+      "Dynamic arrays require the result range to be pre-selected"
+    ],
+    correct: 1,
+    explanation: "#SPILL! only ever means the output is blocked — never a syntax problem. Clear the cells in the spill's path, including ones that look empty but contain a space or stray formatting. This catches people because they assume a new error means they've written the formula wrong, and rewrite a formula that was already correct."
+  },
+  {
+    id: "8.5.q3",
+    type: "truefalse",
+    question: "=COUNTA(H2:H20) and =COUNTA(H2#) behave identically when H2 holds a dynamic array formula.",
+    correct: false,
+    explanation: "The fixed range silently truncates once the spill grows beyond row 20, and counts nothing extra if the spill shrinks — so the count drifts out of step with the list. The # spill reference means \"however large that spill currently is\", so it tracks automatically. Any formula reading a dynamic array's output should use # rather than a guessed range; that's what makes a dynamic-array report genuinely self-maintaining."
+  }
+]

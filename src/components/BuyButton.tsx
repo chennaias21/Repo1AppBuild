@@ -17,7 +17,7 @@ type Phase = "idle" | "opening" | "verifying" | "error";
  * price is set by the server. The success callback here is cosmetic: access is
  * granted by the signed webhook, and this component just waits for that.
  */
-export default function BuyButton({ tier, label, featured }: { tier: string; label: string; featured?: boolean }) {
+export default function BuyButton({ tier, label, featured, promo }: { tier: string; label: string; featured?: boolean; promo?: string }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -46,7 +46,7 @@ export default function BuyButton({ tier, label, featured }: { tier: string; lab
       const res = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier }),
+        body: JSON.stringify({ tier, promo }),
       });
       if (res.status === 401) return router.push("/login?next=/pricing");
       const data = await res.json().catch(() => ({}));

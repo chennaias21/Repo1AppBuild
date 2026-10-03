@@ -1,0 +1,262 @@
+---
+id: "7.9"
+module: 7
+lesson: 9
+slug: "analysis-tools"
+title: "Goal Seek, Scenario Manager and Forecast Sheet"
+shortTitle: "Analysis Tools"
+stage: "Advanced"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Work backwards from a target answer to the input that produces it"
+  - "Compare several sets of assumptions side by side"
+  - "Project a trend forward with a confidence range"
+keys: ["Alt+A+W+G", "Alt+A+W+S"]
+datasets: ["Sales_Transactions", "HR_Employee_Master"]
+starterFile: "starter/07-09-analysis-tools.xlsx"
+solutionFile: "solution/07-09-analysis-tools.xlsx"
+functions: ["FORECAST.ETS", "TREND"]
+excelVersion: "all"
+shotCount: 3
+prev: "7.8"
+next: "8.1"
+videoUrl: null
+---
+
+## Why this matters
+
+Everything so far calculates forwards — inputs to answer. These three tools go the other way. *"What hike percentage keeps us inside a 50 lakh budget?"* is a Goal Seek. *"Show leadership the optimistic, base and worst cases together"* is Scenario Manager. Both answer questions you'd otherwise solve by typing numbers until one fits.
+
+## How it works
+
+### Goal Seek — one input, one target
+
+**Data → What-If Analysis → Goal Seek** (<Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>W</Kbd>+<Kbd>G</Kbd>).
+
+Three boxes:
+
+| Box | Meaning |
+|---|---|
+| **Set cell** | The formula cell whose result you want to fix |
+| **To value** | The answer you need |
+| **By changing cell** | The single input Excel is allowed to adjust |
+
+<Shot id="7.9.1" />
+
+Excel works backwards and overwrites the input cell with the value that produces your target.
+
+Two constraints: **Set cell must hold a formula**, and **By changing cell must be a plain value** it depends on — not another formula.
+
+<Callout type="warning">
+Goal Seek **overwrites the input cell permanently.** Note the original value first, or work on a copy. There's no "restore" — only <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> immediately afterwards.
+</Callout>
+
+### Scenario Manager — several assumptions, side by side
+
+**Data → What-If Analysis → Scenario Manager** (<Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>W</Kbd>+<Kbd>S</Kbd>).
+
+Add a scenario, name it, nominate the changing cells, and enter its values. Repeat per scenario. **Show** switches between them; **Summary** produces a comparison table.
+
+<Shot id="7.9.2" />
+
+Goal Seek changes one input to hit one target; Scenario Manager stores several *complete sets* of inputs and lets you flip between them.
+
+<Callout type="tip">
+Name your changing cells before you build scenarios (Formulas → Define Name). The Scenario Summary then reads `HikePercent` and `BonusPool` instead of `$C$4` and `$C$7`, which is the difference between a summary leadership can read and one they can't.
+</Callout>
+
+### Data Tables — one input, many values at once
+
+**Data → What-If Analysis → Data Table** shows your formula's result across a whole column of input values at once — a sensitivity analysis in one step, and usually what people actually want when they reach for Goal Seek repeatedly.
+
+### Forecast Sheet
+
+Select a date column and a value column → **Data → Forecast Sheet**. Excel produces a chart and a table projecting the trend forward, with upper and lower confidence bounds.
+
+It needs a consistent interval — monthly, weekly — and at least a couple of cycles of history to detect seasonality.
+
+<Callout type="warning">
+A forecast is an extrapolation of past pattern, nothing more. It has no knowledge of a price change, a lost client or a new competitor. Always present the **confidence interval**, not just the line — a forecast quoted as a single number reads as a prediction, and it isn't one.
+</Callout>
+
+## Do it
+
+Build a small appraisal model:
+
+| | A | B |
+|---|---|---|
+| **1** | Total current CTC | 4815000 |
+| **2** | Hike % | 8% |
+| **3** | Bonus pool | 300000 |
+| **4** | **Total cost** | `=B1*(1+B2)+B3` |
+
+B4 returns 5,500,200.
+
+### Goal Seek
+
+1. <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>W</Kbd>+<Kbd>G</Kbd>.
+2. Set cell `B4` · To value `5000000` · By changing cell `B2`. OK.
+3. Excel reports a solution and B2 is now about **-2.4%** — the budget can't absorb the bonus pool at any positive hike.
+4. That negative answer *is* the finding. Press <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> to restore 8%.
+5. Try again with To value `5300000`. B2 becomes about **3.8%** — a usable answer.
+
+### Scenario Manager
+
+6. Name the cells: B2 as `HikePercent`, B3 as `BonusPool`.
+7. <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>W</Kbd>+<Kbd>S</Kbd> → **Add**. Name `Conservative`, changing cells `B2:B3`, values `0.05` and `200000`.
+8. Add `Base` — `0.08` and `300000`. Add `Aggressive` — `0.12` and `500000`.
+9. **Show** each in turn and watch B4 change.
+10. Click **Summary** → Scenario summary → result cell `B4`. A comparison table appears on a new sheet.
+
+### Data Table
+
+11. In D1:D6 list hike percentages: 4%, 6%, 8%, 10%, 12%.
+12. In E1 put `=B4`. Select **D1:E6**.
+13. **Data → What-If Analysis → Data Table** → Column input cell `B2`. OK.
+14. Every total cost appears at once — five Goal Seeks in one step.
+
+### Forecast Sheet
+
+15. Build 24 months of monthly revenue in two columns — dates and values.
+16. Select both columns → **Data → Forecast Sheet** → set the end date → **Create**.
+17. A new sheet appears with the projection, the confidence bounds and a chart.
+
+<Shot id="7.9.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `A` + `W` + `G` | Opens Goal Seek | Working backwards from a target to the one input that achieves it | Set cell B4, To value 5300000, By changing B2 |
+| `Alt` + `A` + `W` + `S` | Opens Scenario Manager | Comparing complete sets of assumptions, not just one input | Conservative, Base and Aggressive cases |
+| `Ctrl` + `Z` | Undo | **Immediately after Goal Seek** — it overwrites your input permanently | Restoring the original hike percentage |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Goal Seek overwrites the input and you didn't note it** | The original assumption is gone | Record it first, or work on a copy |
+| "By changing cell" contains a formula | Goal Seek refuses | It must be a plain value the formula depends on |
+| Goal Seek can't find a solution | "May not have found a solution" | The target may be unreachable — that's a finding, not a failure |
+| Scenarios without named cells | The summary reads `$C$4`, unreadable | Define names before building scenarios |
+| Forecasting on irregular intervals | Nonsense projection | A consistent interval is required |
+| Quoting a forecast as a single number | It reads as a prediction | Always show the confidence interval |
+| Forecasting fewer than two cycles | Seasonality isn't detected | Give it at least 24 monthly points |
+| Running Goal Seek repeatedly on the same model | Slow, and you lose each prior answer | Use a Data Table instead |
+
+</MistakeTable>
+
+<Callout type="story">
+**Ramesh, Compensation Analyst.** Leadership set an appraisal budget of 50 lakh and asked what hike percentage fitted. He typed 8%, then 7%, then 6.5%, checking the total each time — about fifteen minutes of guessing.
+
+Goal Seek gave the answer in four seconds: **−2.4%**. The budget could not accommodate any positive hike alongside the existing bonus pool.
+
+That negative number was the most useful output of the exercise. It reframed the conversation from "what hike can we give" to "the bonus pool and the hike budget are in conflict" — which was the real decision leadership needed to make.
+
+One thing he got wrong the first time: he didn't note the original 8% before running it, and Goal Seek had overwritten the cell. He rebuilt the model from the previous version. **Goal Seek changes your input permanently — write the original down first.**
+</Callout>
+
+## Practice
+
+<Exercise id="7.9.e1">
+
+<Scenario>
+An appraisal budget model that leadership will review in three scenarios, plus a revenue projection.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/07-09-analysis-tools.xlsx">
+
+| | A | B |
+|---|---|---|
+| **1** | Total current CTC | 4815000 |
+| **2** | Hike % | 8% |
+| **3** | Bonus pool | 300000 |
+| **4** | Headcount | 8 |
+| **5** | **Total cost** | `=B1*(1+B2)+B3` |
+| **6** | **Cost per head** | `=B5/B4` |
+
+</Dataset>
+
+<Task>
+
+1. Note B2's current value, then use Goal Seek to find the hike % that brings total cost to exactly 5,300,000.
+2. Undo. Now Goal Seek for a total cost of 5,000,000. What does it return, and what does that tell leadership?
+3. Undo. Use Goal Seek on **cost per head** to find the hike % giving exactly 650,000 per head.
+4. Name B2 `HikePercent` and B3 `BonusPool`.
+5. Build three scenarios: Conservative (5%, 200000), Base (8%, 300000), Aggressive (12%, 500000).
+6. Produce a Scenario Summary with B5 and B6 as result cells. Which scenario exceeds 5,300,000?
+7. Build a Data Table showing total cost at hike percentages from 4% to 12% in 2% steps.
+8. Create 24 months of monthly revenue and run a Forecast Sheet six months forward. What are the upper and lower bounds for month 30, and why does the gap widen further out?
+
+</Task>
+
+<Expected>
+Step 1: about 3.8% · Step 2: about −2.4% — the bonus pool alone exceeds the headroom, so no positive hike fits · Step 6: Base and Aggressive both exceed 5,300,000
+</Expected>
+
+<Solution>
+
+```
+1. Alt+A+W+G → Set cell B5 · To value 5300000 · By changing cell B2
+3. Alt+A+W+G → Set cell B6 · To value 650000 · By changing cell B2
+4. Select B2 → Formulas → Define Name → HikePercent
+5. Alt+A+W+S → Add → name, changing cells B2:B3, values per scenario
+7. Hike values in D1:D5, =B5 in E1, select D1:E5, Data Table, Column input cell B2
+```
+
+</Solution>
+
+<Why>
+
+**Step 2's negative answer is the point of the whole lesson.** Goal Seek returns −2.4%, which is not a usable hike. But it isn't a failure — it's the finding. The bonus pool of 300,000 consumes more than the headroom between current CTC and the 50 lakh budget, so the two commitments are in conflict. That reframes the question leadership is actually facing, and typing candidate percentages by hand would never have surfaced it as cleanly.
+
+**Step 8's widening bounds are worth understanding rather than ignoring.** The confidence interval grows with distance because each projected point inherits the uncertainty of the ones before it. A forecast quoted as a single number implies a precision it doesn't have — which is why the interval, not the line, is the honest output. It also has no knowledge of a lost client or a price change, so it tells you what the past pattern implies, not what will happen.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "7.9.q1",
+    type: "decision",
+    question: "You need to see total cost at hike percentages of 4%, 6%, 8%, 10% and 12%. What's the right tool?",
+    options: [
+      "A one-variable Data Table",
+      "Goal Seek, run five times",
+      "Scenario Manager with five scenarios",
+      "Five copies of the model on separate sheets"
+    ],
+    correct: 0,
+    explanation: "A Data Table evaluates the formula across a whole list of input values in one step, so all five results appear together and update if the model changes. Goal Seek works backwards from a target to one input and overwrites it each time — running it five times loses each prior answer. Scenario Manager suits complete sets of assumptions changing together, not one input varying across a range."
+  },
+  {
+    id: "7.9.q2",
+    type: "formula",
+    question: "Total cost is calculated in B5 and depends on the hike percentage in B2. Name the three Goal Seek entries needed to find the hike that produces a total cost of exactly 5,300,000.",
+    accept: ["Set cell B5, To value 5300000, By changing cell B2", "Set cell: B5 To value: 5300000 By changing cell: B2"],
+    explanation: "Set cell must contain the formula whose result you're fixing; By changing cell must be a plain value that formula depends on, never another formula. Note B2's original value before running it — Goal Seek overwrites the input permanently and only an immediate Ctrl+Z recovers it."
+  },
+  {
+    id: "7.9.q3",
+    type: "scenario",
+    question: "Your Forecast Sheet projects revenue of ₹42 lakh for next March. Leadership asks you to commit to that figure. What's the honest response?",
+    options: [
+      "Confirm it — Excel's forecast uses a statistical model",
+      "Present the confidence interval instead, and note the forecast extrapolates past pattern only",
+      "Recalculate with more historical data to get a firmer number",
+      "Say the figure is unreliable and withdraw it"
+    ],
+    correct: 1,
+    explanation: "A forecast is an extrapolation of past pattern with a stated uncertainty range, and the range widens further out because each projected point inherits the uncertainty of the ones before it. It has no knowledge of a price change, a lost client or a new competitor. Quoting the single line as a commitment implies a precision it doesn't have — presenting the bounds is both honest and more useful, because the width of the interval is itself information. Option 4 overcorrects: the forecast is genuinely informative, just not a promise."
+  }
+]

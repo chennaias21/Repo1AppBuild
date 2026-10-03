@@ -1,0 +1,260 @@
+---
+id: "3.6"
+module: 3
+lesson: 6
+slug: "named-ranges"
+title: "Naming Cells and Ranges"
+shortTitle: "Named Ranges"
+stage: "Intermediate"
+durationMin: 9
+access: "paid"
+objectives:
+  - "Name a cell or range and use it in formulas"
+  - "Write formulas a reviewer can read without cross-checking addresses"
+  - "Manage and audit names in an inherited workbook"
+keys: ["Ctrl+F3", "F3"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/03-06-named-ranges.xlsx"
+solutionFile: "solution/03-06-named-ranges.xlsx"
+functions: ["SUM", "SUMIFS"]
+excelVersion: "all"
+shotCount: 4
+prev: "3.5"
+next: "3.7"
+videoUrl: null
+---
+
+## Why this matters
+
+`=B2*$F$1` tells a reviewer nothing. `=Basic*PFRate` tells them everything. Names make formulas self-documenting, and they're absolute by default — so the `$` problems from Lesson 3.3 largely disappear. Ten seconds per name, and your workbook becomes readable by someone who didn't build it.
+
+## How it works
+
+### Three ways to create a name
+
+| Method | How | Best for |
+|---|---|---|
+| **Name Box** | Select the cell, click the Name Box, type a name, press Enter | Fastest, one cell |
+| **Define Name** | Formulas → Define Name | When you want a comment or a specific scope |
+| **Create from Selection** | Select a block with headers → Formulas → Create from Selection | Naming several columns at once |
+
+<Shot id="3.6.1" />
+
+Then use it anywhere:
+
+<FormulaBlock>
+```
+=Basic * PFRate              instead of  =B2*$F$1
+=SUM(Revenue)                instead of  =SUM($E$2:$E$2001)
+=SUMIFS(Revenue,Region,"North")
+```
+</FormulaBlock>
+
+### The naming rules
+
+- Must start with a letter or underscore — not a number
+- **No spaces.** Use `PF_Rate` or `PFRate`
+- Can't look like a cell address — `A1` and `Q4` are rejected
+- Not case-sensitive, but the case you type is remembered
+- Up to 255 characters, though short names are the point
+
+<Callout type="tip">
+**Names are absolute by default.** Name a cell `PFRate` and `=B2*PFRate` works everywhere with no `$` needed. That removes an entire class of fill-drift bug — and the formula says what it means, which `=B2*$F$1` never does.
+</Callout>
+
+### Scope — workbook versus worksheet
+
+By default a name works across the whole workbook. In **Define Name** you can scope it to one sheet instead, which lets `Total` mean something different on each monthly tab.
+
+Useful occasionally, and a source of confusion when you've forgotten you did it. Prefer workbook scope unless you have a specific reason.
+
+### Name Manager
+
+<Kbd>Ctrl</Kbd>+<Kbd>F3</Kbd> opens **Name Manager** — every name, what it refers to, its scope, and its current value. This is where you go when you inherit a workbook full of names you didn't create.
+
+<Callout type="warning">
+Names pointing at deleted ranges show `#REF!` in Name Manager and break every formula using them — silently, because the formula still *looks* correct. In any inherited workbook, open Name Manager and sort by Value: anything showing `#REF!` is a live bug. Filter → Names with Errors finds them in one click.
+</Callout>
+
+## Do it
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee | Basic | PF |
+| **2** | Anil Kumar | 45000 | ? |
+| **3** | Meera Nair | 62000 | ? |
+| **4** | Rahul Shah | 38000 | ? |
+
+1. Put `12%` in **F1**. Select F1, click the **Name Box**, type `PFRate`, press <Kbd>Enter</Kbd>.
+2. In **C2** type `=B2*PFRate`. Press Enter, fill down. No `$` needed — the name is absolute.
+3. Change F1 to `13%`. Every row updates.
+
+<Shot id="3.6.2" />
+
+4. Now compare readability. In D2 write the same thing as `=B2*$F$1`. Both work; only one is self-explanatory.
+
+### Name a whole column
+
+5. Select **B2:B4**. Name Box → `Basic` → Enter.
+6. In F3: `=SUM(Basic)` → **145,000**. In F4: `=AVERAGE(Basic)`.
+7. Press <Kbd>F3</Kbd> while writing a formula — a list of available names appears, and you can insert one by clicking.
+
+<Shot id="3.6.3" />
+
+### Create several at once
+
+8. Build a small table with headers `Region` and `Revenue` and a few rows beneath.
+9. Select the whole block **including headers**. **Formulas → Create from Selection** → tick **Top row**. OK.
+10. Excel creates a name per column, taken from the header. Now `=SUMIFS(Revenue,Region,"North")` works immediately.
+
+### Audit the names
+
+11. Press <Kbd>Ctrl</Kbd>+<Kbd>F3</Kbd>. Review what each name refers to.
+12. Delete one of the named ranges from the sheet, then reopen Name Manager. The name now shows `#REF!`, and every formula using it is broken.
+13. Use **Filter → Names with Errors** to isolate it.
+
+<Shot id="3.6.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `F3` | Opens Name Manager | Auditing an inherited workbook — **Filter → Names with Errors** finds broken ones | Sort by Value to spot `#REF!` |
+| `F3` | Pastes a name into a formula | Writing a formula without remembering exact spellings | Type `=SUM(`, press F3, pick one |
+| `Ctrl` + `Shift` + `F3` | Create from Selection | Naming several columns from their headers in one action | Select the block with headers first |
+| Type a name in the Name Box | Jumps to that range | Navigating a large workbook | Faster than hunting for the sheet |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **A name pointing at a deleted range** | `#REF!` everywhere, and the formula still looks right | Name Manager → Filter → Names with Errors |
+| Spaces in a name | Excel rejects it | `PF_Rate` or `PFRate` |
+| A name that looks like an address | `Q4` and `A1` are rejected | `Q4_Sales` |
+| Worksheet scope you've forgotten | The name works on one sheet and errors on another | Check the Scope column in Name Manager |
+| Naming a fixed range that will grow | New rows fall outside it | Name a Table column instead (Lesson 6.1) |
+| Naming every single cell | Dozens of names nobody can keep track of | Name rates, thresholds and key ranges only |
+| Two names for the same range | Confusing to maintain | One name per range |
+
+</MistakeTable>
+
+<Callout type="story">
+**Sanjeev, Finance Analyst.** He inherited a budget model with forty named ranges and formulas like `=Revenue_Q3*GrowthFactor-Overhead_Alloc`. Readable, and he was impressed.
+
+Then three formulas started returning `#REF!`. The formulas looked perfectly correct — the names were spelled right and the logic was sound.
+
+He opened Name Manager and used **Filter → Names with Errors**. Three names pointed at ranges on a sheet someone had deleted months earlier. The formulas had been broken since then, and because the names still *read* correctly, nobody had looked there.
+
+**A named range is a layer of indirection: it makes formulas readable and moves the failure somewhere you won't think to look.** Open Name Manager on any workbook you inherit, before you trust a single figure.
+</Callout>
+
+## Practice
+
+<Exercise id="3.6.e1">
+
+<Scenario>
+Rebuild a payroll calculator so a reviewer can read it without cross-checking cell addresses.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/03-06-named-ranges.xlsx">
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee | Dept | Basic |
+| **2** | Anil Kumar | Sales | 45000 |
+| **3** | Meera Nair | HR | 62000 |
+| **4** | Rahul Shah | Sales | 38000 |
+| **5** | Sneha Rao | Finance | 51000 |
+| **6** | Kabir Menon | Ops | 47000 |
+
+Rates: **H1** = `12%` · **H2** = `40%` · **H3** = `0.75%`
+
+</Dataset>
+
+<Task>
+
+1. Name H1 `PFRate`, H2 `HRARate`, H3 `ESIRate`.
+2. In D2, calculate PF using the name — no `$`. Fill down.
+3. In E2, HRA. In F2, ESI. Fill both down.
+4. Name C2:C6 `Basic`, B2:B6 `Dept`. In J1 total the basic using the name.
+5. In J2, total basic for Sales only using `SUMIFS` with both names.
+6. Use **Create from Selection** on A1:C6 to name all three columns at once from their headers.
+7. Try naming a cell `Q4`. What happens, and why?
+8. Try naming one `PF Rate` with a space. What happens?
+9. Delete the cell H1 holds — the whole row. Open Name Manager. What does `PFRate` show, and what happened to column D?
+10. Use Filter → Names with Errors to find it. Then undo.
+
+</Task>
+
+<Expected>
+J1 = 243,000 · J2 = 83,000 · Step 7: rejected — it looks like a cell address · Step 8: rejected — no spaces allowed · Step 9: `PFRate` shows `#REF!` and every PF formula breaks
+</Expected>
+
+<Solution>
+
+```
+1. Select H1 → Name Box → type PFRate → Enter   (repeat for H2, H3)
+2. D2: =C2*PFRate
+3. E2: =C2*HRARate      F2: =C2*ESIRate
+4. J1: =SUM(Basic)
+5. J2: =SUMIFS(Basic,Dept,"Sales")
+6. Select A1:C6 → Formulas → Create from Selection → tick Top row
+```
+
+</Solution>
+
+<Why>
+
+**Step 2 shows the practical benefit beyond readability.** `=C2*PFRate` needs no `$` because names are absolute by default — so the whole class of fill-drift bug from Lesson 3.3 simply doesn't arise. And `=C2*PFRate` tells a reviewer what's happening where `=C2*$H$1` requires them to go and look at H1.
+
+**Step 9 is the trade-off, and it's why this lesson has a warning rather than only tips.** A name is a layer of indirection: it makes formulas readable and moves the point of failure somewhere you won't think to check. The formula `=C2*PFRate` still *looks* correct after the range is deleted — the name is spelled right, the logic is sound — and only Name Manager reveals that the name now points at nothing.
+
+Make it a habit: on any inherited workbook, press <Kbd>Ctrl</Kbd>+<Kbd>F3</Kbd> and run **Filter → Names with Errors** before trusting a figure.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "3.6.q1",
+    type: "mcq",
+    question: "Why does =B2*PFRate not need $ signs to survive being filled down?",
+    options: [
+      "Filling down never changes references to named ranges by coincidence",
+      "Named ranges are absolute by default",
+      "Excel adds the $ signs automatically behind the scenes",
+      "It does need them; the formula only appears to work"
+    ],
+    correct: 1,
+    explanation: "A name refers to a fixed location, so it behaves like an absolute reference without any $ — which removes a whole class of fill-drift bug. It's also self-documenting: =B2*PFRate tells a reviewer what's happening, where =B2*$H$1 requires them to go and check what's in H1."
+  },
+  {
+    id: "3.6.q2",
+    type: "truefalse",
+    question: "You can name a cell Q4 to represent fourth-quarter data.",
+    correct: false,
+    explanation: "Excel rejects any name that looks like a cell address, because Q4 is a real cell reference and the ambiguity would be unresolvable. Use Q4_Sales or Qtr4 instead. Names also can't contain spaces or start with a number — PF_Rate works, PF Rate doesn't."
+  },
+  {
+    id: "3.6.q3",
+    type: "decision",
+    question: "You've inherited a workbook with forty named ranges and three formulas returning #REF!. The formulas look correct. What's your first action?",
+    options: [
+      "Open Name Manager and use Filter → Names with Errors",
+      "Rewrite the three formulas using direct cell references",
+      "Check each formula's precedents with Ctrl+[",
+      "Recalculate the workbook with F9"
+    ],
+    correct: 0,
+    explanation: "A name pointing at a deleted range shows #REF! in Name Manager while the formula using it still reads perfectly — the spelling is right and the logic is sound, so nobody thinks to look there. Filter → Names with Errors isolates them in one click. Option 2 removes the readability that made the model maintainable; option 3 would work but is slower across forty names."
+  }
+]

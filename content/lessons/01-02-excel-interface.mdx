@@ -1,0 +1,215 @@
+---
+id: "1.2"
+module: 1
+lesson: 2
+slug: "excel-interface"
+title: "The Excel Interface — Ribbon, Formula Bar, Name Box, Status Bar"
+shortTitle: "The Excel Interface"
+stage: "Beginner"
+durationMin: 10
+access: "free"
+objectives:
+  - "Name every major part of the Excel window and say what it does"
+  - "Find any command without hunting through tabs"
+  - "Read the formula bar to see what a cell really contains"
+keys: ["Alt+Q", "Ctrl+End"]
+datasets: []
+starterFile: null
+solutionFile: null
+functions: []
+excelVersion: "all"
+shotCount: 4
+prev: "1.1"
+next: "1.3"
+videoUrl: null
+---
+
+## Why this matters
+
+The Excel window looks busy the first time. It isn't — there are seven parts that matter, and once you can name them, instructions like "go to the Data tab" stop being confusing. One of those seven also tells you the truth about your data when the screen is lying to you.
+
+## How it works
+
+Top to bottom:
+
+| Part | Where | What it's for |
+|---|---|---|
+| **Quick Access Toolbar** | Very top-left | Your own favourite commands. Lesson 1.6. |
+| **Ribbon tabs** | Home, Insert, Data, View… | Seven drawers of related tools |
+| **Name Box** | Left, above column A | Shows the current cell address — and you can type into it to jump |
+| **Formula Bar** | The long bar beside it | **What the cell really contains** |
+| **The grid** | The middle | 16,384 columns × 1,048,576 rows |
+| **Sheet tabs** | Bottom-left | One file holds many sheets |
+| **Status bar** | Very bottom | Average, Count and Sum of whatever you've selected |
+
+<Shot id="1.2.1" />
+
+The seven ribbon tabs, in one line each:
+
+- **Home** — formatting, the things you use constantly
+- **Insert** — anything you add: charts, tables, pictures, pivot tables
+- **Page Layout** — how it looks printed
+- **Formulas** — the function library and formula auditing
+- **Data** — sorting, filtering, validation, cleaning, imports
+- **Review** — spell check, comments, protection
+- **View** — freeze panes, zoom, window arrangement
+
+### The formula bar is the honest one
+
+A cell might *display* `₹45,000`. The formula bar shows what's actually there — maybe `45000`, maybe `=B4*12`.
+
+**When something looks wrong, the formula bar tells you why.**
+
+| Cell shows | Formula bar shows | Means |
+|---|---|---|
+| `1,00,000` | `100000` | A plain number, just formatted |
+| `₹45,000` | `=B4*12` | A calculated number |
+| `45000` | `45000 ` *(trailing space)* | **Text**, not a number. Your SUM will ignore it. |
+| `12-Mar-25` | `45728` | A real date — dates are numbers underneath |
+
+That third row is the one that costs people afternoons, and the formula bar is the only place it's visible.
+
+<Callout type="tip">
+Can't remember which tab a command lives on? Press <Kbd>Alt</Kbd>+<Kbd>Q</Kbd> and type what you want — "conditional", "freeze", "pivot". Excel finds it. There are over 1,500 commands; learning the search box once beats memorising locations forever.
+</Callout>
+
+## Do it
+
+1. Open any workbook, or a blank one with a few numbers.
+2. Click the **Name Box**, type `D25`, press <Kbd>Enter</Kbd>. The cursor jumps there.
+3. Type `500`, press <Kbd>Enter</Kbd>. Click **D25** again — the formula bar shows `500`.
+4. Click **D26**, type `=D25*2`, press <Kbd>Enter</Kbd>. The cell shows `1000`.
+5. Click **D26** once. The cell shows `1000`; the formula bar shows `=D25*2`.
+
+**Cell = the answer. Formula bar = the reason.**
+
+<Shot id="1.2.2" />
+
+6. Press <Kbd>Ctrl</Kbd>+<Kbd>Home</Kbd> to jump back to A1.
+7. Click the **Data** tab and read the group names: Get & Transform, Sort & Filter, Data Tools. Everything about handling data lives here.
+8. Press <Kbd>Ctrl</Kbd>+<Kbd>End</Kbd>. Excel jumps to the last used cell — which tells you how big the file really is.
+9. Press <Kbd>Alt</Kbd>+<Kbd>Q</Kbd> and type `conditional`. Excel offers Conditional Formatting directly.
+
+<Shot id="1.2.3" />
+
+10. Select five numbers and read the status bar. Now **right-click the status bar** and tick Minimum, Maximum and Numerical Count. Six statistics, free, on any selection.
+
+<Shot id="1.2.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `Q` | Jumps to the Search box | You can't remember which tab a command is on | Alt+Q, type "freeze" |
+| `Ctrl` + `End` | Jumps to the last used cell | Finding out how big a file actually is — and spotting bloat | Row 60,000 on a 300-row file means trouble |
+| `Ctrl` + `Home` | Jumps to A1 | Reorienting after scrolling far down | Getting back to the top of any sheet |
+| `Ctrl` + `F1` | Collapses or expands the Ribbon | Reclaiming screen space on a laptop | Reviewing a long list on a 13" screen |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Trusting what the cell displays** | A "number" is text, SUM ignores it, the total is silently wrong | Click the cell and read the formula bar |
+| Hunting through tabs for a command | Minutes lost, several times a day | <Kbd>Alt</Kbd>+<Kbd>Q</Kbd> |
+| Assuming a blank-looking sheet is empty | <Kbd>Ctrl</Kbd>+<Kbd>End</Kbd> jumps to row 30,000 | Delete the unused rows entirely and save |
+| Confusing the Name Box with the Formula Bar | You look in the wrong place for the cell's contents | Name Box = address. Formula bar = contents. |
+
+</MistakeTable>
+
+<Callout type="story">
+**Arun, Finance Analyst.** He inherited a 22 MB budget file that took ninety seconds to open and froze when scrolling. He pressed <Kbd>Ctrl</Kbd>+<Kbd>End</Kbd> — it jumped to **BX 74,321** on a sheet with 400 rows of real data.
+
+Someone, years earlier, had applied a fill colour to entire columns. Excel was storing formatting for three million empty cells.
+
+He selected row 401 to the bottom, deleted the rows, did the same for the unused columns, and saved. **22 MB became 380 KB.** Instant file.
+
+That fix took two minutes and came entirely from knowing what one keystroke does.
+</Callout>
+
+## Practice
+
+<Exercise id="1.2.e1">
+
+<Scenario>
+Get comfortable with the window before your first real task.
+</Scenario>
+
+<Dataset name="Blank_Workbook">
+
+A blank workbook. No data needed to start.
+
+</Dataset>
+
+<Task>
+
+1. Use the Name Box to jump to **H50**. Type your name there.
+2. Press <Kbd>Ctrl</Kbd>+<Kbd>Home</Kbd>. Where do you land?
+3. In A1 type `100`, A2 `250`, A3 `75`.
+4. Select A1:A3 and write down the Sum, Average and Count from the status bar.
+5. In A4, enter a formula multiplying A1 by 3. Click A4 once — note what the cell shows versus the formula bar.
+6. Press <Kbd>Ctrl</Kbd>+<Kbd>End</Kbd>. Which cell does Excel consider the last used one, and why?
+7. Right-click the status bar and turn on Minimum and Maximum. Re-select A1:A3.
+8. Use <Kbd>Alt</Kbd>+<Kbd>Q</Kbd> to find Freeze Panes without touching the View tab.
+
+</Task>
+
+<Expected>
+Step 2: A1 · Step 4: Sum 425, Average 141.67, Count 3 · Step 5: cell shows 300, formula bar shows `=A1*3` · Step 6: **H50**
+</Expected>
+
+<Solution>
+
+```
+A4: =A1*3
+```
+
+</Solution>
+
+<Why>
+
+**Step 6 is the real lesson.** Excel's "used range" is a rectangle from A1 to the furthest cell anyone has ever touched. One stray entry at H50 makes Excel treat the sheet as 8 columns × 50 rows, even though everything between is empty.
+
+On a real file, one stray entry at row 100,000 makes the workbook enormous and slow — exactly what happened to Arun. This is the single most common cause of mysteriously bloated Excel files, and <Kbd>Ctrl</Kbd>+<Kbd>End</Kbd> diagnoses it in one keystroke.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "1.2.q1",
+    type: "mcq",
+    question: "Which part of the Excel window shows what a cell really contains, rather than what it displays?",
+    options: ["Name Box", "Status Bar", "Formula Bar", "Ribbon"],
+    correct: 2,
+    explanation: "The cell shows the formatted result; the formula bar shows the underlying content. This distinction causes most beginner confusion — a \"number\" that won't add up is usually text with a trailing space, and the formula bar is the only place that's visible. The Name Box shows the address, not the contents."
+  },
+  {
+    id: "1.2.q2",
+    type: "formula",
+    question: "You're at cell A1 on a sheet with data down to row 5,000. Name the two keystrokes that take you to the last used cell and then back to A1.",
+    accept: ["Ctrl+End then Ctrl+Home", "Ctrl End, Ctrl Home", "Ctrl+End, Ctrl+Home"],
+    explanation: "Ctrl+End goes to the bottom-right of the used range; Ctrl+Home returns to A1. Ctrl+End is also your file-size diagnostic — if it lands far beyond the visible data, stray formatting or entries are bloating the file, which is the usual cause of an Excel workbook being mysteriously slow."
+  },
+  {
+    id: "1.2.q3",
+    type: "decision",
+    question: "You need Conditional Formatting but can't remember which ribbon tab it's on. What do you do?",
+    options: [
+      "Press Alt+Q and type \"conditional\"",
+      "Click through all seven tabs until you find it",
+      "Right-click the cell and look for it in the context menu",
+      "Memorise the tab locations for the commands you use"
+    ],
+    correct: 0,
+    explanation: "Excel has over 1,500 commands, so memorising tab locations is a losing strategy — learning the search box once beats it permanently. Alt+Q finds and launches the command directly. As a bonus, pressing Alt alone labels every ribbon button with a key letter, which is how you discover shortcuts by using the ribbon rather than reading a list."
+  }
+]

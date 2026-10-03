@@ -1,0 +1,255 @@
+---
+id: "4.5"
+module: 4
+lesson: 5
+slug: "text-functions-1"
+title: "Text Functions Part 1 — LEFT, RIGHT, MID, LEN, TRIM, CLEAN"
+shortTitle: "Text Functions 1"
+stage: "Intermediate"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Pull a specific part out of a text value — a code, a prefix, a substring"
+  - "Find and remove the invisible characters that break lookups"
+  - "Combine FIND with MID to extract text of variable length"
+keys: ["Ctrl+`", "F9"]
+datasets: ["HR_Employee_Master", "Messy_HR_Data"]
+starterFile: "starter/04-05-text-functions.xlsx"
+solutionFile: "solution/04-05-text-functions.xlsx"
+functions: ["LEFT", "RIGHT", "MID", "LEN", "TRIM", "CLEAN", "FIND", "SEARCH"]
+excelVersion: "all"
+shotCount: 5
+prev: "4.4"
+next: "4.6"
+videoUrl: null
+---
+
+## Why this matters
+
+System exports hand you text in the wrong shape. Employee IDs with a location prefix you need to split out. Names with trailing spaces that make your VLOOKUP fail. A "Designation" field that's really three fields jammed together. These functions are how you get from what the system gave you to what you can actually use.
+
+## How it works
+
+Four functions do the cutting:
+
+<FormulaBlock>
+```
+=LEFT(A2, 3)        first 3 characters          "MUM-E1001" → "MUM"
+=RIGHT(A2, 5)       last 5 characters           "MUM-E1001" → "E1001"
+=MID(A2, 5, 5)      5 characters, starting at 5 "MUM-E1001" → "E1001"
+=LEN(A2)            how many characters          "MUM-E1001" → 9
+```
+</FormulaBlock>
+
+<Shot id="4.5.1" />
+
+`MID` takes three arguments: the text, where to start, and how many to take. Position counting starts at 1, and the separator counts as a character — so in `MUM-E1001` the hyphen is position 4 and `E1001` starts at 5.
+
+### The two cleaning functions
+
+`TRIM` removes leading and trailing spaces, and collapses multiple internal spaces to one. `CLEAN` removes non-printing characters that come from PDFs, web pages and older systems.
+
+<FormulaBlock>
+```
+=TRIM("  Anil  Kumar  ")   →  "Anil Kumar"
+=TRIM(CLEAN(A2))           →  the standard clean-up pair
+```
+</FormulaBlock>
+
+**This is the most valuable thing in the lesson.** A trailing space is invisible on screen and makes `"Sales "` a completely different value from `"Sales"`. Your VLOOKUP returns `#N/A`, your pivot table shows two Sales departments, your COUNTIF undercounts — and nothing looks wrong.
+
+`LEN` is how you detect it: `=LEN(A2)` against `=LEN(TRIM(A2))`. Different numbers mean hidden spaces.
+
+<Callout type="warning">
+`TRIM` does **not** remove non-breaking spaces (character 160), which is what you get from copying out of a web page or a PDF. Those need `=SUBSTITUTE(A2,CHAR(160)," ")` first, then `TRIM`. If `TRIM` appears to do nothing on obviously spaced text, this is why.
+</Callout>
+
+### Variable-length extraction
+
+Fixed positions only work when the format is fixed. When it isn't, `FIND` locates the separator for you:
+
+<FormulaBlock>
+```
+=LEFT(A2, FIND("-",A2)-1)              everything before the first hyphen
+=MID(A2, FIND("-",A2)+1, 100)          everything after it
+       │  │                   │
+       │  │                   └── 100 = "more than enough" — MID just stops at the end
+       │  └── start one character past the hyphen
+       └──── the text
+```
+</FormulaBlock>
+
+`FIND` is case-sensitive; `SEARCH` isn't and accepts wildcards. Use `SEARCH` unless case matters.
+
+<Callout type="tip">
+The `100` in that `MID` is a deliberate trick. `MID` never errors for asking beyond the end of the text — it just returns what's there. So any comfortably large number works and you avoid a `LEN` calculation.
+</Callout>
+
+## Do it
+
+An HR export with location-prefixed IDs and untrimmed names.
+
+| | A | B |
+|---|---|---|
+| **1** | Employee Code | Name |
+| **2** | MUM-E1001 | ` Anil Kumar ` |
+| **3** | PUN-E1002 | `Meera  Nair` |
+| **4** | BLR-E1003 | `Rahul Shah ` |
+
+1. **C2** — the location: `=LEFT(A2,3)` → `MUM`
+2. **D2** — the ID: `=RIGHT(A2,5)` → `E1001`
+3. **E2** — the ID via MID: `=MID(A2,5,5)` → `E1001`. Same answer, different route.
+4. Fill all three down.
+
+<Shot id="4.5.2" />
+
+5. **F2** — `=LEN(B2)` and **G2** — `=LEN(TRIM(B2))`. Different numbers prove hidden spaces. Row 2 shows 12 vs 10; row 3 shows 11 vs 10 (the double internal space collapses).
+
+<Shot id="4.5.3" />
+
+6. **H2** — `=TRIM(CLEAN(B2))`. Now the names are usable.
+7. Copy H2:H4 → **Paste Values** over B2:B4 to make the fix permanent. Delete the helper columns.
+
+<Shot id="4.5.4" />
+
+### When the format isn't fixed
+
+8. Add `HYD-E10045` in A5 — a five-digit ID. Your `=RIGHT(A2,5)` now returns `10045`, dropping the `E`. Fixed positions broke.
+9. **I2** — `=LEFT(A2,FIND("-",A2)-1)` for the location, works at any prefix length.
+10. **J2** — `=MID(A2,FIND("-",A2)+1,100)` for the ID, works at any ID length.
+
+<Shot id="4.5.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F9` on a nested part | Evaluates just that piece | Checking what `FIND` returned before the `MID` uses it | Select `FIND("-",A2)` → `4` |
+| `Ctrl` + `` ` `` | Shows formulas instead of results | Confirming every row uses the same extraction, not a hand-typed value | Auditing a cleaned column |
+| `Ctrl` + `Alt` + `V` then `V` | Paste Values | Making a TRIM fix permanent before deleting the helper column | The last step of every clean-up |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Trailing spaces left in place** | VLOOKUP returns `#N/A`, pivots show duplicate categories — nothing looks wrong | `TRIM` everything from an external system, always |
+| `TRIM` "doesn't work" | Spaces remain despite the formula | Non-breaking spaces. `SUBSTITUTE(A2,CHAR(160)," ")` first |
+| Fixed positions on variable-length data | Silently wrong extractions when a value is longer | `FIND` the separator instead |
+| Deleting the source before Paste Values | Your cleaned column becomes `#REF!` | Paste Values first, then delete |
+| `FIND` when the text might be absent | `#VALUE!` | Wrap in `IFERROR`, or use `SEARCH` with a fallback |
+| Forgetting `LEFT`/`MID` return **text** | `="E1001"` won't match a numeric ID; SUM ignores it | `=VALUE(...)` if you need a number |
+| `MID(A2,1,3)` instead of `LEFT(A2,3)` | Works, but harder to read | Use the function that says what you mean |
+
+</MistakeTable>
+
+<Callout type="story">
+**Sanjay, HR Operations.** His attendance reconciliation matched a biometric export against the employee master with VLOOKUP. Every month around 30 of 400 employees returned `#N/A`. He maintained a manual list of "problem IDs" and looked those up by hand — about an hour a month, for over a year.
+
+The biometric system exported employee IDs with a trailing space. `"E1001 "` and `"E1001"` are different values, and the mismatch was invisible because a trailing space doesn't show on screen. He found it by accident when `=LEN(A2)` returned 6 for a five-character ID.
+
+One `TRIM` in the import step ended a thirteen-month manual workaround. **`LEN` is the only way to see a trailing space** — when a lookup fails on data that looks identical, check the length before you check anything else.
+</Callout>
+
+## Practice
+
+<Exercise id="4.5.e1">
+
+<Scenario>
+A recruitment export where candidate codes carry a source prefix and the names came through a web form with inconsistent spacing.
+</Scenario>
+
+<Dataset name="Messy_HR_Data" starter="starter/04-05-text-functions.xlsx">
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Candidate Code | Full Name | Role Applied |
+| **2** | LNK-C1001 | ` Anil Kumar ` | Java Developer |
+| **3** | REF-C1002 | `Meera  Nair` | QA Engineer |
+| **4** | NAU-C10034 | `Rahul Shah ` | Java Developer |
+| **5** | LNK-C1004 | ` Sneha  Rao` | Data Analyst |
+| **6** | REF-C100567 | `Kabir Menon ` | QA Engineer |
+
+</Dataset>
+
+<Task>
+
+1. **D2** — the three-letter source using `LEFT`.
+2. **E2** — the candidate code using `RIGHT` with a fixed length of 5. Fill down. **Which rows are wrong, and why?**
+3. **F2** — the candidate code correctly, using `MID` and `FIND`, so it works at any length.
+4. **G2** — `=LEN(B2)` and **H2** — `=LEN(TRIM(B2))`. Which rows have hidden spaces?
+5. **I2** — the cleaned name using `TRIM` and `CLEAN` together.
+6. **J2** — the first name only, from the cleaned name. Use `FIND` on the space.
+
+</Task>
+
+<Expected>
+Step 2: rows 4, 5 and 6 are wrong — `RIGHT(A4,5)` gives `10034` not `C10034`, and row 6 gives `00567` · Step 4: every row differs · Step 6: `Anil`, `Meera`, `Rahul`, `Sneha`, `Kabir`
+</Expected>
+
+<Hint>
+For step 6, work from the cleaned name in column I, not the raw name in B — a leading space would make `FIND(" ",B2)` return 1.
+</Hint>
+
+<Solution>
+
+```
+D2: =LEFT(A2,3)
+E2: =RIGHT(A2,5)                              wrong for rows 4-6
+F2: =MID(A2,FIND("-",A2)+1,100)
+G2: =LEN(B2)
+H2: =LEN(TRIM(B2))
+I2: =TRIM(CLEAN(B2))
+J2: =LEFT(I2,FIND(" ",I2)-1)
+```
+
+</Solution>
+
+<Why>
+
+**Step 2 is the point of the exercise.** `RIGHT(A2,5)` works perfectly for the first three rows and then silently mangles the rest. `NAU-C10034` returns `10034` — a real-looking candidate code, missing its `C`. Nothing errors. If you'd used that column as a lookup key, three of six rows would fail with `#N/A` and you'd be hunting the wrong problem.
+
+**Fixed positions are a bet that the format never varies.** It always varies eventually — an ID gets longer, a location code goes from three letters to four, someone enters data without the prefix. `FIND` makes the formula describe the *structure* ("everything after the hyphen") rather than a guess about length, so it survives.
+
+**Step 6's dependency on step 5 matters.** `=LEFT(B2,FIND(" ",B2)-1)` on the raw name in row 2 finds the space at position 1, computes `LEFT(B2,0)`, and returns an empty string. Working from the cleaned column instead makes it correct. This ordering — clean first, then extract — is the right sequence for every text operation, and getting it backwards produces empty results that look like missing data.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "4.5.q1",
+    type: "formula",
+    question: "Cell A2 contains \"MUM-E1001\". Write a formula that returns everything after the hyphen, and that would still work if the code were \"HYDERABAD-E100456\".",
+    accept: ["=MID(A2,FIND(\"-\",A2)+1,100)", "=MID(A2,FIND(\"-\",A2)+1,LEN(A2))", "=MID(A2,SEARCH(\"-\",A2)+1,100)"],
+    explanation: "FIND locates the hyphen wherever it is, +1 starts one character past it, and a generously large third argument takes everything remaining — MID never errors for asking beyond the end of the text. Using RIGHT with a fixed length would break the moment either the prefix or the ID changed length."
+  },
+  {
+    id: "4.5.q2",
+    type: "truefalse",
+    question: "If =LEN(A2) returns 11 and =LEN(TRIM(A2)) returns 10, cell A2 contains a hidden space.",
+    correct: true,
+    explanation: "TRIM removes leading and trailing spaces and collapses multiple internal spaces to one, so any difference in length means there was extra whitespace. This comparison is the only reliable way to see a trailing space — it's invisible on screen, and it makes \"Sales \" a completely different value from \"Sales\", which breaks lookups, splits pivot categories and undercounts COUNTIFs with no visible symptom."
+  },
+  {
+    id: "4.5.q3",
+    type: "mcq",
+    question: "You apply TRIM to a column copied from a web page, but the spaces remain. What's the most likely cause?",
+    options: [
+      "TRIM only works on numbers",
+      "The spaces are non-breaking spaces (character 160), which TRIM doesn't remove",
+      "You need to press F9 to recalculate",
+      "The column is formatted as Text"
+    ],
+    correct: 1,
+    explanation: "Web pages and PDFs often use non-breaking spaces (CHAR(160)) rather than ordinary spaces, and TRIM only handles character 32. Fix with =TRIM(SUBSTITUTE(A2,CHAR(160),\" \")) — convert them to real spaces first, then trim. This is the single most common reason people conclude TRIM is broken."
+  }
+]

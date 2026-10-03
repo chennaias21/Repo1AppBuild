@@ -1,0 +1,282 @@
+---
+id: "6.7"
+module: 6
+lesson: 7
+slug: "data-validation"
+title: "Data Validation & Dependent Drop-Down Lists"
+shortTitle: "Data Validation"
+stage: "Intermediate"
+durationMin: 13
+access: "paid"
+objectives:
+  - "Add drop-down lists so people can't type inconsistent values"
+  - "Restrict entries by number, date and length, with useful error messages"
+  - "Build a dependent drop-down where the second list depends on the first"
+keys: ["Alt+A+V+V", "Alt+Down"]
+datasets: ["HR_Employee_Master", "Attendance_Register"]
+starterFile: "starter/06-07-data-validation.xlsx"
+solutionFile: "solution/06-07-data-validation.xlsx"
+functions: ["INDIRECT", "UNIQUE", "OFFSET"]
+excelVersion: "all"
+shotCount: 3
+prev: "6.6"
+next: "7.1"
+videoUrl: null
+---
+
+## Why this matters
+
+Lesson 2.3 told the story of a visitor log with 340 company names where 61 existed — `Infosys`, `infosys`, `Infosys Ltd`, `Infosys ` with a space. Cleaning it took two days. Data validation is the ten minutes that prevents it. Every pivot table you build later depends on consistent values, and the only reliable way to get them is to stop people typing freely.
+
+## How it works
+
+**Data → Data Validation** (<Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>V</Kbd>+<Kbd>V</Kbd>). Three tabs:
+
+**Settings** — what's allowed. **Input Message** — a tooltip when the cell is selected. **Error Alert** — what happens when someone enters something invalid.
+
+The types you'll use:
+
+| Allow | Use for |
+|---|---|
+| List | Departments, statuses, regions — the main one |
+| Whole number / Decimal | Between 0 and 24 for hours, 0 and 100 for scores |
+| Date | Between a start and end date |
+| Text length | Employee codes of exactly 5 characters |
+| Custom | A formula returning TRUE/FALSE — anything else |
+
+<Shot id="6.7.1" />
+
+### The list source
+
+Three ways, in increasing order of maintainability:
+
+<FormulaBlock>
+```
+Sales,HR,Finance,Ops    typed directly — fine for a fixed short list
+=$K$2:$K$6              a range — editable, but doesn't grow
+=Departments            a named range over a Table column — grows by itself
+```
+</FormulaBlock>
+
+The third is worth the setup: adding a department to the Table adds it to every dropdown.
+
+<Callout type="tip">
+Data Validation cannot reference a Table directly — `=Table1[Dept]` is rejected. The workaround: create a **named range** (Formulas → Name Manager → New) whose Refers To is `=Table1[Dept]`, then use `=Departments` as the list source. The dropdown then inherits the Table's auto-expansion.
+</Callout>
+
+### Error Alert — the setting that decides whether it works
+
+Three styles, and the difference matters:
+
+| Style | Behaviour |
+|---|---|
+| **Stop** | Rejects the entry outright |
+| **Warning** | Asks "continue anyway?" — and people click yes |
+| **Information** | Notifies and accepts |
+
+For anything feeding a pivot table or a lookup, use **Stop**. Warning and Information let bad data in, which defeats the purpose.
+
+And write a real message. "The value you entered is not valid" tells nobody anything. *"Pick a department from the list. To add a new one, contact HR Ops."* tells them what to do.
+
+<Shot id="6.7.2" />
+
+### Dependent drop-downs
+
+The second dropdown depends on the first — pick `Sales` and the designation list shows only Sales roles.
+
+The classic method uses `INDIRECT`:
+
+1. Create a named range for each group, **named exactly as the parent value**: a range named `Sales`, one named `HR`, and so on.
+2. First dropdown: the list of group names.
+3. Second dropdown source: `=INDIRECT(A2)`
+
+When A2 holds `Sales`, `INDIRECT` resolves to the range named `Sales`.
+
+<Callout type="warning">
+`INDIRECT` requires the named ranges to match the parent values **exactly**, so a parent value with a space — `Human Resources` — breaks it, because range names can't contain spaces. Substitute underscores in the names and wrap it: `=INDIRECT(SUBSTITUTE(A2," ","_"))`. On Microsoft 365, `=FILTER()` avoids the whole problem.
+</Callout>
+
+### Finding what's already wrong
+
+**Data → Data Validation → Circle Invalid Data** circles every existing entry that breaks the rule. Validation only blocks *new* entries, so this is how you find what slipped in earlier.
+
+## Do it
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | EmpID | Dept | Hours |
+| **2** | | | |
+
+Put the source lists in **K** and **L**: `K1` = `Dept`, `K2:K5` = `Sales`, `HR`, `Finance`, `Ops`.
+
+### A basic dropdown
+
+1. Select **B2:B50**. <Kbd>Alt</Kbd>+<Kbd>A</Kbd>+<Kbd>V</Kbd>+<Kbd>V</Kbd>. Allow: **List**, source `$K$2:$K$5`.
+2. **Error Alert** tab → Style **Stop** → Message *"Pick from the list. To add a department, contact HR Ops."*
+3. Click B2 and press <Kbd>Alt</Kbd>+<Kbd>↓</Kbd> to open the list with the keyboard.
+4. Try typing `sales ` with a trailing space. Rejected, with your message.
+
+5. **C2:C50** — Allow **Decimal**, between `0` and `24`, with an Input Message. Try `30`; rejected.
+
+### Make the list self-extending
+
+6. Convert K1:K5 to a Table (<Kbd>Ctrl</Kbd>+<Kbd>T</Kbd>) named `DeptList`.
+7. **Formulas → Name Manager → New** → Name `Departments`, Refers to `=DeptList[Dept]`.
+8. Change the B-column source to `=Departments`. Add `Legal` to the Table — it appears immediately.
+
+### A dependent dropdown
+
+9. Build designation lists in three columns headed `Sales`, `HR`, `Ops`, and name each range after its header.
+10. **D2:D50** — Allow List, source `=INDIRECT(B2)`. Pick `Sales` in B2, then open D2.
+
+<Shot id="6.7.5" />
+
+11. Now **paste** an invalid department into a B cell — paste bypasses validation entirely. Find it with **Data Validation → Circle Invalid Data**.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `A` + `V` + `V` | Opens the Data Validation dialog | Setting up or editing any rule | Straight to the Settings tab |
+| `Alt` + `↓` | Opens the dropdown in the active cell | Fast keyboard data entry — no mouse, and guarantees a valid value | Then arrow keys and Enter to pick |
+| `Ctrl` + `Alt` + `V` then `N` | Paste values without validation or formatting | Pasting data *into* a validated range without wiping the rules | Paste Special → Values |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Paste bypasses validation entirely** | Invalid values appear in a validated range | Circle Invalid Data to find them; protect the sheet to prevent it |
+| Error Alert set to Warning | People click "Yes" and enter bad data anyway | Use **Stop** for anything feeding a pivot or lookup |
+| Generic error message | Users don't know what's allowed or who to ask | Write what to do, and who to contact |
+| Source range doesn't grow | New departments never appear in the dropdown | Named range over a Table column |
+| `=Table1[Dept]` as the source | Rejected by the dialog | Create a named range that refers to it, then use the name |
+| `INDIRECT` with spaces in parent values | `#REF!`, dropdown empty | `SUBSTITUTE(A2," ","_")`, or `FILTER()` on 365 |
+| Validation applied to one cell then copied | Works, but rules accumulate inconsistently | Apply to the whole intended range at once |
+| Assuming existing data was checked | Validation only blocks new entries | Circle Invalid Data |
+
+</MistakeTable>
+
+<Callout type="story">
+**Tanvi, Admin Executive** — the visitor log from Lesson 2.3. After the two-day clean-up, she added a dropdown sourced from a Table of approved company names, with Error Alert set to Stop and a message reading *"Company not listed? Add it to the Companies tab first."*
+
+The next quarter's pivot table returned 64 companies, and all 64 were real. The three new ones had been added to the Table by the receptionists themselves, because the error message told them how.
+
+One thing she got wrong initially: she set Error Alert to **Warning** on the first attempt, thinking it would be friendlier. Within a fortnight there were four new variants in the data, because "continue anyway?" is a button people click without reading. She switched it to Stop and the problem stopped.
+
+**Validation with a Warning alert is a suggestion. Only Stop is a control.** And a dropdown that can't be extended by the people using it will be worked around within a month — so the message has to tell them how to add a legitimate new value.
+</Callout>
+
+## Practice
+
+<Exercise id="6.7.e1">
+
+<Scenario>
+Build a controlled attendance entry sheet that four coordinators will fill in, so the data is pivot-ready without any cleaning.
+</Scenario>
+
+<Dataset name="Attendance_Register" starter="starter/06-07-data-validation.xlsx">
+
+Entry sheet — headers in row 1: `Date` | `EmpID` | `Dept` | `Status` | `Hours`
+
+Source lists:
+
+| | K | L | M | N |
+|---|---|---|---|---|
+| **1** | Dept | Sales | HR | Ops |
+| **2** | Sales | Executive | Recruiter | Coordinator |
+| **3** | HR | Manager | HRBP | Lead |
+| **4** | Ops | Sr Manager | | Supervisor |
+
+Status list in **P2:P6**: `Present`, `Absent`, `Half Day`, `Leave`, `WFH`
+
+</Dataset>
+
+<Task>
+
+1. Set up all five columns: **Date** between 01-Sep-2026 and 30-Sep-2026 · **EmpID** text length exactly 5 · **Dept** dropdown from K2:K4 · **Status** dropdown from the status list · **Hours** decimal 0 to 24.
+2. On the Dept rule, set Error Alert to **Stop** with a message telling the user who to contact for a new department.
+3. Make the Dept list self-extending: convert K1:K4 to a Table, create a named range over its column, point the validation at the name. Add `Finance` and confirm it appears.
+4. Add a **Designation** column with a dependent dropdown showing only the designations for whichever Dept was chosen.
+5. Paste `Marketing` into a Dept cell. Does validation stop it? Find it with Circle Invalid Data.
+6. Change the Dept Error Alert to **Warning** and try an invalid value. What's the practical difference?
+
+</Task>
+
+<Expected>
+Step 8: paste is **not** blocked — validation only intercepts typed entries. Circle Invalid Data marks it. · Step 9: Warning offers "continue anyway" and accepts the value if the user clicks yes
+</Expected>
+
+<Hint>
+For step 7, the named ranges must be spelled exactly as the values in the Dept list — a range named `Sales`, one named `HR`, one named `Ops`.
+</Hint>
+
+<Solution>
+
+```
+1. Allow: Date · between 01-Sep-2026 and 30-Sep-2026
+2. Allow: Text length · equal to · 5
+3. Allow: List · Source: =$K$2:$K$4 · Error Alert: Stop
+4. Allow: List · Source: =$P$2:$P$6
+5. Allow: Decimal · between 0 and 24
+
+6. Ctrl+T on K1:K4 → name it DeptList
+   Name Manager → New → Name: Departments → Refers to: =DeptList[Dept]
+   Validation source: =Departments
+
+7. Name L2:L4 as Sales, M2:M3 as HR, N2:N4 as Ops
+   Validation source: =INDIRECT(C2)
+```
+
+</Solution>
+
+<Why>
+
+**Step 5 is the limitation everyone should know about.** Data Validation intercepts *typed* entries. A paste writes straight past it — no prompt, no rejection, nothing logged. So a coordinator copying a block of last month's data into this month's sheet can introduce every invalid value you thought you'd prevented.
+
+Two mitigations. **Circle Invalid Data** (Data → Data Validation → the dropdown beside it) finds what got through, and it's worth running before you trust any sheet others have filled. And protecting the sheet with only the entry cells unlocked (Lesson 2.1) stops most casual pasting, because paste into a protected cell is blocked outright.
+
+**Step 6 is why the Error Alert style is the most consequential setting here.** Warning offers a Yes button, and people click it — not carelessly, but because a dialog that offers to proceed reads as optional. Tanvi's log gained four new variants in a fortnight on Warning. Stop has no Yes button.
+
+**Step 4's dependent dropdown depends on exact name matching.** `INDIRECT(C2)` looks for a range named whatever C2 contains — so adding `Finance` to the Dept list without creating a range named `Finance` returns `#REF!` for those rows. Both halves must be maintained together, which is the main weakness of this technique.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "6.7.q1",
+    type: "formula",
+    question: "A department name is in cell C2, and you have named ranges matching each department. Write the Data Validation list source for a dependent designation dropdown.",
+    accept: ["=INDIRECT(C2)", "=INDIRECT($C2)"],
+    explanation: "INDIRECT converts the text in C2 into a reference to the range of that name, so choosing Sales in C2 makes the dropdown show the range named Sales. The named ranges must match the parent values exactly — and because range names can't contain spaces, a value like \"Human Resources\" needs =INDIRECT(SUBSTITUTE(C2,\" \",\"_\")) with underscored range names."
+  },
+  {
+    id: "6.7.q2",
+    type: "decision",
+    question: "Your Dept dropdown feeds a pivot table. Which Error Alert style do you choose?",
+    options: [
+      "Stop — it rejects the entry outright",
+      "Warning — friendlier, lets people proceed if they're sure",
+      "Information — notifies without interrupting",
+      "None — rely on the dropdown being convenient"
+    ],
+    correct: 0,
+    explanation: "Warning and Information both accept the invalid value if the user proceeds, and people do proceed — a dialog offering to continue reads as optional rather than as a rule. Since a single variant like \"sales \" splits a pivot category and quietly undercounts, anything feeding a pivot or lookup needs Stop, which has no way through. Reserve Warning for genuinely advisory checks where an unusual-but-legitimate value is possible."
+  },
+  {
+    id: "6.7.q3",
+    type: "truefalse",
+    question: "Data Validation prevents invalid values from being pasted into a validated range.",
+    correct: false,
+    explanation: "Validation intercepts typed entries only — a paste writes straight past it with no prompt and nothing logged. This is its most important limitation, because copying a block from last month's sheet can reintroduce every value you thought you'd blocked. Use Data → Data Validation → Circle Invalid Data to find what got through, and protect the sheet with only entry cells unlocked to stop most casual pasting."
+  }
+]

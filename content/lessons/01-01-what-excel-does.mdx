@@ -1,0 +1,216 @@
+---
+id: "1.1"
+module: 1
+lesson: 1
+slug: "what-excel-does"
+title: "What Excel Actually Does at Work (and What It's Bad At)"
+shortTitle: "What Excel Does"
+stage: "Beginner"
+durationMin: 8
+access: "free"
+objectives:
+  - "Explain in one sentence what Excel is for"
+  - "Recognise the four jobs Excel does in almost every office"
+  - "Know when Excel is the wrong tool"
+keys: ["Alt+=", "Ctrl+S"]
+datasets: []
+starterFile: null
+solutionFile: null
+functions: ["SUM", "AVERAGE"]
+excelVersion: "all"
+shotCount: 4
+prev: null
+next: "1.2"
+videoUrl: null
+---
+
+## Why this matters
+
+Most Excel courses open with "Excel is a spreadsheet program developed by Microsoft in 1985." You don't need that. You need to know what it does for *you* at work tomorrow — and, just as usefully, what it's bad at.
+
+## How it works
+
+Here it is in one line: **Excel is a grid that remembers relationships between numbers.**
+
+You put data in boxes. You tell Excel how those boxes relate. When one number changes, everything connected to it updates by itself. That single behaviour is why Excel has survived forty years and why every office still runs on it.
+
+In a real job it does four things:
+
+| Job | Looks like |
+|---|---|
+| **Stores lists** | Employee records, product catalogues, attendance, invoices |
+| **Calculates** | Totals, percentages, salaries, commissions — once, for 10,000 rows |
+| **Answers questions** | "How many left Sales last quarter?" without scrolling and counting |
+| **Presents** | Charts and reports a manager reads in ten seconds |
+
+<Shot id="1.1.1" />
+
+Now the honest part — **what Excel is bad at**:
+
+- **Being a company-wide database.** Once several people need to edit the same data daily, Excel starts to hurt. That's what proper databases are for.
+- **Holding sensitive data securely.** A password on a workbook is not real security.
+- **Anything past about a million rows.** Excel physically stops at 1,048,576 rows per sheet.
+- **Being the single source of truth for money in a large business.** Too easy for one person to break a formula and nobody notices for three months.
+
+A person who knows when *not* to use Excel is more valuable than one who uses it for everything.
+
+<Callout type="tip">
+Select any group of numbers and look at the bottom-right of the window. Excel shows you Average, Count and Sum instantly, with no formula at all. Right-click that status bar to add Min and Max. Most people use Excel for years without noticing this.
+</Callout>
+
+## Do it
+
+1. Open Excel. Choose **Blank workbook**.
+2. Click cell **A1**, type `Department`, press <Kbd>Tab</Kbd>. In **B1** type `Headcount`, press <Kbd>Enter</Kbd>.
+3. Fill in this small table:
+
+| | A | B |
+|---|---|---|
+| **1** | Department | Headcount |
+| **2** | Sales | 42 |
+| **3** | Operations | 68 |
+| **4** | Finance | 15 |
+| **5** | HR | 9 |
+
+4. Click **B6**. Press <Kbd>Alt</Kbd>+<Kbd>=</Kbd> — Excel proposes `=SUM(B2:B5)`. Press <Kbd>Enter</Kbd>. You get **134**.
+
+<Shot id="1.1.2" />
+
+5. Now change **B3** from 68 to 70. Watch **B6**. It becomes **136** on its own.
+
+That step is the entire point of Excel. Everything else in this course is a more powerful version of what you just did.
+
+<Shot id="1.1.3" />
+
+6. Select **B2:B5** and read the Sum, Average and Count in the status bar. No formula needed for a quick check.
+7. In **B7**, type `136` — the same answer, typed rather than calculated. Now change B3 again, to `72`. B6 becomes **138**; B7 still says 136.
+
+<Shot id="1.1.4" />
+
+That's the difference between a spreadsheet that stays right and one that quietly goes stale.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `=` | AutoSum — guesses the range above and totals it | Any column of numbers needing a total. Two keys instead of typing `=SUM(B2:B5)`. | Click B6, press Alt+=, press Enter |
+| `Ctrl` + `S` | Save | Every couple of minutes, reflexively | Forty rows in, before you lose them |
+| `Ctrl` + `Z` | Undo | The moment you realise you've broken something | Deleted the wrong row |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Typing the answer instead of a formula** | A number that looks right and never updates | If it can be calculated, calculate it |
+| Forgetting the `=` | The cell shows text, not a total | Every formula starts with `=` |
+| Using Excel as a Word document | Paragraphs merged across twelve cells; impossible to sort or filter | If it isn't data, it probably doesn't belong in the grid |
+| Saving as .csv or .xls | Formulas and sheets silently lost | Save as .xlsx (Lesson 1.4) |
+
+</MistakeTable>
+
+<Callout type="story">
+**Priya, HR Executive at a 220-person manufacturer.** Her monthly headcount report took a full day: open the HRMS export, copy it into a Word table, count joiners and leavers by hand on a notepad, retype the numbers into an email.
+
+By the end of this course the same report is one workbook. She pastes the fresh export on the 1st, refreshes, and screenshots the result into her email. **Eleven minutes.**
+
+The report didn't improve because Priya got smarter. It improved because she stopped doing by hand what the software was built to do.
+</Callout>
+
+## Practice
+
+<Exercise id="1.1.e1">
+
+<Scenario>
+Your manager wants a one-line summary of the team's monthly training hours.
+</Scenario>
+
+<Dataset name="Training_Hours">
+
+| | A | B |
+|---|---|---|
+| **1** | Employee | Training Hours |
+| **2** | Anil | 6 |
+| **3** | Meera | 9 |
+| **4** | Rahul | 4 |
+| **5** | Sneha | 11 |
+| **6** | Kabir | 7 |
+
+</Dataset>
+
+<Task>
+
+1. In **B7**, total the training hours using a formula.
+2. In **B8**, calculate the average with `=AVERAGE(B2:B6)`.
+3. Change Rahul's hours from 4 to 10. Confirm both results update.
+4. In **B9**, type the total by hand instead. Change Kabir's hours to 12. What happens to B7 versus B9?
+5. Select B2:B6 and read the Sum from the status bar. Does it match B7?
+6. Delete B7 and rebuild it using <Kbd>Alt</Kbd>+<Kbd>=</Kbd> instead of typing.
+
+</Task>
+
+<Expected>
+B7 = 37, B8 = 7.4 · after step 3: B7 = 43, B8 = 8.6 · after step 4: B7 updates to 48, B9 stays at the old figure
+</Expected>
+
+<Solution>
+
+```
+B7: =SUM(B2:B6)
+B8: =AVERAGE(B2:B6)
+```
+
+</Solution>
+
+<Why>
+
+**Step 4 is the whole lesson.** The typed number in B9 was correct at the moment you typed it and is wrong the instant anything changes — and nothing indicates that. It still looks like a real total. On a five-row list you'd notice. On a 400-row payroll you wouldn't, and that's how a report ends up quietly wrong for months.
+
+The rule from here on: **if a number can be calculated from other numbers, never type it.**
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "1.1.q1",
+    type: "mcq",
+    question: "What makes Excel more useful than a calculator for workplace data?",
+    options: [
+      "It has more functions available",
+      "It remembers the relationships between cells and recalculates automatically",
+      "It can print results",
+      "It handles larger numbers"
+    ],
+    correct: 1,
+    explanation: "A calculator gives you an answer once. Excel maintains the answer forever — change an input and everything connected to it updates. That automatic recalculation is the core value, and it's why a typed total is a liability while a formula is an asset."
+  },
+  {
+    id: "1.1.q2",
+    type: "truefalse",
+    question: "Excel is the right tool for storing customer records that fifty people need to edit simultaneously every day.",
+    correct: false,
+    explanation: "That's a database job. Under that load Excel produces file locks, conflicting copies and the familiar \"report_FINAL_v3_updated.xlsx\" problem. Knowing when not to use Excel is a genuinely valuable skill — it's also bad at holding sensitive data securely and stops at 1,048,576 rows per sheet."
+  },
+  {
+    id: "1.1.q3",
+    type: "scenario",
+    question: "Your manager wants a monthly sales report that gets new figures each month. Should you type the totals or calculate them?",
+    options: [
+      "Type them — it's faster and the figures are already known",
+      "Calculate them, because a typed total silently stays wrong when the source data changes",
+      "Type them but add a note showing when they were last checked",
+      "Either works as long as you double-check each month"
+    ],
+    correct: 1,
+    explanation: "A typed total is frozen at the moment you typed it. Next month someone updates the source and the typed figure stays as it was — looking exactly like a real number, with nothing to flag it. Nobody catches it because there's no symptom. A formula cannot go stale, which is why the habit is absolute rather than a judgement call."
+  }
+]

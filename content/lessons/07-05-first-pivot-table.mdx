@@ -1,0 +1,253 @@
+---
+id: "7.5"
+module: 7
+lesson: 5
+slug: "first-pivot-table"
+title: "Your First Pivot Table — The Four Zones"
+shortTitle: "First Pivot Table"
+stage: "Advanced"
+durationMin: 13
+access: "paid"
+objectives:
+  - "Build a pivot table and explain what each of the four zones does"
+  - "Answer a real business question in under a minute from 2,000 rows"
+  - "Prepare data so a pivot table works first time"
+keys: ["Alt+N+V", "Alt+F5"]
+datasets: ["Sales_Transactions", "HR_Employee_Master"]
+starterFile: "starter/07-05-pivot-basics.xlsx"
+solutionFile: "solution/07-05-pivot-basics.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 3
+prev: "7.4"
+next: "7.6"
+videoUrl: null
+---
+
+## Why this matters
+
+This is the feature that makes Excel worth learning. *"Revenue by region by quarter"* from 2,000 rows takes about forty seconds and no formulas at all. If you've been answering questions like that by filtering and totalling by hand, this lesson replaces a recurring afternoon with a recurring minute.
+
+## How it works
+
+**Insert → PivotTable** (<Kbd>Alt</Kbd>+<Kbd>N</Kbd>+<Kbd>V</Kbd>). Excel creates a blank frame and a field list. You drag fields into four zones, and the zone decides what the field *does*.
+
+<Shot id="7.5.1" />
+
+| Zone | What it does | Put here |
+|---|---|---|
+| **Rows** | One row per distinct value | The thing you're grouping *by* — Region, Department |
+| **Columns** | One column per distinct value | A second grouping — Quarter, Status |
+| **Values** | The numbers, aggregated | What you're measuring — Revenue, Units, a count |
+| **Filters** | A dropdown above the table | Something you want to restrict without showing |
+
+The mental sentence: **"Show me [Values] broken down by [Rows] and [Columns], for [Filters]."**
+
+Drag Region to Rows and Revenue to Values and you have revenue by region. Add Quarter to Columns and it becomes a grid. That's the whole idea.
+
+### Values defaults to Sum, except when it doesn't
+
+Drop a numeric field into Values and Excel uses **Sum**. Drop a text field and it uses **Count** — because you can't add names.
+
+That's a useful accident: dragging `EmpID` into Values gives you a headcount. Any field counts; the numbers just have to be numbers to be summed.
+
+<Callout type="warning">
+If a numeric field arrives as **Count** when you expected Sum, the column contains text — the Lesson 2.2 problem surfacing again. Pivot tables are an excellent text-number detector. Fix the source, then refresh.
+</Callout>
+
+### Five rules for pivot-ready data
+
+A pivot table needs a flat list. Break these and it refuses or misleads:
+
+| Rule | Why |
+|---|---|
+| **One header row**, directly above the data | Two rows and Excel can't identify the headers |
+| **No blank rows** inside the data | The pivot reads only up to the gap |
+| **No merged cells** | Merged headers produce blank field names |
+| **No totals inside the block** | A total row is treated as a record and double-counts |
+| **Consistent values** | `Sales`, `sales` and `Sales ` become three regions |
+
+<Callout type="tip">
+Convert the source to a Table (<Kbd>Ctrl</Kbd>+<Kbd>T</Kbd>) before building the pivot. Then adding rows needs only a refresh — no re-pointing the source range, which is the single most common pivot maintenance error (Lesson 6.1).
+</Callout>
+
+### Refresh is not automatic
+
+Change the source data and the pivot keeps showing yesterday's numbers until you refresh. <Kbd>Alt</Kbd>+<Kbd>F5</Kbd> refreshes the active pivot; **Data → Refresh All** does every pivot in the workbook.
+
+## Do it
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Quarter | Product | Revenue |
+| **2** | SO1001 | North | Q1 | Laptop | 648000 |
+| **3** | SO1002 | South | Q1 | Monitor | 375000 |
+| **4** | SO1003 | North | Q2 | Laptop | 432000 |
+| **5** | SO1004 | East | Q1 | Keyboard | 81000 |
+| **6** | SO1005 | West | Q2 | Monitor | 275000 |
+| **7** | SO1006 | North | Q2 | Keyboard | 108000 |
+
+1. Click inside the data. <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd> to make it a Table named `Orders`.
+2. <Kbd>Alt</Kbd>+<Kbd>N</Kbd>+<Kbd>V</Kbd>. Source shows `Orders`. Choose **New Worksheet**. OK.
+3. Drag **Region** to **Rows**. Four rows appear.
+4. Drag **Revenue** to **Values**. Revenue by region, totalled.
+
+<Shot id="7.5.3" />
+
+5. Drag **Quarter** to **Columns**. Now a grid — region down, quarter across, with row and column totals.
+6. Drag **Product** to **Filters**. A dropdown appears above the table. Set it to `Laptop` — the whole grid recalculates.
+7. Clear the filter.
+
+### Count instead of sum
+
+8. Drag **OrderID** to Values. It arrives as **Count of OrderID** — an order count per region, because OrderIDs are text.
+9. Right-click any value → **Value Field Settings** → change Sum to Average. Revenue per order rather than total.
+
+### Prove refresh isn't automatic
+
+10. Go back to the source and add a new North order for 500,000.
+11. Look at the pivot. **Unchanged.**
+12. Click inside the pivot and press <Kbd>Alt</Kbd>+<Kbd>F5</Kbd>. Now it includes the new row.
+
+<Shot id="7.5.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `N` + `V` | Inserts a pivot table | Starting any summary — click inside the data first | Source auto-fills if the data is a Table |
+| `Alt` + `F5` | Refreshes the active pivot | **Every time the source data changes** — nothing is automatic | After pasting a new month's export |
+| `Ctrl` + `Alt` + `F5` | Refreshes every pivot and query in the workbook | A dashboard with several pivots on one source | One keystroke instead of clicking each |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Forgetting to refresh** | The pivot shows yesterday's figures and looks fine | <Kbd>Alt</Kbd>+<Kbd>F5</Kbd> after every source change |
+| Blank rows in the source | The pivot silently covers only part of the data | Remove blank rows before building |
+| A total row inside the source | It appears as a record and double-counts | Totals go outside the data block (Lesson 2.3) |
+| Merged cells in the header | Blank field names in the field list | Unmerge first (Lesson 2.5) |
+| Numeric field arriving as Count | The column contains text | Fix with Text to Columns (Lesson 7.1), then refresh |
+| Inconsistent values | `Sales` and `Sales ` as separate rows | Clean and standardise first (Lesson 4.6) |
+| Source as a fixed range | New rows never appear, however often you refresh | Convert to a Table first |
+
+</MistakeTable>
+
+<Callout type="story">
+**Priya, HR Executive, 220-person manufacturer.** Her monthly headcount report took a full day: open the HRMS export, copy it into a Word table, count joiners and leavers by hand on a notepad, retype the numbers into an email.
+
+After learning this, the same report is one Table and one pivot. She pastes the fresh export on the 1st, presses <Kbd>Alt</Kbd>+<Kbd>F5</Kbd>, and screenshots the result into her email. **Eleven minutes.**
+
+The report didn't get better because Priya got smarter. It got better because she stopped doing by hand what the software was built to do — and the first month she forgot to refresh, she nearly sent the previous month's numbers, which is the one mistake this feature invites.
+</Callout>
+
+## Practice
+
+<Exercise id="7.5.e1">
+
+<Scenario>
+Answer four questions from a sales dataset using one pivot table, then prove the refresh behaviour.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/07-05-pivot-basics.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Quarter | Product | Revenue |
+| **2** | SO1001 | North | Q1 | Laptop | 648000 |
+| **3** | SO1002 | South | Q1 | Monitor | 375000 |
+| **4** | SO1003 | North | Q2 | Laptop | 432000 |
+| **5** | SO1004 | East | Q1 | Keyboard | 81000 |
+| **6** | SO1005 | West | Q2 | Monitor | 275000 |
+| **7** | SO1006 | North | Q2 | Keyboard | 108000 |
+| **8** | SO1007 | South | Q2 | Laptop | 810000 |
+| **9** | SO1008 | West | Q1 | Laptop | 324000 |
+
+</Dataset>
+
+<Task>
+
+1. Convert to a Table named `Orders`, then build a pivot on a new sheet.
+2. **Total revenue by region.** Which region is largest?
+3. Add Quarter to Columns. **Which region-and-quarter combination is the single largest?**
+4. Add Product to Filters and set it to `Laptop`. **How much laptop revenue did North generate?**
+5. Clear the filter. Drag OrderID to Values. What aggregation does Excel choose, and why?
+6. Change the Revenue aggregation to Average. **Which region has the highest average order value?**
+7. Add a new South order for Q2, 900,000, to the source. Check the pivot before refreshing. Then refresh.
+8. Deliberately break it: insert a blank row in the middle of the source data, refresh, and see what happens to the totals.
+
+</Task>
+
+<Expected>
+Step 2: South (1,185,000) · Step 3: South Q2 (810,000) · Step 4: 1,080,000 · Step 5: Count, because OrderIDs are text · Step 6: South (592,500) · Step 7: unchanged until refreshed
+</Expected>
+
+<Solution>
+
+```
+1. Ctrl+T → name Orders → Alt+N+V → New Worksheet
+2. Region → Rows · Revenue → Values
+3. Quarter → Columns
+4. Product → Filters, set to Laptop
+5. OrderID → Values → arrives as Count of OrderID
+6. Right-click a value → Value Field Settings → Average
+7. Alt+F5
+```
+
+</Solution>
+
+<Why>
+
+**Step 5 is a useful accident worth understanding.** Excel chooses Count for text fields because text can't be summed — so dragging any text field into Values gives you a row count. That's how you get a headcount from an employee list, or an order count here, without adding a helper column of 1s.
+
+**Step 7 is the mistake this feature invites.** The pivot shows yesterday's numbers and looks entirely normal — no warning, no stale-data indicator. Priya nearly emailed the previous month's headcount for exactly this reason. Build the habit: paste new data, then immediately <Kbd>Alt</Kbd>+<Kbd>F5</Kbd>, before you read a single figure.
+
+**Step 8 shows why a Table matters.** Because the source is a Table, the blank row is *inside* it and the pivot still covers everything — a `(blank)` row appears in the results, which is visible and fixable. On a plain range the pivot would have silently stopped at the gap and reported a partial total that looked correct.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "7.5.q1",
+    type: "mcq",
+    question: "You drag a numeric Revenue field into the Values zone and Excel shows \"Count of Revenue\" instead of Sum. What does that tell you?",
+    options: [
+      "Pivot tables always default to Count",
+      "The Revenue column contains text values, not numbers",
+      "The Values zone needs a second field",
+      "The pivot needs refreshing"
+    ],
+    correct: 1,
+    explanation: "Excel chooses Sum for numeric fields and Count for text. Getting Count on a column you believe is numeric means those values are text — the Lesson 2.2 problem surfacing. Pivot tables are a useful text-number detector because of this. Fix the source with Text to Columns, then refresh; changing the aggregation to Sum manually would return 0."
+  },
+  {
+    id: "7.5.q2",
+    type: "truefalse",
+    question: "A pivot table updates automatically when you change the source data.",
+    correct: false,
+    explanation: "It keeps showing the previous figures until you refresh with Alt+F5, or Ctrl+Alt+F5 for every pivot in the workbook. There's no warning and no stale-data indicator, which is why reporting from an unrefreshed pivot is such a common error. Make refreshing the reflex immediately after pasting new data, before you read any figure."
+  },
+  {
+    id: "7.5.q3",
+    type: "decision",
+    question: "You're about to build a pivot on a 5,000-row export that gets replaced monthly. What do you do to the source first?",
+    options: [
+      "Convert it to a Table with Ctrl+T",
+      "Define a named range covering the data",
+      "Add filter buttons and freeze the headers",
+      "Nothing — point the pivot at the range"
+    ],
+    correct: 0,
+    explanation: "A Table expands to absorb new rows, so next month's larger export needs only a refresh rather than re-pointing the pivot source. Options 2 and 4 both leave you editing the source range every month, and the classic failure is updating three of four pivots and reporting a figure that's short by the new rows. Option 3 is useful but a Table gives you filters and frozen headers anyway."
+  }
+]

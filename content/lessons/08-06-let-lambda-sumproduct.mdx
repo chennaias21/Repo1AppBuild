@@ -1,0 +1,327 @@
+---
+id: "8.6"
+module: 8
+lesson: 6
+slug: "let-lambda-sumproduct"
+title: "LET, LAMBDA and SUMPRODUCT"
+shortTitle: "LET, LAMBDA & SUMPRODUCT"
+stage: "Business-Ready"
+durationMin: 14
+access: "paid"
+objectives:
+  - "Use LET to name parts of a formula so it can be read and audited"
+  - "Build a reusable custom function with LAMBDA"
+  - "Use SUMPRODUCT for weighted totals and multi-condition counts"
+keys: ["Alt+Enter", "F9"]
+datasets: ["Sales_Transactions", "HR_Employee_Master"]
+starterFile: "starter/08-06-let-lambda.xlsx"
+solutionFile: "solution/08-06-let-lambda.xlsx"
+functions: ["LET", "LAMBDA", "SUMPRODUCT"]
+excelVersion: "365"
+shotCount: 3
+prev: "8.5"
+next: "8.7"
+videoUrl: null
+---
+
+## Why this matters
+
+Long formulas are where spreadsheets go to die — nobody can read them, nobody dares edit them, and the same calculation appears six times with one copy subtly different. `LET` makes a formula readable. `LAMBDA` turns your logic into a named function you write once. `SUMPRODUCT` does weighted maths that no other single function handles.
+
+## How it works
+
+### LET — name the parts
+
+`LET` lets you define names inside a formula and then use them:
+
+<FormulaBlock>
+```
+=LET(rev, Orders[Revenue],
+     cost, Orders[Cost],
+     margin, rev - cost,
+     margin / rev)
+     │
+     └── pairs of name, value … then the final expression
+```
+</FormulaBlock>
+
+Read it top to bottom: define `rev`, define `cost`, define `margin` using them, then return the result. The last argument is always the answer.
+
+<Shot id="8.6.1" />
+
+Two benefits, and the second is the bigger one. **It's readable** — a reviewer follows the logic in order rather than untangling nested brackets. And **each name is calculated once**, so a repeated expensive lookup runs a single time instead of three.
+
+Compare these:
+
+<FormulaBlock>
+```
+=IF(VLOOKUP(A2,Master,3,0)>100000, VLOOKUP(A2,Master,3,0)*0.1, VLOOKUP(A2,Master,3,0)*0.05)
+
+=LET(ctc, VLOOKUP(A2,Master,3,0), IF(ctc>100000, ctc*0.1, ctc*0.05))
+```
+</FormulaBlock>
+
+The second runs one lookup instead of three, and you can see what it does.
+
+<Callout type="tip">
+Use <Kbd>Alt</Kbd>+<Kbd>Enter</Kbd> to put each `LET` pair on its own line. A four-name `LET` laid out on five lines reads like a short paragraph; the same formula on one line reads like nothing. The line breaks are stored and don't affect the result.
+</Callout>
+
+### LAMBDA — your own function
+
+`LAMBDA` defines a calculation with named inputs, which you then save as a name:
+
+<FormulaBlock>
+```
+=LAMBDA(basic, rate, basic * rate * 12)
+        │             │
+        │             └── what it does
+        └──────────────── its inputs
+```
+</FormulaBlock>
+
+To make it reusable: **Formulas → Name Manager → New**, name it `AnnualCost`, and put the `LAMBDA` in *Refers to*. Then anywhere in the workbook:
+
+<FormulaBlock>
+```
+=AnnualCost(B2, 0.12)
+```
+</FormulaBlock>
+
+A custom function, no VBA, no macro-enabled file. The logic lives in one place, so a change to it applies everywhere at once.
+
+<Shot id="8.6.2" />
+
+<Callout type="warning">
+`LET` and `LAMBDA` need **Microsoft 365**. On Excel 2019 and 2021 they return `#NAME?`. A `LAMBDA` also can't be inspected from the cell — the formula just shows `=AnnualCost(B2,0.12)`, and the logic is in Name Manager where a reader has to go looking. Document it in the name's Comment field.
+</Callout>
+
+### SUMPRODUCT — weighted maths
+
+`SUMPRODUCT` multiplies arrays element by element, then adds the results:
+
+<FormulaBlock>
+```
+=SUMPRODUCT(Units, UnitPrice)
+```
+</FormulaBlock>
+
+That's total revenue without a helper column — each row's units × price, all summed. It's the correct answer to the calculated-field trap from Lesson 7.7, where summing first gave a meaningless product.
+
+**A weighted average** is its classic use:
+
+<FormulaBlock>
+```
+=SUMPRODUCT(Score, Weight) / SUM(Weight)
+```
+</FormulaBlock>
+
+And it counts with conditions, using the same `*` for AND and `+` for OR as `FILTER`:
+
+<FormulaBlock>
+```
+=SUMPRODUCT((Region="North")*(Units>20))          count of rows meeting both
+=SUMPRODUCT((Region="North")*(Units>20)*Revenue)  their total revenue
+```
+</FormulaBlock>
+
+`COUNTIFS` and `SUMIFS` handle most of this more simply. `SUMPRODUCT` earns its place when you need the **product of two columns** inside a conditional total, which `SUMIFS` cannot do.
+
+<Callout type="tip">
+`=SUMPRODUCT(--ISTEXT(range))` from Lesson 7.1 uses the same mechanism: `ISTEXT` returns TRUE/FALSE, the double minus coerces those to 1/0, and `SUMPRODUCT` adds them. Any time you need to count TRUEs in an array, that's the pattern.
+</Callout>
+
+## Do it
+
+Use a Table `Orders` with `Region`, `Units`, `UnitPrice`, `Revenue`, `Cost`.
+
+### SUMPRODUCT first
+
+1. **H2**: `=SUMPRODUCT(Orders[Units],Orders[UnitPrice])` → total revenue, no helper column.
+2. **H3**: `=SUM(Orders[Revenue])` → the same figure, confirming it.
+3. **H4**: `=SUMPRODUCT((Orders[Region]="North")*(Orders[Units]>20))` → a count.
+4. **H5**: `=SUMPRODUCT((Orders[Region]="North")*(Orders[Units]>20)*Orders[Revenue])` → their revenue.
+
+<Shot id="8.6.3" />
+
+### LET
+
+5. **J2**, the hard-to-read version:
+   `=IF(SUM(Orders[Revenue])-SUM(Orders[Cost])>500000,(SUM(Orders[Revenue])-SUM(Orders[Cost]))*0.1,(SUM(Orders[Revenue])-SUM(Orders[Cost]))*0.05)`
+6. **J3**, the same logic with `LET`:
+
+<FormulaBlock>
+```
+=LET(rev, SUM(Orders[Revenue]),
+     cost, SUM(Orders[Cost]),
+     profit, rev - cost,
+     IF(profit > 500000, profit * 0.1, profit * 0.05))
+```
+</FormulaBlock>
+
+7. Use <Kbd>Alt</Kbd>+<Kbd>Enter</Kbd> to lay it out on four lines. Compare readability with J2.
+8. Select `profit` inside the formula and press <Kbd>F9</Kbd> to see its value. Press <Kbd>Esc</Kbd>.
+
+### LAMBDA
+
+9. **Formulas → Name Manager → New.** Name: `Margin`. Refers to:
+   `=LAMBDA(rev, cost, IFERROR((rev-cost)/rev, 0))`
+10. Add a Comment: *"Returns margin as a decimal. Zero if revenue is zero."*
+11. In any cell: `=Margin(1000000, 650000)` → 0.35
+12. Use it against Table columns: `=Margin(SUM(Orders[Revenue]),SUM(Orders[Cost]))`
+
+13. Now edit the `LAMBDA` in Name Manager to round to two decimals. **Every use of `Margin` updates at once.**
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `Enter` | Line break inside a formula | One `LET` pair per line — this is what makes them readable | Break after each name/value pair |
+| `F9` on a `LET` name | Shows that name's value | Debugging which step of a multi-name `LET` is wrong | Select `profit`, press F9, press Esc |
+| `Ctrl` + `F3` | Opens Name Manager | Creating or editing a `LAMBDA`, and reading its Comment | Where all your custom functions live |
+| `Ctrl` + `Shift` + `U` | Expands the formula bar | Working on a multi-line `LET` | Drag its edge, or press this |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **`LET`'s last argument is a name, not a result** | `#VALUE!` or the wrong value | The final argument must be the expression to return |
+| Odd number of `LET` arguments | `#VALUE!` | Pairs of name and value, then one final expression |
+| `LAMBDA` logic invisible to readers | The cell shows `=Margin(...)` and nobody knows what it does | Document it in the name's Comment field |
+| `LET` or `LAMBDA` in a shared file | `#NAME?` for colleagues on 2019 or 2021 | Plain formulas for mixed-version workbooks |
+| `SUMPRODUCT` arrays of different lengths | `#VALUE!` | Every array must span the same number of rows |
+| Conditions without individual brackets | Wrong count, or an error | `(cond1)*(cond2)`, each bracketed |
+| `SUMPRODUCT` where `SUMIFS` would do | Harder to read for no benefit | `SUMIFS` unless you need a product of columns |
+| A name that shadows a cell reference | Confusing results | Avoid names like `A1` or `rate1` |
+
+</MistakeTable>
+
+<Callout type="story">
+**Farhan, Finance Analyst.** His commission model had one formula repeated across four sheets, each around 340 characters with the same nested lookup appearing three times. When the commission tiers changed, he had to edit it in twelve places. He got eleven right.
+
+The sheet he missed paid the old rates for two months before a salesperson queried their payout.
+
+He rebuilt it as a `LAMBDA` named `Commission`, documented in Name Manager, called as `=Commission(B2,C2)`. The next tier change was one edit in one place, and it applied everywhere or nowhere — partial application became impossible.
+
+The `LET` inside it also made the file noticeably faster, because the lookup now runs once per row instead of three times.
+
+**A formula that appears in more than one place is a rule waiting to be updated inconsistently.** `LAMBDA` is the fix, and it's the same argument as putting rates in cells rather than formulas — one source of truth.
+</Callout>
+
+## Practice
+
+<Exercise id="8.6.e1">
+
+<Scenario>
+Refactor a repetitive commission calculation into something readable and reusable, and replace a helper column with SUMPRODUCT.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/08-06-let-lambda.xlsx">
+
+Table named `Orders`:
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | OrderID | Region | Units | UnitPrice | Cost |
+| **2** | SO1001 | North | 12 | 54000 | 421200 |
+| **3** | SO1002 | South | 30 | 12500 | 243750 |
+| **4** | SO1003 | North | 8 | 54000 | 280800 |
+| **5** | SO1004 | East | 45 | 1800 | 52650 |
+| **6** | SO1005 | West | 22 | 12500 | 178750 |
+| **7** | SO1006 | North | 60 | 1800 | 70200 |
+
+There is deliberately **no Revenue column.**
+
+</Dataset>
+
+<Task>
+
+1. **H2** — total revenue using `SUMPRODUCT`, with no helper column.
+2. **H3** — count of North orders with more than 20 units, using `SUMPRODUCT`.
+3. **H4** — total revenue for those same orders.
+4. **H5** — a weighted average unit price, weighted by units.
+5. **J2** — write the deliberately unreadable version: total profit, times 10% if above 500,000 or 5% otherwise, repeating `SUMPRODUCT(...)-SUM(Cost)` three times.
+6. **J3** — the same logic with `LET`, laid out one pair per line.
+7. Create a `LAMBDA` named `Bonus` taking revenue and cost, returning the tiered bonus. Document it in the Comment field.
+8. Use `=Bonus(...)` in three different cells. Then change the tier in Name Manager. How many cells did you edit?
+9. Which of steps 2 and 3 could `COUNTIFS` and `SUMIFS` do instead? Which one can they not, and why?
+
+</Task>
+
+<Expected>
+H2 = 1,919,000 · H3 = 1 (only SO1006 — North with 60 units) · H4 = 108,000 · H5 = 10,841.81 · Profit = 671,650, so the bonus tier is 10% → 67,165 · Step 8: one edit in Name Manager · Step 9: COUNTIFS handles the count; SUMIFS cannot do step 3 because Revenue doesn't exist as a column
+</Expected>
+
+<Solution>
+
+```
+H2: =SUMPRODUCT(Orders[Units],Orders[UnitPrice])
+H3: =SUMPRODUCT((Orders[Region]="North")*(Orders[Units]>20))
+H4: =SUMPRODUCT((Orders[Region]="North")*(Orders[Units]>20)*Orders[Units]*Orders[UnitPrice])
+H5: =SUMPRODUCT(Orders[Units],Orders[UnitPrice])/SUM(Orders[Units])
+
+J3: =LET(rev, SUMPRODUCT(Orders[Units],Orders[UnitPrice]),
+         cost, SUM(Orders[Cost]),
+         profit, rev - cost,
+         IF(profit > 500000, profit * 0.1, profit * 0.05))
+
+Bonus: =LAMBDA(rev, cost, LET(p, rev-cost, IF(p>500000, p*0.1, p*0.05)))
+```
+
+</Solution>
+
+<Why>
+
+**Step 9 is the answer to "when do I actually need SUMPRODUCT".** `COUNTIFS` handles step 2 perfectly and more readably. But step 3 asks for the total of `Units × UnitPrice` for rows meeting two conditions — and `SUMIFS` can only sum an existing column. Since there is no Revenue column, `SUMIFS` has nothing to point at. `SUMPRODUCT` multiplies the two columns row by row *and* applies the conditions in one pass.
+
+That's the dividing line: **reach for `SUMIFS` by default, and `SUMPRODUCT` when you need the product of two columns inside a conditional total.** Using `SUMPRODUCT` where `COUNTIFS` would do just makes the formula harder to read.
+
+**Step 8's single edit is the `LAMBDA` payoff**, and it's the same principle as band tables in Lesson 5.5 — a rule stored in one place can't be updated partially. Farhan's twelve-place edit is exactly the failure that makes it worth the setup.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "8.6.q1",
+    type: "formula",
+    question: "Using LET, write a formula that defines profit as the difference between SUM(Rev) and SUM(Cost), then returns 10% of profit if it exceeds 500000, otherwise 5%.",
+    accept: ["=LET(profit,SUM(Rev)-SUM(Cost),IF(profit>500000,profit*0.1,profit*0.05))", "=LET(p,SUM(Rev)-SUM(Cost),IF(p>500000,p*0.1,p*0.05))"],
+    explanation: "LET takes pairs of name and value, then one final expression that must be the result — ending on a bare name gives #VALUE!. Beyond readability, each name is evaluated once, so an expensive lookup defined as a LET name runs a single time instead of once per mention."
+  },
+  {
+    id: "8.6.q2",
+    type: "decision",
+    question: "You need the total of Units × UnitPrice for rows where Region is \"North\", and there is no Revenue column. Which function?",
+    options: [
+      "SUMPRODUCT — it can multiply two columns inside a conditional total",
+      "SUMIFS, pointing at the Units column",
+      "SUMIF with a helper column added first",
+      "A pivot table with a calculated field"
+    ],
+    correct: 0,
+    explanation: "SUMIFS can only sum an existing column, and with no Revenue column there's nothing for it to point at. SUMPRODUCT multiplies the two columns row by row and applies the condition in one pass. Option 3 works but adds a column to maintain. Option 4 is the trap from Lesson 7.7 — a calculated field would multiply the summed units by the summed price and return a meaningless number. Use SUMIFS by default; SUMPRODUCT when you need a product of columns."
+  },
+  {
+    id: "8.6.q3",
+    type: "scenario",
+    question: "A colleague opens your workbook and every cell using your custom Margin function shows #NAME?. You're on Microsoft 365; they're on Excel 2021. Why?",
+    options: [
+      "The Name Manager entry didn't save with the file",
+      "LAMBDA requires Microsoft 365 — it doesn't exist in Excel 2021",
+      "They need to enable macros",
+      "The function name conflicts with a built-in"
+    ],
+    correct: 1,
+    explanation: "LET and LAMBDA both require Microsoft 365; Excel 2021 has dynamic arrays and XLOOKUP but not these. Nothing can rescue it in the file — IFERROR can't help when the function itself is unrecognised. For mixed-version workbooks, write the logic out as a plain formula, or keep the LAMBDA version for your own analysis and distribute a values-only copy. Note that LAMBDA needs no macros, so the file stays a normal .xlsx."
+  }
+]

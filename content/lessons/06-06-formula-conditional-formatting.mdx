@@ -1,0 +1,271 @@
+---
+id: "6.6"
+module: 6
+lesson: 6
+slug: "formula-conditional-formatting"
+title: "Formula-Based Conditional Formatting — Highlight Entire Rows"
+shortTitle: "Formula-Based CF"
+stage: "Intermediate"
+durationMin: 11
+access: "paid"
+objectives:
+  - "Highlight a whole row based on one cell's value"
+  - "Write the mixed reference that makes row highlighting work"
+  - "Flag duplicates, blanks, weekends and rows matching a search box"
+keys: ["F4", "Alt+H+L+N"]
+datasets: ["HR_Employee_Master", "Attendance_Register"]
+starterFile: "starter/06-06-formula-cf.xlsx"
+solutionFile: "solution/06-06-formula-cf.xlsx"
+functions: ["COUNTIF", "WEEKDAY", "SEARCH", "AND"]
+excelVersion: "all"
+shotCount: 3
+prev: "6.5"
+next: "6.7"
+videoUrl: null
+---
+
+## Why this matters
+
+Built-in rules colour the cell that fails the test. But when someone is scanning a 200-row list, colouring one cell in the middle of a row is easy to miss — you want the **whole row** highlighted. That needs a formula rule, and it depends entirely on getting one `$` in the right place.
+
+## How it works
+
+**Home → Conditional Formatting → New Rule → Use a formula to determine which cells to format.**
+
+You write a formula that returns TRUE or FALSE. Excel evaluates it for every cell in the range you selected, and formats the ones where it's TRUE.
+
+Two rules decide whether it works:
+
+**Write the formula for the top-left cell of your selection.** Excel adjusts it for the rest, exactly like filling a formula down and across.
+
+**Lock the column with `$` so every cell in the row tests the same column.**
+
+<FormulaBlock>
+```
+=$D2<20
+ │ │
+ │ └── row free — each row tests its own value
+ └──── column LOCKED — every cell in the row looks at column D
+```
+</FormulaBlock>
+
+<Shot id="6.6.1" />
+
+That single `$` is the whole technique. Without it — `=D2<20` — cell A2 tests column A, B2 tests column B, and you get a diagonal scatter of colour instead of rows.
+
+<Callout type="warning">
+Select the range **before** creating the rule, starting at the top-left data cell — not the header. If you select A1:E20 with headers included, your formula is written for A1 and every row's test is off by one.
+</Callout>
+
+### The patterns you'll actually use
+
+<FormulaBlock>
+```
+=$D2<20                              row where a value is below a threshold
+=$C2="Notice"                        row matching specific text
+=$D2<$H$1                            row below a threshold held in a cell
+=AND($C2="Sales",$D2>700000)          row meeting two conditions
+=COUNTIF($A:$A,$A2)>1                row with a duplicate ID
+=$B2=""                              row with a blank in a key column
+=WEEKDAY($A2,2)>5                    weekend rows in a date column
+=SEARCH($H$1,$B2)                    row matching a search box
+```
+</FormulaBlock>
+
+The last two are worth explaining. `WEEKDAY($A2,2)` returns 1 for Monday through 7 for Sunday, so `>5` catches Saturday and Sunday — useful for spotting attendance marked Present on a weekend.
+
+`SEARCH($H$1,$B2)` returns a position number if the text is found and an error if not. Any number is treated as TRUE, so typing into H1 highlights matching rows live. Wrap it in `ISNUMBER` if blank H1 causes problems: `=ISNUMBER(SEARCH($H$1,$B2))`.
+
+<Callout type="tip">
+The rule editor's formula box has a trap: **the arrow keys insert cell references instead of moving the cursor.** Press <Kbd>F2</Kbd> once to switch to edit mode, then the arrows behave normally. This catches everyone the first time and makes the box feel broken.
+</Callout>
+
+## Do it
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | EmpID | Name | Dept | CTC |
+| **2** | E1001 | Anil Kumar | Sales | 640000 |
+| **3** | E1002 | Meera Nair | HR | 520000 |
+| **4** | E1003 | Rahul Shah | Sales | 810000 |
+| **5** | E1004 | Sneha Rao | Finance | 470000 |
+| **6** | E1005 | Kabir Menon | Ops | 920000 |
+
+1. Select **A2:D6** — data only, no headers.
+2. **Conditional Formatting → New Rule → Use a formula…**
+3. Type `=$D2>700000`. Set a light amber fill. OK.
+4. Rahul's and Kabir's entire rows highlight.
+
+<Shot id="6.6.3" />
+
+### See why the `$` matters
+
+5. Edit the rule and remove the dollar: `=D2>700000`. Look at the result — a scattered diagonal, because each column now tests itself.
+6. Put the `$` back.
+
+### Reference a threshold cell
+
+7. Put `700000` in **F1**. Edit the rule to `=$D2>$F$1`.
+8. Change F1 to `600000`. Three rows highlight. The threshold is now visible and editable on the sheet.
+
+### Two conditions
+
+9. New rule on the same range: `=AND($C2="Sales",$D2>700000)` with a bold red font. Only Rahul matches.
+
+### Duplicates across a whole row
+
+10. Add a duplicate EmpID somewhere — change E1005 to E1001.
+11. New rule: `=COUNTIF($A$2:$A$6,$A2)>1` with a red fill. Both E1001 rows highlight.
+
+### A live search box
+
+12. Put a search term in **F3**.
+13. New rule: `=ISNUMBER(SEARCH($F$3,$B2))` with a yellow fill.
+14. Type `ra` in F3 — Rahul and Sneha Rao both highlight as you type.
+
+<Shot id="6.6.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F4` | Cycles the reference between relative, absolute and mixed | Getting `$D2` right — the single most important keystroke in this lesson | Cursor on `D2`, press F4 until it reads `$D2` |
+| `F2` in the rule's formula box | Switches from reference-entry to edit mode | The arrow keys are inserting cell references instead of moving the cursor | Press F2 once, then edit normally |
+| `Alt` + `H` + `L` + `N` | Opens New Rule directly | Creating a formula rule without navigating the menu | Straight to the rule type list |
+| `Alt` + `H` + `L` + `R` | Opens Manage Rules | Editing a formula rule, or checking why one isn't firing | Select the rule, click Edit Rule |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Missing the `$` on the column** | A diagonal scatter of colour instead of whole rows | `=$D2`, not `=D2` |
+| Locking both parts — `=$D$2` | Every row formats, or none | Lock the column only; the row must stay free |
+| Header row included in the selection | Every row's test is off by one | Select from the first data row |
+| Formula written for the wrong cell | Wrong rows highlight | Write it for the top-left cell of your selection |
+| Arrow keys inserting references | The formula fills with junk cell addresses | Press <Kbd>F2</Kbd> to enter edit mode |
+| Whole-column ranges in `COUNTIF` | Slow on large files | Use an explicit range, or a Table column |
+| Expecting the formula to be visible later | It's hidden in Manage Rules | Reference a labelled cell so the logic is partly on the sheet |
+
+</MistakeTable>
+
+<Callout type="story">
+**Sridhar, Payroll Executive.** He reviewed a 340-row payroll register each month for anomalies — negative net pay, missing bank details, duplicate employee IDs. He did it by reading down the columns.
+
+One month he missed a duplicate EmpID. Two employees shared a record, and one of them was paid twice. The double payment was recovered, but it took a month and a difficult conversation.
+
+He added three formula rules to the register: `=COUNTIF($A$2:$A$400,$A2)>1` for duplicate IDs in red, `=$K2<0` for negative net pay, and `=$H2=""` for a missing bank account. All three highlight the full row.
+
+The next month, two duplicates and one blank bank field were visible the moment he opened the file. He didn't have to look for them.
+
+**The value isn't the colour — it's that the check runs itself.** A manual review depends on attention you won't always have at month end. A formula rule doesn't.
+</Callout>
+
+## Practice
+
+<Exercise id="6.6.e1">
+
+<Scenario>
+Build an attendance register that flags problems on sight — weekend entries, absences, duplicates and a live name search.
+</Scenario>
+
+<Dataset name="Attendance_Register" starter="starter/06-06-formula-cf.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | Date | EmpID | Name | Status | Hours |
+| **2** | 07-Sep-2026 | E1001 | Anil Kumar | Present | 8.5 |
+| **3** | 07-Sep-2026 | E1002 | Meera Nair | Present | 8.0 |
+| **4** | 08-Sep-2026 | E1001 | Anil Kumar | Absent | 0 |
+| **5** | 12-Sep-2026 | E1003 | Rahul Shah | Present | 7.5 |
+| **6** | 13-Sep-2026 | E1004 | Sneha Rao | Present | 8.0 |
+| **7** | 09-Sep-2026 | E1002 | Meera Nair | Half Day | 4.0 |
+| **8** | 09-Sep-2026 | E1002 | Meera Nair | Present | 8.0 |
+
+**G1** `Min Hours` = `6` · **G2** `Search` = *(leave blank)*
+
+Note: 12-Sep-2026 is a Saturday and 13-Sep-2026 a Sunday.
+
+</Dataset>
+
+<Task>
+
+1. Select A2:E8. Highlight the whole row in light red where Status is `Absent`.
+2. Add a rule highlighting whole rows in amber where Hours is below the value in G1. Reference the cell.
+3. Add a rule highlighting weekend rows in light grey, using `WEEKDAY` on the date column.
+4. Add a rule flagging duplicate Date-and-EmpID combinations in bold red font. You'll need `COUNTIFS`.
+5. Add a live search: highlight rows in yellow where the Name contains whatever is typed in G2. Test with `ra`.
+6. Now remove the `$` from one of your rules and observe what happens. Restore it.
+7. Open Manage Rules. Reorder them so the Absent rule takes priority over the low-hours rule, and tick **Stop If True** on it.
+8. Which row triggers three rules at once? What colour does it end up, and why?
+
+</Task>
+
+<Expected>
+Step 1: row 4 highlights · Step 2: rows 4 and 7 · Step 3: rows 5 and 6 · Step 4: rows 7 and 8 (same date and EmpID) · Step 5 with `ra`: Rahul Shah and Sneha Rao
+</Expected>
+
+<Hint>
+For step 4, `COUNTIFS` with two criteria pairs — count how many rows share both this row's date and this row's EmpID.
+</Hint>
+
+<Solution>
+
+```
+Step 1: =$D2="Absent"
+Step 2: =$E2<$G$1
+Step 3: =WEEKDAY($A2,2)>5
+Step 4: =COUNTIFS($A$2:$A$8,$A2,$B$2:$B$8,$B2)>1
+Step 5: =ISNUMBER(SEARCH($G$2,$C2))
+```
+
+</Solution>
+
+<Why>
+
+**Step 6 is the one to actually do rather than read.** Removing the `$` from `=$D2="Absent"` gives `=D2="Absent"`, and Excel then tests A2 against column A, B2 against column B, and so on. Only the cell in column D of an Absent row colours — plus any coincidental matches elsewhere. The result looks random, and the formula still looks right, which is why this costs people twenty minutes.
+
+**Step 4's `COUNTIFS` catches what a single-column duplicate check misses.** Meera legitimately appears on several dates, so `COUNTIF` on EmpID alone would flag every one of her rows. Counting the *combination* of date and EmpID finds the real problem: two entries for the same person on the same day, which is a genuine data error rather than normal repetition.
+
+**Step 8 is about rule order.** Row 4 is Absent *and* below minimum hours, so it fires two rules. Without Stop If True the later rule wins and you get amber — implying "low hours" when the real issue is an absence. **The colour a cell ends up is decided by rule order, not by which condition matters most**, so you have to set the order deliberately.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "6.6.q1",
+    type: "formula",
+    question: "You've selected A2:F200. Write the conditional formatting formula that highlights the entire row when column D holds the text \"Notice\".",
+    accept: ["=$D2=\"Notice\"", "=$D2=\"notice\""],
+    explanation: "The $ locks the column so every cell across the row tests column D, while the free row number lets each row test its own value. Written as =D2=\"Notice\" without the dollar, cell A2 would test column A, B2 would test column B, and you'd get a scattered diagonal instead of rows. Always write the formula for the top-left cell of your selection."
+  },
+  {
+    id: "6.6.q2",
+    type: "truefalse",
+    question: "When creating a formula-based rule, you should include the header row in your selection so Excel knows which columns you mean.",
+    correct: false,
+    explanation: "Select only the data, starting at the first data row. Excel writes the formula relative to the top-left cell of your selection — include row 1 and the formula is written for row 1, so every row's test ends up off by one. Excel identifies columns from the references in your formula, not from the headers."
+  },
+  {
+    id: "6.6.q3",
+    type: "scenario",
+    question: "A row is both Absent and has below-minimum hours, triggering two of your rules. It shows the low-hours amber rather than the Absent red, though Absent matters more. How do you fix it?",
+    options: [
+      "Delete the low-hours rule",
+      "Reorder the rules in Manage Rules so Absent is first, and tick Stop If True on it",
+      "Change the Absent rule to use a darker red",
+      "Apply the Absent rule to a separate range"
+    ],
+    correct: 1,
+    explanation: "Conditional formatting applies rules in the order listed in Manage Rules, and a later rule overrides an earlier one on the same cell. Moving the Absent rule to the top and ticking Stop If True halts evaluation once it matches, so the row stays red. The colour a cell ends up is decided by rule order rather than by which condition is more important, which means you have to set the order deliberately — this is also the most common reason a rule that looks correct appears not to work."
+  }
+]

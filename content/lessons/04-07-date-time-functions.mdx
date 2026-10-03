@@ -1,0 +1,287 @@
+---
+id: "4.7"
+module: 4
+lesson: 7
+slug: "date-time-functions"
+title: "Date & Time Functions — TODAY, DATEDIF, EOMONTH, NETWORKDAYS"
+shortTitle: "Date & Time Functions"
+stage: "Intermediate"
+durationMin: 14
+access: "paid"
+objectives:
+  - "Calculate tenure, age and ageing in years, months or days"
+  - "Count working days between two dates, excluding holidays"
+  - "Build month-end and due-date logic that survives a change of month"
+keys: ["Ctrl+;", "Ctrl+Shift+~"]
+datasets: ["HR_Employee_Master", "Attendance_Register"]
+starterFile: "starter/04-07-dates.xlsx"
+solutionFile: "solution/04-07-dates.xlsx"
+functions: ["TODAY", "NOW", "DATEDIF", "EOMONTH", "EDATE", "WORKDAY", "NETWORKDAYS", "YEARFRAC", "YEAR", "MONTH", "DAY", "WEEKDAY"]
+excelVersion: "all"
+shotCount: 5
+prev: "4.6"
+next: "5.1"
+videoUrl: null
+---
+
+## Why this matters
+
+Tenure, age, notice periods, probation end dates, invoice ageing, time-to-hire, working days in a month — every HR and finance report runs on date arithmetic. And because dates are secretly numbers (Lesson 2.2), most of it is simpler than it looks.
+
+## How it works
+
+Since a date is a serial number, plain arithmetic works:
+
+<FormulaBlock>
+```
+=TODAY()-D2        days between the joining date and today
+=D2+90             90 days after the joining date — probation end
+=D2-C2             days between two dates
+```
+</FormulaBlock>
+
+<Callout type="warning">
+Subtracting two dates often auto-formats the result as a **date** — so you see `04-Sep-1914` instead of `2006`. Press `Ctrl+Shift+~` (General format) to see the actual number. This catches out almost everyone the first time.
+</Callout>
+
+### DATEDIF — tenure in the units people ask for
+
+<FormulaBlock>
+```
+=DATEDIF(D2, TODAY(), "y")     complete years         → 4
+=DATEDIF(D2, TODAY(), "m")     complete months        → 54
+=DATEDIF(D2, TODAY(), "ym")    months past the year   → 6
+=DATEDIF(D2, TODAY(), "d")     days                   → 1643
+```
+</FormulaBlock>
+
+Combine them for the format HR actually uses:
+
+<FormulaBlock>
+```
+=DATEDIF(D2,TODAY(),"y")&"y "&DATEDIF(D2,TODAY(),"ym")&"m"     →  "4y 6m"
+```
+</FormulaBlock>
+
+<Shot id="4.7.1" />
+
+<Callout type="tip">
+`DATEDIF` is a hidden function — Excel offers no autocomplete and no tooltip for it, and it isn't in the function library. It works in every version anyway. Type it out in full; don't wait for Excel to suggest it.
+</Callout>
+
+### Month-end and month-shift
+
+<FormulaBlock>
+```
+=EOMONTH(TODAY(),0)      last day of this month
+=EOMONTH(TODAY(),-1)     last day of last month
+=EOMONTH(D2,0)+1         first day of the following month
+=EDATE(D2,6)             same date, 6 months later
+```
+</FormulaBlock>
+
+`EOMONTH` handles February, leap years and 30 vs 31 days for you. Any formula that adds 30 to get "next month" is wrong twelve times a year.
+
+<Shot id="4.7.2" />
+
+### Working days
+
+<FormulaBlock>
+```
+=NETWORKDAYS(C2, D2)              working days between two dates, inclusive
+=NETWORKDAYS(C2, D2, $H$2:$H$12)  excluding a holiday list
+=WORKDAY(C2, 15, $H$2:$H$12)      the date 15 working days after C2
+```
+</FormulaBlock>
+
+Both skip Saturdays and Sundays by default. `NETWORKDAYS.INTL` lets you define a different weekend — essential if your business runs a six-day week.
+
+The holiday range is just a column of dates somewhere on the sheet. **Maintain it once a year and every date calculation in the workbook becomes accurate.**
+
+<Shot id="4.7.3" />
+
+### Pulling parts out
+
+<FormulaBlock>
+```
+=YEAR(D2)      2021
+=MONTH(D2)     3
+=TEXT(D2,"mmm")   "Mar"      — for grouping and charts
+=WEEKDAY(D2,2)    1 = Monday … 7 = Sunday
+```
+</FormulaBlock>
+
+## Do it
+
+An HR master with joining dates.
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee | DOJ | DOB |
+| **2** | Anil Kumar | 12-Mar-2021 | 04-Aug-1994 |
+| **3** | Meera Nair | 05-Jul-2022 | 19-Feb-1990 |
+| **4** | Rahul Shah | 19-Jan-2020 | 27-Nov-1986 |
+
+1. **D2** — tenure in years: `=DATEDIF(B2,TODAY(),"y")`
+2. **E2** — tenure formatted: `=DATEDIF(B2,TODAY(),"y")&"y "&DATEDIF(B2,TODAY(),"ym")&"m"`
+3. **F2** — age: `=DATEDIF(C2,TODAY(),"y")`
+4. **G2** — probation end, 90 days: `=B2+90`. Format as date.
+5. **H2** — confirmation due at the end of the probation month: `=EOMONTH(B2+90,0)`
+
+<Shot id="4.7.4" />
+
+6. Build a holiday list in `K2:K12` — a column of dates.
+7. **I2** — working days served this month: `=NETWORKDAYS(EOMONTH(TODAY(),-1)+1,TODAY(),$K$2:$K$12)`
+8. **J2** — the review date, 20 working days out: `=WORKDAY(TODAY(),20,$K$2:$K$12)`
+
+### The live-vs-static trap
+
+9. In L2 press <Kbd>Ctrl</Kbd>+<Kbd>;</Kbd> — a static date is typed in.
+10. In M2 type `=TODAY()`. Both look identical today.
+11. **They are completely different.** `=TODAY()` recalculates every time the file opens. If you'd used it to stamp *when a record was created*, every historic record would show today's date the moment anyone opened the workbook — and the original dates would be gone with no way to recover them.
+
+<Shot id="4.7.5" />
+
+Use `=TODAY()` for "how old is this *now*". Use `Ctrl+;` for "this happened on".
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `;` | Inserts today's date as a **static** value | Recording when something actually happened — a date of receipt, an approval | Stamping a claim as approved today |
+| `Ctrl` + `Shift` + `~` | General format — strips date formatting | Seeing why a date subtraction shows `04-Sep-1914` instead of `2006` | Diagnosing any date result |
+| `Ctrl` + `Shift` + `3` | Date format | Turning a serial number back into a readable date | After `DATEVALUE` or a date calculation |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Date subtraction auto-formatted as a date** | `04-Sep-1914` instead of `2006` | `Ctrl+Shift+~` to set General format |
+| Using `=TODAY()` to stamp a historic event | Every past record shows today's date, permanently | `Ctrl+;` for static stamps |
+| Adding 30 for "next month" | Wrong in every month that isn't 30 days | `EOMONTH` or `EDATE` |
+| `DATEDIF` with the dates the wrong way round | `#NUM!` | Earlier date first, always |
+| Text dates from a system export | `#VALUE!` on any date arithmetic | Check alignment; `DATEVALUE` or Text to Columns (Lesson 2.2) |
+| `NETWORKDAYS` without a holiday list | Public holidays counted as working days | Maintain a holiday range and reference it |
+| Assuming `NETWORKDAYS` knows your weekend | Sat/Sun assumed — wrong for a six-day week | `NETWORKDAYS.INTL` with a weekend code |
+| Expecting `DATEDIF` in autocomplete | You conclude it doesn't exist | It's undocumented but works. Type it in full. |
+
+</MistakeTable>
+
+<Callout type="story">
+**Deepak, HR Executive.** His gratuity eligibility report used `=(TODAY()-B2)/365` to get years of service, then rounded down. Anyone at 5 years or more was flagged eligible.
+
+Two employees at 4 years and 363 days showed as 5.00 years after rounding, because 365 ignores leap days and the accumulated drift pushed them over. Both were flagged eligible. One received a provisional gratuity calculation in writing before the error was caught, and it had to be withdrawn.
+
+`=DATEDIF(B2,TODAY(),"y")` returns **complete** years and handles leap years correctly. It would have returned 4 for both. **Dividing by 365 is never right for tenure** — the drift is small, but eligibility thresholds are exact, and a threshold is precisely where a small error becomes a real consequence.
+</Callout>
+
+## Practice
+
+<Exercise id="4.7.e1">
+
+<Scenario>
+An HR master needing tenure, probation dates, retirement projections and a working-days calculation for the current month.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/04-07-dates.xlsx">
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee | DOJ | DOB |
+| **2** | Anil Kumar | 12-Mar-2021 | 04-Aug-1994 |
+| **3** | Meera Nair | 05-Jul-2022 | 19-Feb-1990 |
+| **4** | Rahul Shah | 19-Jan-2020 | 27-Nov-1986 |
+| **5** | Sneha Rao | 28-Sep-2025 | 11-Jun-1998 |
+| **6** | Kabir Menon | 03-Feb-2019 | 22-Dec-1982 |
+
+Holiday list in **M2:M6**: `26-Jan-2026`, `15-Aug-2026`, `02-Oct-2026`, `25-Dec-2026`, `01-Jan-2027`
+
+</Dataset>
+
+<Task>
+
+1. **D2** — complete years of service.
+2. **E2** — service as `4y 6m`.
+3. **F2** — age in complete years.
+4. **G2** — probation end date, 90 calendar days from DOJ.
+5. **H2** — confirmation due date: the last day of the month in which probation ends.
+6. **I2** — `Eligible` if service is 5 complete years or more, else `Not yet`. Use `DATEDIF`, not division.
+7. **J2** — working days from the start of the current month to today, excluding the holiday list.
+8. **K2** — retirement date, assuming age 58: the last day of the month in which they turn 58.
+
+</Task>
+
+<Expected>
+Row 2 (DOJ 12-Mar-2021): D2 = 5, E2 = `5y 6m`, G2 = 10-Jun-2021, H2 = 30-Jun-2021 · Row 5 (DOJ 28-Sep-2025): D5 = 1, I5 `Not yet` · Row 6 (DOJ 03-Feb-2019): I6 `Eligible`
+</Expected>
+
+<Hint>
+For step 8, add 58 years to the date of birth with `EDATE(C2,58*12)`, then wrap it in `EOMONTH(...,0)`.
+</Hint>
+
+<Solution>
+
+```
+D2: =DATEDIF(B2,TODAY(),"y")
+E2: =DATEDIF(B2,TODAY(),"y")&"y "&DATEDIF(B2,TODAY(),"ym")&"m"
+F2: =DATEDIF(C2,TODAY(),"y")
+G2: =B2+90
+H2: =EOMONTH(B2+90,0)
+I2: =IF(DATEDIF(B2,TODAY(),"y")>=5,"Eligible","Not yet")
+J2: =NETWORKDAYS(EOMONTH(TODAY(),-1)+1,TODAY(),$M$2:$M$6)
+K2: =EOMONTH(EDATE(C2,58*12),0)
+```
+
+</Solution>
+
+<Why>
+
+**Step 6 is the one that matters.** `=DATEDIF(B2,TODAY(),"y")` returns complete years and handles leap years exactly. The tempting alternative, `=ROUNDDOWN((TODAY()-B2)/365,0)`, drifts by about a day every four years — so someone at 4 years and 363 days can calculate as 5. On a threshold that triggers a statutory payment, that drift is the difference between correct and legally wrong.
+
+**Step 7's structure is worth keeping.** `EOMONTH(TODAY(),-1)+1` means "the day after the end of last month", which is the first day of this month — and it stays correct in February, in leap years, and across a year boundary. Anyone building this with `DATE(YEAR(TODAY()),MONTH(TODAY()),1)` gets the same answer with more moving parts, and anyone using `TODAY()-30` gets it wrong most of the year.
+
+**Step 8 composes two functions and shows why `EDATE` exists.** `EDATE(C2,58*12)` lands on the same day of the month, 58 years on — handling the 29-February edge case that adding `58*365` would get wrong. Wrapping it in `EOMONTH(...,0)` moves it to month-end, which is how most retirement policies are actually written.
+
+**One thing to notice across the whole exercise:** every result that uses `TODAY()` changes tomorrow. That's correct for tenure and age — they genuinely are one day older. It would be badly wrong for a "date of joining" or "date approved" field, which must be a static stamp. The same function is right in one column and destructive in the next.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "4.7.q1",
+    type: "formula",
+    question: "Date of joining is in B2. Write a formula returning complete years of service as at today.",
+    accept: ["=DATEDIF(B2,TODAY(),\"y\")", "=DATEDIF(B2,TODAY(),\"Y\")"],
+    explanation: "DATEDIF with \"y\" returns complete years and handles leap years correctly. Avoid =(TODAY()-B2)/365 — it drifts by roughly a day every four years, so someone at 4 years 363 days can calculate as 5. On an eligibility threshold that drift becomes a real consequence. Note DATEDIF has no autocomplete or tooltip in Excel, but it works in every version."
+  },
+  {
+    id: "4.7.q2",
+    type: "truefalse",
+    question: "=B2+30 is a reliable way to get the same date one month later.",
+    correct: false,
+    explanation: "It's only correct for 30-day months. From 31-Jan it gives 02-Mar in a normal year and 01-Mar in a leap year; from 31-Mar it gives 30-Apr. Use =EDATE(B2,1) for the same date next month, or =EOMONTH(B2,0)+1 for the first day of next month — both handle month lengths and leap years for you."
+  },
+  {
+    id: "4.7.q3",
+    type: "mcq",
+    question: "You used =NOW() to record the exact time each expense claim was approved. Three months later, what do the historic records show?",
+    options: [
+      "The original approval times, correctly preserved",
+      "The current date and time, on every row",
+      "#VALUE! errors",
+      "The date but not the time"
+    ],
+    correct: 1,
+    explanation: "NOW() and TODAY() are volatile — they recalculate every time the workbook opens or anything changes. Every historic row shows the present moment, and the original timestamps are gone with no way to recover them. For recording when something happened, use the static shortcuts: Ctrl+; for the date, Ctrl+Shift+; for the time. Reserve the live functions for \"how old is this right now\" calculations."
+  }
+]

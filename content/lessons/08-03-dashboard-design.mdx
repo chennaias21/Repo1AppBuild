@@ -1,0 +1,266 @@
+---
+id: "8.3"
+module: 8
+lesson: 3
+slug: "dashboard-design"
+title: "Dashboard Design Principles"
+shortTitle: "Dashboard Design"
+stage: "Business-Ready"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Decide what belongs on a dashboard before you build anything"
+  - "Lay out one screen so the most important number is read first"
+  - "Structure the workbook so the dashboard maintains itself"
+keys: ["Ctrl+1", "Alt+W+VG"]
+datasets: ["HR_Employee_Master", "Sales_Transactions"]
+starterFile: "starter/08-03-dashboard-design.xlsx"
+solutionFile: "solution/08-03-dashboard-design.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 3
+prev: "8.2"
+next: "8.4"
+videoUrl: null
+---
+
+## Why this matters
+
+Most Excel dashboards fail for the same reason: they show everything the builder could produce rather than what the reader needs to decide. The techniques are easy — you already have pivots, charts and slicers. The hard part is restraint, and that's what this lesson is about. You build in 8.4; you plan here.
+
+## How it works
+
+### Start with the decision, not the data
+
+Before opening Excel, answer three questions:
+
+| Question | Why it matters |
+|---|---|
+| **Who reads this, and how often?** | A CHRO glancing monthly needs different things from an analyst using it daily |
+| **What decision does it support?** | If no decision follows from a number, it doesn't belong |
+| **What action follows a red number?** | A metric nobody can act on is decoration |
+
+**The test for every element: if this number changed, would anyone do anything differently?** If not, cut it.
+
+Most bad dashboards are a collection of everything that was measurable. A good one answers a specific recurring question.
+
+### Five to seven numbers, maximum
+
+A dashboard is not a report. It carries the small number of figures that indicate whether things are on track, and each of those should earn its place.
+
+For an HR dashboard that's usually: headcount, joiners, leavers, attrition rate, open positions, average tenure. Six. Everything else belongs on a detail sheet a click away.
+
+<Shot id="8.3.1" />
+
+### One screen, no scrolling
+
+If the reader has to scroll, it isn't a dashboard. Design for roughly **1366 × 768** — still the most common business laptop resolution — and check it at that size.
+
+The layout that works, because it follows how people read:
+
+```
+┌─────────────────────────────────────────────┐
+│  TITLE + period            [ slicers ]      │
+├─────────┬─────────┬─────────┬───────────────┤
+│  KPI 1  │  KPI 2  │  KPI 3  │  KPI 4        │  ← the headline numbers
+├─────────┴─────────┼─────────┴───────────────┤
+│   Trend over time │  Breakdown by category  │  ← the two main charts
+├───────────────────┴─────────────────────────┤
+│   Supporting detail table                   │  ← only if needed
+└─────────────────────────────────────────────┘
+```
+
+Top-left is read first, so the most important number goes there. Slicers go top-right where they're visible but not competing with the headline.
+
+<Callout type="tip">
+Turn off gridlines (**View → Gridlines**), hide the row and column headers, and freeze the top rows. A dashboard that still shows spreadsheet furniture reads as a work-in-progress; without it, the same content looks like a product.
+</Callout>
+
+### Colour carries meaning or nothing
+
+One brand colour, one accent for emphasis, and greys for everything else. Then red and green **only** for good and bad — if you've used red decoratively elsewhere, a red warning no longer registers.
+
+Three or four colours total. A dashboard using nine reads as chaotic regardless of how good the analysis is.
+
+<Callout type="warning">
+Roughly 8% of men have some red-green colour blindness, so red-versus-green alone is not a signal for a meaningful share of your readers. Pair colour with something else — an arrow, an icon set, a `+`/`−` sign, or the word itself.
+</Callout>
+
+### The workbook structure that makes it maintainable
+
+This matters more than any visual choice:
+
+```
+[ Dashboard ]   what people see. No raw data, no working formulas.
+[ Pivots    ]   every pivot table, one source
+[ Working   ]   helper formulas, GETPIVOTDATA tiles
+[ Raw Data  ]   paste the export here. Never edit. A Table.
+[ Rates     ]   thresholds, targets, band tables
+```
+
+Raw data on its own sheet as a Table means next month is paste-and-refresh (Lesson 6.1). Thresholds on a Rates sheet means a target change is one cell (Lesson 5.5). **Every KPI tile reads via `GETPIVOTDATA`, never a positional cell reference** (Lesson 7.8).
+
+<Shot id="8.3.2" />
+
+## Do it
+
+Plan a dashboard on paper before touching Excel. For an HR dashboard for a CHRO who reviews it monthly:
+
+1. **Decision it supports:** is attrition under control, and are we filling roles fast enough?
+2. **Write the five KPIs:** Headcount · Joiners MTD · Leavers MTD · Attrition % · Open Positions.
+3. **Apply the test** to two more candidates — average age, gender ratio. Does a decision follow from either, monthly? If not, they go on a detail sheet.
+4. **Two charts:** headcount trend over 12 months (line — time is continuous), and attrition by department (bar, sorted descending).
+5. **One slicer:** Department. Connected to both pivots.
+6. Sketch the grid: title row, four KPI tiles, two charts below, slicers top-right.
+
+<Shot id="8.3.3" />
+
+### Set up the workbook
+
+7. Create five sheets: `Dashboard`, `Pivots`, `Working`, `RawData`, `Rates`.
+8. Colour-code the tabs — grey for RawData and Rates, blue for Working and Pivots, green for Dashboard.
+9. Paste the employee export into `RawData` and press <Kbd>Ctrl</Kbd>+<Kbd>T</Kbd>. Name the Table `EmpMaster`.
+10. On `Rates`, add labelled targets: attrition threshold, time-to-fill target.
+11. On `Dashboard`: **View → Gridlines** off, **View → Headings** off.
+12. Freeze below the title row.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `W` + `V` + `G` | Toggles gridlines | First thing on any dashboard sheet — removes the spreadsheet look | Also `Alt+W+V+H` for headings |
+| `Alt` + `W` + `F` + `F` | Freeze panes | Keeping the title and slicers visible if the sheet is slightly too tall | Click below the title row first |
+| `Ctrl` + `1` | Format pane | Building KPI tiles — borders, fills, number formats | Select the tile range, press it |
+| `Alt` + `Shift` + arrow | Nudges a chart or slicer by one pixel | Aligning tiles and charts precisely | Select the object, then nudge |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Everything that could be measured** | Nobody can find the number that matters | Five to seven KPIs; apply the decision test |
+| Requires scrolling | Readers see only the top half | Design for 1366×768 and check at that size |
+| Raw data on the dashboard sheet | Impossible to refresh cleanly; slow | Separate RawData sheet, as a Table |
+| KPI tiles as positional references | Wrong figures the month a category disappears | `GETPIVOTDATA` (Lesson 7.8) |
+| Red-green as the only signal | Unreadable for ~8% of male readers | Pair colour with an arrow or sign |
+| Nine colours | Reads as chaotic; nothing stands out | One brand colour, one accent, greys |
+| Gridlines and headings left on | Looks unfinished | Turn both off |
+| Targets hard-coded in formulas | A target change means hunting through formulas | Rates sheet, labelled cells |
+
+</MistakeTable>
+
+<Callout type="story">
+**Meera, HR Business Partner.** Her first dashboard had eighteen charts across two screens — headcount by department, by location, by grade, by gender, by tenure band, attrition by each of those, and more. It had taken three weeks.
+
+The CHRO opened it once and asked her to "just send the attrition number each month."
+
+Her second attempt had five KPIs and two charts on one screen, with a department slicer. It took a day. The CHRO uses it monthly and forwards it to the board.
+
+The difference wasn't skill — the first version was technically more impressive. It was that she'd built what she could measure rather than what he needed to decide.
+
+**Every element must survive one question: if this number changed, would anyone do anything differently?** Eighteen charts, and only five passed.
+</Callout>
+
+## Practice
+
+<Exercise id="8.3.e1">
+
+<Scenario>
+Plan — not build — a sales dashboard for a national sales director who reviews it weekly.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/08-03-dashboard-design.xlsx">
+
+Available fields: `OrderID`, `Date`, `Region`, `Salesperson`, `Product`, `Category`, `Units`, `UnitPrice`, `Revenue`, `Cost`, `CustomerSegment`, `PaymentStatus`
+
+</Dataset>
+
+<Task>
+
+1. Write down the decision this dashboard supports, in one sentence.
+2. From the twelve fields, choose **five** KPIs. For each, write the action that follows if it goes the wrong way.
+3. Name three metrics you deliberately **excluded**, and why.
+4. Choose two charts and justify each chart *type* against Lesson 8.1's rule.
+5. Choose one or two slicers. Why those, and not others?
+6. Sketch the layout on a 1366×768 grid. What sits top-left, and why?
+7. Set up the five-sheet workbook structure with colour-coded tabs, RawData as a Table, and a Rates sheet holding a revenue target and a margin threshold.
+8. Turn off gridlines and headings on the Dashboard sheet.
+
+</Task>
+
+<Expected>
+A written plan, not a built dashboard. Five KPIs each with a linked action; three justified exclusions; two chart types matched to their data; the five-sheet structure in place
+</Expected>
+
+<Solution>
+
+```
+Likely KPIs: Revenue MTD · vs Target % · Margin % · Order Count · Overdue Payments
+Charts:      Revenue trend by week (LINE — time is continuous)
+             Revenue by region, sorted descending (BAR — unordered categories)
+Slicers:     Region, and Category
+Top-left:    Revenue vs Target — the single number the director is accountable for
+
+Sheets: Dashboard (green) · Pivots (blue) · Working (blue) · RawData (grey) · Rates (grey)
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 is the hardest task here and the most useful.** Excluding a metric feels like leaving work undone, but `CustomerSegment` breakdowns and `Units` by product are analyst questions, not weekly-review questions — no decision follows from them at this cadence. Putting them on a detail sheet keeps them available without spending headline space. The discipline of *writing down* why something is excluded stops you quietly adding it back.
+
+**Step 2's requirement to name the action is the real test.** "Revenue MTD → if below target, reallocate effort to the underperforming region" passes. "Average order value" usually doesn't — it's interesting, but at a weekly review nobody acts on it. A metric with no action attached is decoration, and Meera's eighteen charts were mostly that.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "8.3.q1",
+    type: "decision",
+    question: "You've built fourteen charts covering every dimension of your data. What should you do before sharing the dashboard?",
+    options: [
+      "Cut it to five to seven elements, keeping only those where a change would trigger an action",
+      "Split it across two screens so everything fits legibly",
+      "Add a table of contents so readers can find what they need",
+      "Keep all fourteen — more information is more useful to the reader"
+    ],
+    correct: 0,
+    explanation: "A dashboard's job is to make the important thing obvious, and fourteen elements guarantees nothing is. The test for each is whether anyone would act differently if that number changed — metrics that fail it are decoration and belong on a detail sheet. Splitting across two screens or adding navigation treats a curation problem as a layout problem, which is what Meera's first attempt did before the CHRO asked her to just send one number."
+  },
+  {
+    id: "8.3.q2",
+    type: "scenario",
+    question: "Your dashboard uses red fills for below-target figures and green for above. A colleague says he can't tell them apart. What's the fix?",
+    options: [
+      "Use brighter shades of red and green",
+      "Pair the colour with a second signal — an arrow, an icon, or a +/− sign",
+      "Add a legend explaining the colour coding",
+      "Switch to blue and orange instead"
+    ],
+    correct: 1,
+    explanation: "Around 8% of men have some red-green colour blindness, so colour alone excludes a meaningful share of readers — and brighter shades don't help, because the problem is hue discrimination rather than intensity. Pairing colour with a shape or symbol means the signal survives without it. Option 4 is a genuine improvement for accessibility and worth considering, but it still relies on colour as the only channel; a legend doesn't help someone who can't distinguish the fills in the first place."
+  },
+  {
+    id: "8.3.q3",
+    type: "mcq",
+    question: "Where should the raw monthly data export live in a dashboard workbook?",
+    options: [
+      "On the Dashboard sheet, below the charts",
+      "On its own sheet, converted to a Table, never edited directly",
+      "In a separate workbook linked by formulas",
+      "Pasted directly into the pivot table source range each month"
+    ],
+    correct: 1,
+    explanation: "A dedicated RawData sheet holding a Table means next month is paste-and-refresh: the Table absorbs new rows and every pivot, chart and tile follows. Keeping it on the Dashboard sheet makes the file slow and the layout fragile. A separate workbook adds broken-link risk for no benefit here. And editing the source range by hand each month is exactly the maintenance burden Tables exist to remove."
+  }
+]

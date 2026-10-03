@@ -1,0 +1,241 @@
+---
+id: "7.8"
+module: 7
+lesson: 8
+slug: "pivot-charts"
+title: "Pivot Charts and GETPIVOTDATA"
+shortTitle: "Pivot Charts"
+stage: "Advanced"
+durationMin: 11
+access: "paid"
+objectives:
+  - "Create a pivot chart that updates with its pivot table"
+  - "Pull a single pivot figure into a separate layout with GETPIVOTDATA"
+  - "Avoid the two things that make pivot charts look amateur"
+keys: ["Alt+N+SZ", "Alt+F1"]
+datasets: ["Sales_Transactions"]
+starterFile: "starter/07-08-pivot-charts.xlsx"
+solutionFile: "solution/07-08-pivot-charts.xlsx"
+functions: ["GETPIVOTDATA"]
+excelVersion: "all"
+shotCount: 3
+prev: "7.7"
+next: "7.9"
+videoUrl: null
+---
+
+## Why this matters
+
+A pivot table answers the question. A pivot chart makes the answer visible in two seconds — and because it's tied to the pivot, it responds to every slicer click and refresh without any maintenance. Two settings separate a chart that looks professional from one that looks like a default.
+
+## How it works
+
+Click inside a pivot table → **PivotTable Analyze → PivotChart**, or <Kbd>Alt</Kbd>+<Kbd>F1</Kbd> for a chart on the same sheet.
+
+The chart mirrors the pivot's structure: **Rows become the axis, Columns become the series, Values become the bars.** Change the pivot and the chart follows.
+
+### The two things that make it look amateur
+
+**Field buttons.** Excel adds grey dropdown buttons to every pivot chart. They're clutter on a dashboard, and they let anyone change your chart by accident. Right-click any button → **Hide All Field Buttons on Chart**. Do this every time.
+
+**Grand totals in the chart.** If your pivot shows a grand total row, the chart may plot it as a bar dwarfing everything else. Turn totals off in the pivot (Design → Grand Totals → Off for Rows and Columns) or filter them out.
+
+<Shot id="7.8.2" />
+
+<Callout type="tip">
+Slicers control pivot charts through the same Report Connections mechanism as pivot tables (Lesson 7.7). One slicer, several pivots and several charts, all responding to one click — that's an Excel dashboard in its entirety.
+</Callout>
+
+### The limitations, honestly
+
+Pivot charts can't do a few things normal charts can. No scatter plots, no stock or bubble charts. You can't reorder the series independently of the pivot. And some formatting resets when you refresh — trendlines and manually moved data labels in particular.
+
+If you need precise formatting that survives refreshes, build a **normal chart** on cells that reference the pivot via `GETPIVOTDATA`. More work, fully controllable.
+
+### GETPIVOTDATA
+
+Type `=` and click a pivot cell. Excel doesn't write `=B5` — it writes this:
+
+<FormulaBlock>
+```
+=GETPIVOTDATA("Revenue", $A$3, "Region", "North")
+               │          │      │         │
+               │          │      └─────────┴── which slice: field, then item
+               │          └──────────────────── any cell in the pivot
+               └─────────────────────────────── the value field
+```
+</FormulaBlock>
+
+It fetches the figure **by label rather than by position**. So when the pivot changes shape — a region disappears, rows shift — the formula still returns North's revenue. A plain `=B5` would return whatever now sits in B5.
+
+That's why it exists, and it's the fix for the problem in Lesson 7.6's story.
+
+<Callout type="warning">
+`GETPIVOTDATA` returns `#REF!` if the label doesn't exist in the current pivot — including when a slicer filters that item out. Wrap it in `IFERROR` when the pivot is slicer-driven, or the KPI tile shows an error every time someone filters.
+</Callout>
+
+To turn the automatic generation off: **PivotTable Analyze → Options dropdown → untick Generate GetPivotData.** Then clicking a pivot cell gives a normal reference. Useful when you genuinely want positional references.
+
+## Do it
+
+Use a Table named `Orders` with Region, Date and Revenue.
+
+1. Build a pivot: Region → Rows, Revenue → Values.
+2. Click inside it. Press <Kbd>Alt</Kbd>+<Kbd>F1</Kbd>. A clustered column chart appears.
+3. Right-click a grey field button → **Hide All Field Buttons on Chart**.
+4. **Design → Grand Totals → Off for Rows and Columns.** The oversized total bar disappears.
+
+<Shot id="7.8.3" />
+
+5. Add **Date grouped by Month** to Columns. The chart becomes multi-series automatically.
+6. Insert a **Region slicer** and connect it to the pivot. Click a region — the chart responds.
+
+### GETPIVOTDATA for a KPI tile
+
+7. In a cell away from the pivot, type `=` and click North's revenue figure. Excel writes the `GETPIVOTDATA` formula.
+8. Format that cell large and bold — a KPI tile.
+9. Now filter the slicer to `South`. The tile returns `#REF!`, because North is no longer in the pivot.
+10. Fix it: `=IFERROR(GETPIVOTDATA("Revenue",$A$3,"Region","North"),0)`
+
+<Shot id="7.8.4" />
+
+11. Delete a region from the source and refresh. The `GETPIVOTDATA` tile for a surviving region is still correct — where a plain `=B5` would now point at a different region.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `F1` | Creates a chart on the current sheet | Instant pivot chart while you're building the pivot | Click inside the pivot, press it |
+| `F11` | Creates a chart on its own new sheet | A full-page chart for printing or presenting | Click inside the pivot, press it |
+| `Alt` + `N` + `S` + `Z` | Inserts a slicer | Connecting the chart and pivot to one control | Then Report Connections |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Leaving field buttons on** | Grey clutter, and viewers can change your chart | Right-click → Hide All Field Buttons on Chart |
+| Grand totals plotted as a series | One bar dwarfs everything and the chart is unreadable | Design → Grand Totals → Off |
+| `GETPIVOTDATA` unwrapped on a slicer-driven pivot | `#REF!` whenever the label is filtered out | Wrap in `IFERROR` |
+| Expecting a scatter or bubble pivot chart | The option isn't offered | Use a normal chart on `GETPIVOTDATA` cells |
+| Manual formatting lost on refresh | Trendlines and moved labels reset | Normal chart on pivot-referencing cells |
+| Plain `=B5` beside a pivot | Points at the wrong figure once the pivot resizes | Let Excel write `GETPIVOTDATA` |
+| Chart built from a filtered pivot before sharing | Recipients see a subset as if it were everything | Clear filters, or keep the slicer visible |
+
+</MistakeTable>
+
+<Callout type="story">
+**Kiran, Sales MIS.** His dashboard had four KPI tiles above a pivot chart, each a plain cell reference like `=B5` pointing into the pivot.
+
+In a month when the East region recorded no sales, the pivot returned three rows instead of four. Every cell below shifted up. The tile labelled "East" displayed West's revenue, and the tile labelled "West" displayed the grand total.
+
+Nothing errored. Four large, bold, confidently wrong numbers went to the sales director.
+
+He rebuilt every tile with `GETPIVOTDATA`, wrapped in `IFERROR` so a filtered-out region shows 0 rather than `#REF!`. The tiles now fetch by label, so they cannot misattribute.
+
+**A pivot table changes shape whenever the data does.** Any reference into it by position is a bug waiting for a quiet month.
+</Callout>
+
+## Practice
+
+<Exercise id="7.8.e1">
+
+<Scenario>
+Build a small dashboard: a pivot chart plus four KPI tiles that survive a region disappearing.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/07-08-pivot-charts.xlsx">
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | OrderID | Region | Date | Revenue |
+| **2** | SO1001 | North | 12-Jan-2026 | 648000 |
+| **3** | SO1002 | South | 28-Jan-2026 | 375000 |
+| **4** | SO1003 | North | 14-Feb-2026 | 432000 |
+| **5** | SO1004 | East | 03-Feb-2026 | 81000 |
+| **6** | SO1005 | West | 19-Mar-2026 | 275000 |
+| **7** | SO1006 | North | 22-Mar-2026 | 108000 |
+| **8** | SO1007 | South | 08-Apr-2026 | 810000 |
+
+</Dataset>
+
+<Task>
+
+1. Convert to a Table. Build a pivot: Region → Rows, Revenue → Values.
+2. Create a pivot chart with <Kbd>Alt</Kbd>+<Kbd>F1</Kbd>. Hide the field buttons and turn grand totals off.
+3. Add Date grouped by Month to Columns. Note how the chart changes without you touching it.
+4. Insert a Region slicer and connect it to the pivot.
+5. Build four KPI tiles using `GETPIVOTDATA`, one per region. Do **not** type the formula — type `=` and click the pivot cell.
+6. Filter the slicer to `North` only. What happens to the other three tiles?
+7. Wrap all four tiles in `IFERROR` returning 0. Re-test the slicer.
+8. Now delete every East row from the source and refresh. Compare: what does a plain `=B6` reference show versus your `GETPIVOTDATA` tiles?
+
+</Task>
+
+<Expected>
+Step 6: the three filtered-out tiles return `#REF!` · Step 8: the plain reference shows a different region's figure; the GETPIVOTDATA tiles stay correct or return 0
+</Expected>
+
+<Solution>
+
+```
+5. Type = then click North's revenue cell. Excel writes:
+   =GETPIVOTDATA("Revenue",$A$3,"Region","North")
+
+7. =IFERROR(GETPIVOTDATA("Revenue",$A$3,"Region","North"),0)
+```
+
+</Solution>
+
+<Why>
+
+**Step 8 is the comparison that matters.** Deleting East removes a row, so everything below shifts up. A plain `=B6` now returns whichever region occupies that position — a real number, attached to the wrong label. `GETPIVOTDATA` asks for *North's revenue* rather than *the value in B6*, so it cannot misattribute. That difference is exactly what went wrong for Kiran, and it produced four confidently wrong tiles rather than an error.
+
+**Step 7's `IFERROR` is necessary specifically because of slicers.** `GETPIVOTDATA` returns `#REF!` when its label isn't in the current pivot — and filtering to one region removes the others. Without the wrapper, three of four tiles show an error every time someone uses the slicer, which looks broken even though the formulas are correct.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "7.8.q1",
+    type: "mcq",
+    question: "Why does Excel write GETPIVOTDATA instead of a plain cell reference when you click a pivot cell?",
+    options: [
+      "To make the formula harder to accidentally edit",
+      "Because it fetches the figure by label rather than by position, so it survives the pivot changing shape",
+      "Because pivot cells cannot be referenced directly",
+      "To speed up recalculation on large pivots"
+    ],
+    correct: 1,
+    explanation: "A pivot changes shape whenever the data does — a category disappears and every row below shifts up. A plain =B6 then returns whichever region now occupies that position, a real number attached to the wrong label and with no error. GETPIVOTDATA asks for a named slice, so it either returns the right figure or errors. Pivot cells can be referenced directly; you can turn the behaviour off in PivotTable Analyze → Options."
+  },
+  {
+    id: "7.8.q2",
+    type: "truefalse",
+    question: "Hiding field buttons on a pivot chart also removes the underlying pivot table's filters.",
+    correct: false,
+    explanation: "Hiding field buttons is purely cosmetic — it removes the grey dropdowns from the chart while the pivot's own filters and slicers keep working exactly as before. Do it on every pivot chart: the buttons are clutter on a dashboard and they let viewers change your chart by accident."
+  },
+  {
+    id: "7.8.q3",
+    type: "scenario",
+    question: "Your GETPIVOTDATA KPI tiles show #REF! whenever someone uses the Region slicer. What's happening and what's the fix?",
+    options: [
+      "The pivot needs refreshing; add Alt+F5 to your routine",
+      "Filtering removes those labels from the pivot, so GETPIVOTDATA can't find them — wrap each tile in IFERROR",
+      "GETPIVOTDATA doesn't work with slicers; use plain cell references instead",
+      "The slicer needs reconnecting via Report Connections"
+    ],
+    correct: 1,
+    explanation: "GETPIVOTDATA returns #REF! when its requested label isn't present in the current pivot, and filtering to one region removes the others. Wrap each tile in IFERROR with 0 or \"\" as the fallback, choosing deliberately — 0 keeps the tile summable, \"\" leaves it blank. Option 3 is the wrong lesson to draw: plain references are what caused the misattributed tiles in the first place."
+  }
+]

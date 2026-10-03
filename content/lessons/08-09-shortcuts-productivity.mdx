@@ -1,0 +1,294 @@
+---
+id: "8.9"
+module: 8
+lesson: 9
+slug: "shortcuts-productivity"
+title: "Productivity Techniques & Complete Shortcut Reference"
+shortTitle: "Shortcuts & Productivity"
+stage: "Business-Ready"
+durationMin: 13
+access: "paid"
+objectives:
+  - "Use Paste Special, multi-sheet editing and Custom Views deliberately"
+  - "Set up Excel so the commands you use most are two keystrokes away"
+  - "Keep a reference of every shortcut worth knowing"
+keys: ["Ctrl+Alt+V", "Alt+1"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/08-09-productivity.xlsx"
+solutionFile: "solution/08-09-productivity.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 3
+prev: "8.8"
+next: null
+videoUrl: null
+---
+
+## Why this matters
+
+The difference between someone who looks fast in Excel and someone who doesn't isn't knowledge — it's about fifteen keystrokes and twenty minutes of setup. This lesson collects them, and closes with the reference sheet you'll come back to for years.
+
+## How it works
+
+### Paste Special — the most underused command in Excel
+
+<Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>V</Kbd> after a copy. The options you'll actually use:
+
+| Option | Key | Does |
+|---|---|---|
+| **Values** | `V` | Pastes the result, drops the formula |
+| **Formats** | `T` | Formatting only, no content |
+| **Formulas** | `F` | Formulas only, keeps existing formatting |
+| **Transpose** | `E` | Turns rows into columns |
+| **Column widths** | `W` | Just the widths |
+| **Multiply / Add** | `M` / `D` | Arithmetic on the target cells in place |
+
+<Shot id="8.9.1" />
+
+Two of these solve real problems. **Values** breaks a formula link — essential when sending figures to someone without your source data. And **Multiply** converts text-numbers in place: put `1` in a cell, copy it, select the text-numbers, Paste Special → Multiply. No helper column.
+
+<Callout type="tip">
+Put **Paste Values** on your Quick Access Toolbar as position 1, so it's <Kbd>Alt</Kbd>+<Kbd>1</Kbd>. `Ctrl+Alt+V, V, Enter` is five key presses through a dialog; `Alt+1` is two with none. If you use it thirty times a day that's ninety fewer keystrokes and no dialog to mis-click.
+</Callout>
+
+### Multi-sheet editing
+
+Click one tab, hold <Kbd>Shift</Kbd>, click another — every tab between is selected, and anything you type or format applies to all of them at the same address.
+
+Brilliant for formatting twelve monthly sheets identically. Dangerous because **the only warning is `[Group]` in the title bar**, and a deletion hits all twelve.
+
+<Callout type="warning">
+Group the sheets, do the one thing, then **click a single tab immediately** to ungroup — before anything else. Forgetting is the single most destructive everyday Excel accident, because the damage is invisible until you open another tab.
+</Callout>
+
+### Custom Views
+
+**View → Custom Views → Add** saves the current combination of hidden columns, filters, zoom and print settings under a name. Switch between "Summary view" and "Full detail view" on the same sheet in two clicks.
+
+Note: Custom Views don't work if the workbook contains a Table. That's a real limitation and worth knowing before you plan around them.
+
+### Fill Handle tricks worth knowing
+
+| Action | Result |
+|---|---|
+| **Double-click** the handle | Fills down to match the adjacent column's length |
+| Hold <Kbd>Ctrl</Kbd> while dragging a single number | Increments instead of copying |
+| Right-drag the handle | Menu with Fill Series, Fill Without Formatting, Fill Months |
+| Drag with two cells selected | Extrapolates the step between them |
+
+<Shot id="8.9.2" />
+
+### Setup that pays back within a week
+
+1. **QAT positions 1–5:** Paste Values, Freeze Panes, Filter, Format Painter, Merge Across. Each becomes <Kbd>Alt</Kbd>+number.
+2. **AutoRecover to 2 minutes** — File → Options → Save.
+3. **New workbooks contain 1 sheet** — File → Options → General.
+4. **Export your QAT setup** — File → Options → Quick Access Toolbar → Import/Export. Restore it on a new machine in ten seconds.
+
+### The complete shortcut reference
+
+<Shot id="8.9.4" />
+
+### Navigation
+
+| Key | Does |
+|---|---|
+| `Ctrl` + arrow | Jump to the edge of the data block |
+| `Ctrl` + `Home` / `End` | A1 / last used cell |
+| `Ctrl` + `PgDn` / `PgUp` | Next / previous sheet |
+| `F5` | Go To — type any address |
+| `Ctrl` + `Backspace` | Scroll back to the active cell |
+| `Alt` + `PgDn` / `PgUp` | One screen right / left |
+
+### Selection
+
+| Key | Does |
+|---|---|
+| `Ctrl` + `Shift` + arrow | Extend selection to the edge of the block |
+| `Ctrl` + `Shift` + `End` | Extend to the last used cell |
+| `Ctrl` + `A` | Current block, then whole sheet |
+| `Ctrl` + `Space` / `Shift` + `Space` | Whole column / whole row |
+| `Alt` + `;` | Visible cells only |
+| `Ctrl` + `.` | Cycle the corners of a selection |
+
+### Editing
+
+| Key | Does |
+|---|---|
+| `F2` | Edit in place |
+| `Alt` + `Enter` | Line break inside a cell or formula |
+| `Ctrl` + `Enter` | Fill every selected cell with your entry |
+| `Ctrl` + `D` / `Ctrl` + `R` | Fill down / fill right |
+| `Ctrl` + `;` | Static date · `Ctrl` + `Shift` + `;` static time |
+| `Alt` + `↓` | Dropdown of existing entries in the column |
+| `Ctrl` + `-` / `Ctrl` + `+` | Delete / insert cells |
+
+### Formatting
+
+| Key | Does |
+|---|---|
+| `Ctrl` + `1` | Format Cells |
+| `Ctrl` + `Shift` + `1` | Number, 2dp, comma |
+| `Ctrl` + `Shift` + `3` / `4` / `5` | Date / Currency / Percentage |
+| `Ctrl` + `Shift` + `~` | General — reveals the true stored value |
+| `Alt` + `H` + `O` + `I` | AutoFit column width |
+| `Ctrl` + `Shift` + `&` / `_` | Add / remove outline border |
+
+### Formulas
+
+| Key | Does |
+|---|---|
+| `F4` | Cycle reference types — relative to absolute to mixed |
+| `F9` on a selected part | Evaluate just that piece |
+| `Ctrl` + `` ` `` | Show all formulas |
+| `Alt` + `=` | AutoSum |
+| `Ctrl` + `[` / `Ctrl` + `]` | Jump to precedents / dependents |
+| `F3` | Paste a defined name |
+
+### Data & objects
+
+| Key | Does |
+|---|---|
+| `Ctrl` + `T` | Convert to Table |
+| `Ctrl` + `Shift` + `L` | Toggle filters |
+| `Alt` + `F5` / `Ctrl` + `Alt` + `F5` | Refresh pivot / refresh all |
+| `Alt` + `F1` / `F11` | Chart here / chart on new sheet |
+| `Alt` + `F8` / `Alt` + `F11` | Macro list / VBA editor |
+| `Ctrl` + `Alt` + `V` | Paste Special |
+
+## Do it
+
+1. Set up your QAT with the five commands above. Confirm <Kbd>Alt</Kbd>+<Kbd>1</Kbd> pastes values: put `=5*5` in a cell, copy it, and paste as a value elsewhere using only the keyboard.
+2. Set AutoRecover to 2 minutes and default sheets to 1.
+3. Export your QAT customisations and note where you saved the file.
+4. **Text-numbers via Paste Special:** type `1` in a spare cell, copy it, select a column of text-numbers, <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>V</Kbd> → **Multiply** → OK. They become real numbers. Delete the helper.
+5. **Transpose:** copy a vertical list, <Kbd>Ctrl</Kbd>+<Kbd>Alt</Kbd>+<Kbd>V</Kbd> → **Transpose** → it pastes horizontally.
+6. **Multi-sheet formatting:** create three sheets. Click the first tab, <Kbd>Shift</Kbd>-click the third. Check the title bar says `[Group]`. Format A1 bold with a fill. **Click a single tab.** Check all three sheets.
+7. Now the risk: group them again, delete column B, and look at all three. Undo.
+8. Create two Custom Views on one sheet — one with columns hidden and a filter applied, one showing everything.
+
+## Shortcuts
+
+The keys this lesson itself depends on. The full reference follows.
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Ctrl` + `Alt` + `V` | Opens Paste Special | Values, Transpose, Column widths, Multiply — all live here | Copy, then Ctrl+Alt+V, then V for values |
+| `Alt` + `1` | Runs the first Quick Access Toolbar command | Paste Values in two keystrokes instead of five | Put Paste Values in QAT position 1 |
+| `Shift` + click a tab | Groups sheets for simultaneous editing | Formatting twelve monthly sheets in one action | Then click a single tab to ungroup **immediately** |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Forgetting sheets are grouped** | You delete a column and lose it from twelve sheets | `[Group]` in the title bar. Click a single tab immediately after. |
+| Normal paste when you meant values | The formula comes with it and its references shift | <Kbd>Alt</Kbd>+<Kbd>1</Kbd> for Paste Values |
+| Custom Views with a Table in the workbook | The option is greyed out | A genuine limitation — plan without them |
+| Not exporting the QAT setup | You rebuild it from scratch on a new laptop | Export the customisations file |
+| Dragging the fill handle on 5,000 rows | Slow, and easy to overshoot | Double-click it instead |
+| Paste Special → Multiply on a mixed column | Real numbers get multiplied too — harmless by 1, not by anything else | Only ever multiply by 1 for this purpose |
+
+</MistakeTable>
+
+<Callout type="story">
+**Divya, MIS Executive.** She built the same monthly report across nine regional sheets. Her only change was putting Paste Values, Freeze Panes and Format Painter on the QAT, and freezing every regional tab at B2.
+
+She measured it out of curiosity: the report went from 50 minutes to 34. Not because she learned a new function, but because she stopped making roughly 200 unnecessary mouse trips to the ribbon each session.
+
+The one thing that nearly cost her: she grouped all nine tabs to apply a header format, got distracted, then deleted a column — from all nine. She caught it because the title bar still read `[Group]`, and <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> recovered it.
+
+**Setup is compounding interest on every hour you spend in Excel afterwards** — and grouped sheets are the one technique where the habit of ungrouping immediately genuinely matters.
+</Callout>
+
+## Practice
+
+<Exercise id="8.9.e1">
+
+<Scenario>
+Set Excel up properly and use Paste Special to solve three problems without helper columns.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/08-09-productivity.xlsx">
+
+An employee list where the CTC column is stored as text, plus a vertical list of department names to be turned horizontal, and three blank monthly sheets to format identically.
+
+</Dataset>
+
+<Task>
+
+1. Add Paste Values, Freeze Panes, Filter, Format Painter and Merge Across to the QAT in that order. Confirm <Kbd>Alt</Kbd>+<Kbd>1</Kbd> pastes values.
+2. Set AutoRecover to 2 minutes and new workbooks to 1 sheet. Export your QAT setup.
+3. Convert the text CTC column to real numbers using Paste Special → Multiply, with no helper column and no formula.
+4. Turn the vertical department list horizontal using Paste Special → Transpose.
+5. Copy only the **column widths** from one sheet to another, without copying any content.
+6. Group the three monthly sheets, apply an identical header format to all three in one action, then ungroup. Verify all three.
+7. Now group them again and delete a column. Check all three sheets, then undo. What was the only warning you had?
+8. Create two Custom Views: `Summary` with detail columns hidden, and `Full` showing everything. If the option is greyed out, why?
+
+</Task>
+
+<Expected>
+Step 3: CTC values right-align and `=SUM()` now works · Step 5: only widths change · Step 7: the `[Group]` indicator in the title bar · Step 8: greyed out if the workbook contains a Table
+</Expected>
+
+<Solution>
+
+```
+1. QAT dropdown → More Commands → All Commands → add each in order → OK
+3. Type 1 in a spare cell → Ctrl+C → select the CTC range
+   → Ctrl+Alt+V → Multiply → OK → delete the helper cell
+4. Copy the vertical range → Ctrl+Alt+V → Transpose → OK
+5. Copy any cell from the source sheet → Ctrl+Alt+V → Column widths → OK
+6. Click tab 1 → Shift+click tab 3 → format → click a single tab to ungroup
+```
+
+</Solution>
+
+<Why>
+
+**Step 3 is the neatest trick in this lesson.** Multiplying by 1 forces Excel to treat text-numbers as numeric, in place, with no helper column and no formula to clean up afterwards. It's a third route to the same destination as Text to Columns (Lesson 7.1) and `VALUE()` — and it's the fastest when the values are scattered rather than in one tidy column. The caution: only ever multiply by 1 for this purpose, since real numbers in the selection get multiplied too.
+
+**Step 7's answer — the `[Group]` indicator — is the point.** There is no confirmation dialog, no coloured border, no anything else. A deletion applies silently to every grouped sheet and you won't know until you open another tab. That's why the discipline is to group, do the one action, and click a single tab before doing anything else at all.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "8.9.q1",
+    type: "mcq",
+    question: "A column of numbers is stored as text. Which Paste Special option converts them in place, with no helper column?",
+    options: ["Values", "Formats", "Multiply, after copying a cell containing 1", "Transpose"],
+    correct: 2,
+    explanation: "Copy a cell containing 1, select the text-numbers, then Ctrl+Alt+V → Multiply. Arithmetic forces numeric conversion in place, so there's no helper column and nothing to clean up. It's a third route alongside Text to Columns and VALUE(), and the quickest when the affected cells are scattered rather than in one tidy block. Only ever multiply by 1 — anything else would alter the genuine numbers in the selection."
+  },
+  {
+    id: "8.9.q2",
+    type: "decision",
+    question: "You use Paste Values around thirty times a day. Memorise Ctrl+Alt+V, V, Enter, or put it on the Quick Access Toolbar?",
+    options: [
+      "Quick Access Toolbar, so it becomes Alt+1",
+      "Memorise the keyboard sequence — no setup needed",
+      "Neither; use right-click → Paste Options each time",
+      "Record a macro and assign it a shortcut"
+    ],
+    correct: 0,
+    explanation: "Ctrl+Alt+V, V, Enter is five key presses across three actions with a dialog in the middle that can shift focus. Alt+1 is two keys, one action, no dialog. Over thirty daily uses that's roughly ninety fewer keystrokes and no dialog to mis-click. The general rule: any command you use more than ten times a day that lacks a two-key native shortcut belongs on the QAT."
+  },
+  {
+    id: "8.9.q3",
+    type: "formula",
+    question: "Name the only on-screen warning that several worksheets are grouped, and the action that prevents accidental multi-sheet damage.",
+    accept: ["[Group] in the title bar; click a single tab to ungroup immediately", "The title bar shows [Group]. Click one tab to ungroup right away.", "[Group] in the title bar, and clicking a single tab immediately after"],
+    explanation: "There is no confirmation dialog and no other indicator — a deletion applies silently to every grouped sheet and stays invisible until you open another tab. So the discipline is: group, perform the single action, then click one tab before doing anything else. This is the most destructive routine Excel accident, and Ctrl+Z is the only recovery if you catch it before saving."
+  }
+]

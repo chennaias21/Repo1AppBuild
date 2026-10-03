@@ -41,7 +41,11 @@ export function Explanation({ children }: { children: ReactNode }) {
  * most datasets are small on purpose and typing them is the practice.
  */
 export function Dataset({ name, starter, children }: { name?: string; starter?: string; children: ReactNode }) {
-  const hasFile = Boolean(starter) && fs.existsSync(path.join(process.cwd(), "public", "files", starter!));
+  // The lesson's own starter file wins; otherwise the shared dataset workbook of the same name.
+  const file = [starter, name ? `starter/${name}.xlsx` : undefined].find(
+    (f): f is string => Boolean(f) && fs.existsSync(path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "files", f!))
+  );
+  const hasFile = Boolean(file);
   return (
     <div className="mt-5">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -50,7 +54,7 @@ export function Dataset({ name, starter, children }: { name?: string; starter?: 
         </p>
         {hasFile && (
           <a
-            href={`/files/${starter}`}
+            href={`/files/${file}`}
             download
             className="rounded-lg bg-primary px-3.5 py-1.5 text-sm font-semibold text-primary-ink hover:brightness-110"
           >

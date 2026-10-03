@@ -1,0 +1,257 @@
+---
+id: "8.8"
+module: 8
+lesson: 8
+slug: "macro-recorder"
+title: "Macros and the Macro Recorder"
+shortTitle: "Macro Recorder"
+stage: "Business-Ready"
+durationMin: 12
+access: "paid"
+objectives:
+  - "Record a repetitive task and replay it with one click"
+  - "Use relative references so a macro works wherever the cursor is"
+  - "Know what the recorder can't do, and when not to use it"
+keys: ["Alt+F8", "Alt+F11"]
+datasets: ["Sales_Transactions"]
+starterFile: "starter/08-08-macros.xlsm"
+solutionFile: "solution/08-08-macros.xlsm"
+functions: []
+excelVersion: "all"
+shotCount: 3
+prev: "8.7"
+next: "8.9"
+videoUrl: null
+---
+
+## Why this matters
+
+Some tasks are twelve clicks you make every week — format a pasted export, set print settings, build the same four columns. The Macro Recorder watches you do it once and replays it forever. No programming required, and you'll read some VBA by accident, which is how most people start.
+
+## How it works
+
+**View → Macros → Record Macro**, or the recorder button on the status bar.
+
+<Shot id="8.8.1" />
+
+Give it a name (no spaces), optionally a shortcut key, and choose where to store it:
+
+| Store in | Means |
+|---|---|
+| **This Workbook** | Travels with the file. Use for anything file-specific. |
+| **Personal Macro Workbook** | Available in every file you open on this machine. Use for general formatting. |
+
+Then do the task. Every action is recorded. **Stop Recording** when done. Run it with <Kbd>Alt</Kbd>+<Kbd>F8</Kbd> or your shortcut key.
+
+### Absolute vs relative references — the setting that decides whether it's useful
+
+By default the recorder stores **absolute** references. Format cell B2 while recording and the macro will always format B2, wherever your cursor happens to be.
+
+**Use Relative References** (on the Record Macro menu) records positions *relative to the active cell*. Now the macro works wherever you run it.
+
+<Shot id="8.8.2" />
+
+| Task | Reference mode |
+|---|---|
+| Format the whole sheet, set print area, always the same cells | Absolute |
+| Format the current row, insert below the cursor | **Relative** |
+
+<Callout type="warning">
+Getting this backwards is the commonest macro failure. A macro recorded absolutely, intended to format "this row", will overwrite row 2 every single time — potentially destroying real data. Decide before you press record, and test on a copy.
+</Callout>
+
+### You must save as .xlsm
+
+A macro cannot live in an `.xlsx`. Save as **Excel Macro-Enabled Workbook (.xlsm)** or Excel discards the code — usually with a warning people click through.
+
+<Callout type="warning">
+Many organisations block `.xlsm` attachments in email, and recipients see a security warning on open. Before you build a macro solution you intend to distribute, check whether your IT policy allows it. For data cleaning specifically, **Power Query (Lesson 8.7) is usually the better answer** — it needs no macros, travels in a normal `.xlsx`, and isn't blocked.
+</Callout>
+
+### Reading the code
+
+<Kbd>Alt</Kbd>+<Kbd>F11</Kbd> opens the VBA editor. You don't need to write VBA, but reading it is useful:
+
+<FormulaBlock>
+```
+Sub FormatReport()
+    Range("A1:H1").Select          ← what you clicked
+    Selection.Font.Bold = True     ← what you did
+    Selection.Interior.Color = 15773696
+    Columns("A:H").AutoFit
+End Sub
+```
+</FormulaBlock>
+
+Two things worth knowing. The recorder is **verbose** — it records selecting a cell as a separate line from acting on it, so recorded code is longer than necessary. And you can **delete lines** to remove an accidental action without re-recording the whole thing.
+
+<Callout type="tip">
+Deleting stray `.Select` lines and the `Selection.` prefix is the easiest first step into editing VBA. `Range("A1:H1").Font.Bold = True` does in one line what the recorder wrote in two, and reads better.
+</Callout>
+
+### What the recorder cannot do
+
+It records **actions**, not **decisions**. It cannot loop, cannot test a condition, cannot respond to varying data. "Format the header row" records fine. "Format every row where status is Overdue" does not — that needs written VBA, or conditional formatting (Lesson 6.6), which is usually the better answer anyway.
+
+## Do it
+
+### Record a formatting macro
+
+1. **View → Macros → Record Macro.** Name: `FormatExport`. Shortcut: <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>F</Kbd>. Store in: This Workbook.
+2. Select row 1 → Bold → dark fill → white font.
+3. Select all → **Home → Format → AutoFit Column Width**.
+4. Click B2 → **View → Freeze Panes**.
+5. **Stop Recording.**
+6. Undo everything with <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> repeatedly. Press <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>F</Kbd>. It all comes back in one step.
+
+<Shot id="8.8.3" />
+
+7. Save as **.xlsm**. Try saving as .xlsx first and read the warning Excel gives you.
+
+### See the absolute/relative difference
+
+8. Record a new macro called `HighlightRowAbsolute`: click **A5**, select A5:E5, apply a yellow fill. Stop.
+9. Click A9 and run it. **A5 is highlighted, not A9.**
+10. Now record `HighlightRowRelative` — but first click **Use Relative References** on the Record Macro menu. Then from A5, select A5:E5 and fill yellow. Stop.
+11. Click A9 and run it. **A9:E9 is highlighted.** That's the difference.
+
+### Read and trim the code
+
+12. <Kbd>Alt</Kbd>+<Kbd>F11</Kbd>. Find `FormatExport` in Module1.
+13. Note how verbose it is — a `.Select` line for every action.
+14. Delete a stray line from an action you didn't mean to record. Close the editor and re-run.
+
+### Assign it to a button
+
+15. **Insert → Shapes** → draw a rectangle on the sheet. Type `Format Export` in it.
+16. Right-click → **Assign Macro** → pick `FormatExport`. Now it's a button anyone can use.
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `F8` | Macro list — run, edit or delete | Running a macro without a shortcut key assigned | Select the name, click Run |
+| `Alt` + `F11` | Opens the VBA editor | Reading recorded code, or deleting a stray action | Find your macro in Module1 |
+| `Alt` + `T` + `M` + `R` | Record Macro dialog | Starting a recording — also where Use Relative References lives | Set the name and storage first |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Absolute references when you meant relative** | The macro always hits row 2, overwriting real data | Tick Use Relative References before recording |
+| Saving as .xlsx | The macro is silently discarded | Save as .xlsm |
+| Distributing .xlsm | Blocked by email filters; security warnings | Use Power Query for cleaning tasks instead |
+| Recording an accidental action | The macro does something unwanted every run | Delete that line in the VBA editor, or re-record |
+| Expecting it to handle conditions | It replays actions, not decisions | Conditional formatting, or written VBA |
+| Testing on live data | An absolute macro can destroy records | Always test on a copy first |
+| No undo after a macro | <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> doesn't reverse macro actions | Save before running an untested macro |
+
+</MistakeTable>
+
+<Callout type="story">
+**Naveen, HR Shared Services** — the four regional extracts from Lesson 6.4. He recorded a macro that ran all four Advanced Filters and applied the formatting, turning a forty-minute monthly task into one button and two minutes.
+
+He recorded it with absolute references, which was correct here — the extract areas are always the same cells. But his first version included an accidental click that cleared column H, and it ran that way twice before he noticed a missing column in the output.
+
+The fix was one deleted line in the VBA editor, not a re-record. Reading the code showed him exactly which line cleared H, and removing it took ten seconds.
+
+**Two habits make recorded macros safe: test on a copy, and read the code once before trusting it.** <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> does not undo a macro, so an untested one on real data has no safety net.
+</Callout>
+
+## Practice
+
+<Exercise id="8.8.e1">
+
+<Scenario>
+Automate the formatting you apply to every monthly export, then build a row-highlighter that works wherever the cursor is.
+</Scenario>
+
+<Dataset name="Sales_Transactions" starter="starter/08-08-macros.xlsm">
+
+A raw export with headers in row 1, unformatted, columns too narrow, dates showing as serial numbers.
+
+</Dataset>
+
+<Task>
+
+1. Record a macro `FormatExport` storing it in This Workbook: bold header row, dark fill, white font, AutoFit all columns, freeze at B2, format the date column as `dd-mmm-yyyy`.
+2. Assign it <Kbd>Ctrl</Kbd>+<Kbd>Shift</Kbd>+<Kbd>F</Kbd>. Undo everything, then run it.
+3. Save the file. What format must you use, and what happens if you choose .xlsx?
+4. Record `HighlightRow` **with absolute references**. Run it from a different row — what gets highlighted?
+5. Delete that macro. Record it again **with Use Relative References** ticked. Run it from three different rows.
+6. Open the VBA editor and read `FormatExport`. How many lines are `.Select` statements you could remove?
+7. Deliberately record a macro containing an accidental action — clear a column you didn't mean to. Fix it by deleting that line rather than re-recording.
+8. Draw a shape on the sheet and assign `FormatExport` to it.
+9. Consider: you also need to highlight every row where Status is `Overdue`. Can the recorder do this? What should you use instead?
+
+</Task>
+
+<Expected>
+Step 3: .xlsm — .xlsx discards the macro with a warning · Step 4: the originally recorded row, not the current one · Step 5: the row the cursor is on · Step 9: no — the recorder can't test conditions; use formula-based conditional formatting
+</Expected>
+
+<Solution>
+
+```
+1. View → Macros → Record Macro → name FormatExport, shortcut Ctrl+Shift+F,
+   store in This Workbook → perform the steps → Stop Recording
+4. Record Macro (leave Use Relative References OFF)
+5. Record Macro menu → tick Use Relative References → record again
+9. Formula-based conditional formatting: =$D2="Overdue" (Lesson 6.6)
+```
+
+</Solution>
+
+<Why>
+
+**Step 9 is the honest limit of this tool and the most useful thing in the lesson.** The recorder captures actions, not decisions — it has no way to express "for every row, check the status". Written VBA could loop, but conditional formatting does the same job with no code, no `.xlsm`, no security warnings, and it updates automatically as the data changes. **Reach for a macro when you're repeating the same fixed actions; reach for conditional formatting when the action depends on the data.**
+
+**Steps 4 and 5 are the same recording with opposite usefulness.** Absolute is right when the target cells never move — Naveen's extract areas, a print area, a header row. Relative is right for anything positioned relative to the cursor. Getting it backwards means a macro that silently overwrites row 2 every time it runs, and since <Kbd>Ctrl</Kbd>+<Kbd>Z</Kbd> doesn't undo macros, that's unrecoverable without a saved copy.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "8.8.q1",
+    type: "truefalse",
+    question: "Ctrl+Z will undo the actions performed by a macro.",
+    correct: false,
+    explanation: "Running a macro clears the undo stack, so there's no way back. That's why you save before running an untested macro and test on a copy rather than live data — an absolute-reference macro aimed at the wrong row can overwrite real records with no recovery path."
+  },
+  {
+    id: "8.8.q2",
+    type: "scenario",
+    question: "You recorded a macro to highlight \"the current row\", but it always highlights row 5 regardless of where your cursor is. What went wrong?",
+    options: [
+      "The macro needs to be stored in the Personal Macro Workbook",
+      "It was recorded with absolute references; Use Relative References must be ticked before recording",
+      "The file was saved as .xlsx so part of the macro was lost",
+      "The macro needs a shortcut key assigned to work correctly"
+    ],
+    correct: 1,
+    explanation: "By default the recorder stores exact cell addresses, so it replays on row 5 forever. Use Relative References — on the Record Macro menu — records positions relative to the active cell instead. This is the commonest macro failure, and it's destructive: a macro meant to format \"this row\" will overwrite the same row every run, with no undo available."
+  },
+  {
+    id: "8.8.q3",
+    type: "mcq",
+    question: "You need to highlight every row where Status is \"Overdue\", on data that changes weekly. What's the right tool?",
+    options: [
+      "A recorded macro run after each update",
+      "Formula-based conditional formatting",
+      "Written VBA with a loop",
+      "A pivot table filtered to Overdue"
+    ],
+    correct: 1,
+    explanation: "The recorder captures actions, not decisions — it can't test a condition per row. Conditional formatting with =$D2=\"Overdue\" applies the rule to every row automatically and updates as the data changes, with no .xlsm file and no security warnings. Written VBA could loop but is far more work for a worse outcome here. Use macros for repeating fixed actions; use conditional formatting when the action depends on the data."
+  }
+]

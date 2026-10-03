@@ -1,0 +1,267 @@
+---
+id: "3.2"
+module: 3
+lesson: 2
+slug: "sum-average-count"
+title: "SUM, AVERAGE, COUNT, COUNTA, MAX, MIN"
+shortTitle: "SUM, AVERAGE, COUNT"
+stage: "Intermediate"
+durationMin: 11
+access: "paid"
+objectives:
+  - "Use the six core aggregation functions confidently"
+  - "Know exactly what each one counts and what it ignores"
+  - "Choose the right average when blanks are involved"
+keys: ["Alt+=", "Ctrl+Shift+Down"]
+datasets: ["HR_Employee_Master", "Expense_Claims"]
+starterFile: "starter/03-02-aggregation.xlsx"
+solutionFile: "solution/03-02-aggregation.xlsx"
+functions: ["SUM", "AVERAGE", "COUNT", "COUNTA", "COUNTBLANK", "MAX", "MIN", "ROWS"]
+excelVersion: "all"
+shotCount: 4
+prev: "3.1"
+next: "3.3"
+videoUrl: null
+---
+
+## Why this matters
+
+These six functions cover most everyday Excel use. They're easy — and two of them will give you a confidently wrong answer if you don't know exactly what they ignore. One HR report claimed training was above target when it was at less than half, purely from choosing the wrong average.
+
+## How it works
+
+| Function | Returns | Ignores |
+|---|---|---|
+| `SUM` | Total | Text, blanks |
+| `AVERAGE` | Mean | Text, blanks |
+| `COUNT` | How many **numbers** | Text, blanks, errors |
+| `COUNTA` | How many **non-empty cells** | Only truly blank cells |
+| `MAX` / `MIN` | Largest / smallest number | Text, blanks |
+| `COUNTBLANK` | How many empty cells | — |
+| `ROWS` | Rows in the range, regardless of content | Nothing |
+
+### COUNT versus COUNTA
+
+This causes more confusion than anything else here, and it matters constantly in HR work.
+
+Say column D holds attendance status for 50 employees — 47 filled, 3 blank:
+
+<FormulaBlock>
+```
+=COUNT(D2:D51)       → 0     there are no numbers in the column
+=COUNTA(D2:D51)      → 47    non-empty cells
+=COUNTBLANK(D2:D51)  → 3
+=ROWS(D2:D51)        → 50    total rows, regardless of content
+```
+</FormulaBlock>
+
+`COUNT` returning **0** is the trap — it looks like a legitimate answer, not an error.
+
+<Shot id="3.2.1" />
+
+### The averaging decision
+
+**`AVERAGE` ignores blanks** — which is usually right and sometimes catastrophically wrong.
+
+If five employees have training hours recorded and three are blank, AVERAGE divides by 5, not 8. If the blanks mean "zero hours attended", your average is inflated by 60%. If they mean "not recorded yet", excluding them is correct.
+
+**Excel cannot know which you meant.** Decide deliberately:
+
+<FormulaBlock>
+```
+Blanks mean zero        →  =SUM(range)/ROWS(range)
+Blanks mean no data     →  =AVERAGE(range)
+```
+</FormulaBlock>
+
+<Callout type="warning">
+One error anywhere in the range makes `SUM`, `AVERAGE`, `MAX` and `MIN` all return that same error. And `AVERAGE` over a range that includes its own total row averages the values with their own sum — a silent error that's easy to create and hard to spot. Never put a total row inside a data block (Lesson 2.3).
+</Callout>
+
+<Callout type="tip">
+A cell holding `""` from a formula is **not blank** — and Excel cannot make up its mind about it. `COUNTA` counts it as content. `COUNTBLANK` *also* counts it as blank. `ISBLANK` returns FALSE. So on six cells you can get `COUNTA` = 6 and `COUNTBLANK` = 2 at the same time, which adds to eight. That contradiction is the source of a whole category of "why is my count wrong" problems on sheets built with `=IF(A2="","",...)`.
+</Callout>
+
+## Do it
+
+| | A | B | C |
+|---|---|---|---|
+| **1** | Employee | Dept | Training Hours |
+| **2** | Anil Kumar | Sales | 12 |
+| **3** | Meera Nair | HR | 8 |
+| **4** | Rahul Shah | Sales | |
+| **5** | Sneha Rao | Finance | 15 |
+| **6** | Kabir Menon | Ops | 6 |
+| **7** | Divya Iyer | Sales | |
+
+1. In **E1** click, press <Kbd>Alt</Kbd>+<Kbd>=</Kbd>. Check the range Excel guessed, correct it to `C2:C7`, press Enter → **41**.
+2. In E2: `=AVERAGE(C2:C7)` → **10.25**
+3. In E3: `=COUNT(C2:C7)` → **4**
+4. In E4: `=COUNTA(A2:A7)` → **6** — the team size, from the name column
+5. In E5: `=COUNT(A2:A7)` → **0**. Names are text. **This is the trap.**
+6. In E6: `=COUNTBLANK(C2:C7)` → **2**
+7. In E7: `=ROWS(C2:C7)` → **6**
+
+<Shot id="3.2.2" />
+
+### The two averages
+
+8. In E9: `=AVERAGE(C2:C7)` → **10.25** — the average among those who attended
+9. In E10: `=SUM(C2:C7)/ROWS(C2:C7)` → **6.83** — the average across the whole team
+
+**Both are correct.** They answer different questions, and reporting the wrong one is how training metrics get inflated.
+
+<Shot id="3.2.3" />
+
+### The `""` trap
+
+10. In F2: `=IF(C2="","",C2)`. Fill down to F7.
+11. In F9: `=COUNTA(F2:F7)` → **6**, not 4. The "empty-looking" cells hold empty text.
+12. In F10: `=COUNTBLANK(F2:F7)` → **2**. Read that again. `COUNTA` says all six cells hold something and `COUNTBLANK` says two of them are empty — about the same two cells, at the same time. Six plus two in a range of six.
+13. In F11: `=COUNT(C2:C7)` → **4**. When you need the real number of attendees, count the source column, not the display column.
+
+<Shot id="3.2.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `=` | AutoSum — guesses the range and totals it | Any column total. **Check the range it guessed** before pressing Enter. | It stops at blanks and can grab a header that looks numeric |
+| `Alt` + `=` on a selected block | Row and column totals at once | Cross-tab summaries | Select the data plus one empty row and column |
+| Select a range, read the status bar | Instant Sum, Average and Count | Throwaway checks — no formula, no cell used | Right-click the bar to add Min and Max |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **`COUNT` on a text column** | Returns 0 — looks like a real answer | Use `COUNTA` |
+| **`AVERAGE` where blanks mean zero** | An average inflated by however many blanks there are | `=SUM(range)/ROWS(range)` |
+| A total row inside the range | Double-counted; `AVERAGE` averages values with their own sum | Keep totals outside the data block |
+| One error in the range | The whole `SUM` returns that error | Find it with `F5` → Special → Errors |
+| Range doesn't reach the bottom | A silent undercount | `Ctrl+↓` to check for gaps first |
+| `COUNTA` to count completed entries | It counts `""` from formulas as entries | `=COUNTIF(range,"<>")`, or `COUNT` for numbers |
+| Text-numbers in the range | Silently excluded from `SUM` | Compare `=COUNT()` with `=ROWS()` |
+
+</MistakeTable>
+
+<Callout type="story">
+**Lakshmi, L&D Manager.** Her quarterly report stated: *"Average training hours per employee: 12.4 — exceeding our target of 10."* Leadership was pleased.
+
+Then a plant head asked how 12.4 was possible when half his team hadn't attended anything.
+
+She'd used `=AVERAGE(C2:C251)` across 250 employees. Only 93 had attended; the other 157 cells were blank. AVERAGE divided by 93, not 250. The true average per employee was **4.6 hours** — less than half the target, not above it.
+
+Excel behaved exactly as documented. The mistake was conceptual: she asked for "the average of the recorded values" when the business question was "the average across the workforce."
+
+She now reports three figures: *"Average across all employees: 4.6. Average among attendees: 12.4. Participation rate: 37%."* The participation rate turned out to be what leadership actually cared about.
+</Callout>
+
+## Practice
+
+<Exercise id="3.2.e1">
+
+<Scenario>
+Produce a summary block from a month of team data — and choose the right function for each question.
+</Scenario>
+
+<Dataset name="Expense_Claims" starter="starter/03-02-aggregation.xlsx">
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | Employee | Dept | Days Present | Expense Claim |
+| **2** | Anil Kumar | Sales | 22 | 4500 |
+| **3** | Meera Nair | HR | 24 | 1200 |
+| **4** | Rahul Shah | Sales | 19 | |
+| **5** | Sneha Rao | Finance | 24 | 7800 |
+| **6** | Kabir Menon | Ops | 21 | |
+| **7** | Divya Iyer | Sales | 23 | 2300 |
+| **8** | Arjun Das | HR | | 900 |
+| **9** | Nisha Roy | Ops | 24 | 3400 |
+
+</Dataset>
+
+<Task>
+
+Build a summary answering each. Write the formula, don't read the status bar.
+
+1. Total days present
+2. Total expense claimed
+3. Average days present **among those with a record**
+4. Average days present **across the whole team of 8**, treating the blank as 0
+5. How many have a days-present figure recorded
+6. How many are missing one
+7. Team size — count of employees, not of any numeric field
+8. How many submitted an expense claim, and how many didn't
+9. The highest and lowest expense claim
+10. Row 8 has no days recorded. Which of your answers to 3 and 4 would you report to a manager, and why does the choice matter?
+
+</Task>
+
+<Expected>
+1. **157** · 2. **20,100** · 3. **22.43** (157 ÷ 7) · 4. **19.62** (157 ÷ 8) — note the 2.8-day gap · 5. **7** recorded · 6. **1** missing · 7. **8** · 8. **6** claimed, **2** didn't · 9. **7,800** and **900**
+</Expected>
+
+<Solution>
+
+```
+1. =SUM(C2:C9)
+2. =SUM(D2:D9)
+3. =AVERAGE(C2:C9)
+4. =SUM(C2:C9)/ROWS(C2:C9)
+5. =COUNT(C2:C9)
+6. =COUNTBLANK(C2:C9)
+7. =COUNTA(A2:A9)
+8. =COUNT(D2:D9)   and   =COUNTBLANK(D2:D9)
+9. =MAX(D2:D9)     and   =MIN(D2:D9)
+```
+
+</Solution>
+
+<Why>
+
+**Questions 3 and 4 are the heart of this.** Arjun has no days-present figure. Did he not work (0 days), or has his record not been entered? If he didn't work, he belongs in the denominator. If his data is simply missing, excluding him is right. **Excel cannot make that judgement; you have to** — and on a 250-person workforce the gap between the two answers is the difference between reporting 91% attendance and 84%.
+
+**Question 7 catches people by habit.** `=COUNT(A2:A9)` returns **0**, because names are text. Team size has to come from `COUNTA` or `ROWS`. Reaching for `COUNT` reflexively is the single most common error in this lesson, and it returns a number that looks like an answer.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "3.2.q1",
+    type: "mcq",
+    question: "Column D contains 40 department names and 10 blanks. What does =COUNT(D2:D51) return?",
+    options: ["50", "40", "10", "0"],
+    correct: 3,
+    explanation: "COUNT counts numbers only, and department names are text — so none qualify. To count them you need =COUNTA(D2:D51), which returns 40. This is the most common function mix-up in beginner Excel, and it's dangerous precisely because 0 looks like a legitimate answer rather than an error."
+  },
+  {
+    id: "3.2.q2",
+    type: "formula",
+    question: "Write a formula returning the average of C2:C100, treating blank cells as zero.",
+    accept: ["=SUM(C2:C100)/ROWS(C2:C100)", "=SUM(C2:C100)/99", "=AVERAGEA(C2:C100)"],
+    explanation: "SUM ignores blanks (contributing nothing, which equals zero) and ROWS returns the full count regardless of content. AVERAGE alone would divide only by the cells holding numbers, inflating the result by however many blanks there are. Alternatively, fill the zeros in explicitly — which has the advantage of making the assumption visible in the data rather than hidden in a formula."
+  },
+  {
+    id: "3.2.q3",
+    type: "scenario",
+    question: "Your training report shows an average of 12.4 hours per employee, but you know only a third of the workforce attended anything. What happened?",
+    options: [
+      "The data contains text-numbers that inflated the total",
+      "AVERAGE excluded the non-attendees, so it divided by attendees rather than headcount",
+      "The range extends beyond the data",
+      "Training hours were double-counted across quarters"
+    ],
+    correct: 1,
+    explanation: "AVERAGE ignores blanks entirely — from both the sum and the count — so it returned the average among attendees while being presented as the average across the workforce. Report three figures instead: average across all employees (SUM ÷ headcount), average among attendees (AVERAGE), and the participation rate. All three are meaningful, none is misleading, and the participation rate is usually what leadership actually wants."
+  }
+]

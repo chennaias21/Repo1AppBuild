@@ -1,0 +1,267 @@
+---
+id: "6.5"
+module: 6
+lesson: 5
+slug: "conditional-formatting"
+title: "Conditional Formatting — Rules, Data Bars, Colour Scales, Icon Sets"
+shortTitle: "Conditional Formatting"
+stage: "Intermediate"
+durationMin: 11
+access: "paid"
+objectives:
+  - "Apply rules that highlight values needing attention"
+  - "Choose between data bars, colour scales and icon sets deliberately"
+  - "Find and remove the duplicate rules that make files slow and confusing"
+keys: ["Alt+H+L", "Alt+H+L+C"]
+datasets: ["HR_Employee_Master", "Inventory_Stock"]
+starterFile: "starter/06-05-conditional-formatting.xlsx"
+solutionFile: "solution/06-05-conditional-formatting.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 4
+prev: "6.4"
+next: "6.6"
+videoUrl: null
+---
+
+## Why this matters
+
+A manager scanning 200 rows of numbers sees nothing. The same 200 rows with the six problem values in red takes two seconds. Conditional formatting is formatting that applies itself based on the value — so it stays correct when the data changes, which manual colouring never does.
+
+## How it works
+
+**Home → Conditional Formatting.** Five families of rule:
+
+| Type | What it does | Good for |
+|---|---|---|
+| Highlight Cells Rules | Fill or font when a condition is met | Thresholds, errors, specific text |
+| Top/Bottom Rules | Top 10, bottom 10%, above average | Rankings without sorting |
+| Data Bars | An in-cell bar proportional to the value | Comparing magnitudes at a glance |
+| Colour Scales | A gradient across the range | Spotting patterns in a dense grid |
+| Icon Sets | Arrows, flags, traffic lights | Status at a glance |
+
+<Shot id="6.5.1" />
+
+**Choosing between the visual three** is what people get wrong:
+
+| Visual | Answers | Use on |
+|---|---|---|
+| Data bars | "how big relative to the others?" | One column of comparable numbers |
+| Colour scales | "where are the hot and cold spots?" | A grid, looking for pattern |
+| Icon sets | "is this OK or not?" | Three or four states, not a continuum |
+
+A colour scale on one column tells you less than a data bar would. Data bars across a whole grid are noise.
+
+<Callout type="tip">
+Data bars have a setting most people miss: **Manage Rules → Edit Rule → Show Bar Only.** It hides the number and leaves just the bar, which makes a compact visual column beside your real figures. Also set Minimum to `Number 0` rather than Automatic, or the shortest bar is always empty and the comparison misleads.
+</Callout>
+
+### Highlight Cells Rules, and the reference that matters
+
+Applying "greater than 700000" to a salary column is straightforward. The useful version references a **cell** instead of typing the threshold:
+
+<FormulaBlock>
+```
+Greater Than:  =$H$1        not  700000
+```
+</FormulaBlock>
+
+Now the threshold lives in a labelled cell. Change H1 and the highlighting moves — the same argument as Lesson 3.1. Hard-coding a threshold into a rule buries it where nobody will find it.
+
+<Shot id="6.5.2" />
+
+### Managing rules — where files go wrong
+
+**Conditional Formatting → Manage Rules** lists every rule on the sheet. Two things go wrong here, both from copy-paste:
+
+Copying a formatted cell copies its rules too. Paste it around a few times and you have twelve overlapping rules where you meant one. The file slows, and the formatting becomes unpredictable because rules apply in list order.
+
+**Stop If True** controls that order — tick it and Excel stops evaluating further rules for a cell once that rule matches. Without it, a later rule can override an earlier one and you'll spend twenty minutes wondering why a cell isn't red.
+
+<Callout type="warning">
+Conditional formatting is one of the top three causes of bloated, slow Excel files. Open **Manage Rules**, set the dropdown to **This Worksheet**, and look at the count. More than about ten rules on a sheet usually means duplication from copy-paste. Delete and reapply once, to the whole range.
+</Callout>
+
+### Clearing it
+
+<Kbd>Alt</Kbd>+<Kbd>H</Kbd>+<Kbd>L</Kbd>+<Kbd>C</Kbd> clears rules from the selection or the whole sheet. Worth knowing before you inherit someone else's file.
+
+## Do it
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | SKU | Item | ClosingQty | ReorderLevel |
+| **2** | SK101 | Laptop | 4 | 10 |
+| **3** | SK102 | Monitor | 28 | 15 |
+| **4** | SK103 | Keyboard | 9 | 20 |
+| **5** | SK104 | Mouse | 45 | 25 |
+| **6** | SK105 | Docking Station | 2 | 8 |
+
+1. Put the alert threshold in **F1**: `10`.
+2. Select **C2:C6**. **Home → Conditional Formatting → Highlight Cells Rules → Less Than.**
+3. Instead of typing a number, click **F1** so the box reads `=$F$1`. Choose Light Red Fill. OK.
+4. Three cells highlight. Change F1 to `5` — only one remains. **The rule follows the cell.**
+
+<Shot id="6.5.3" />
+
+5. Select C2:C6 again. **Data Bars → Gradient Fill, blue.**
+6. **Manage Rules → Edit Rule.** Set Minimum to **Number, 0**. Tick **Show Bar Only**.
+7. Now the bars start from a true zero and the numbers aren't duplicated visually.
+
+8. Select D2:D6. **Icon Sets → 3 Traffic Lights.** Edit the rule so green is `>=20`, amber `>=10`, red below that.
+
+### See the duplication problem
+
+9. Copy C2 and paste it into C8, C9 and C10.
+10. **Manage Rules → This Worksheet.** You now have several rules where you had two.
+11. Clear all formatting from the sheet with <Kbd>Alt</Kbd>+<Kbd>H</Kbd>+<Kbd>L</Kbd>+<Kbd>C</Kbd> → Clear Rules from Entire Sheet. Reapply once, cleanly.
+
+<Shot id="6.5.5" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `Alt` + `H` + `L` | Opens the Conditional Formatting menu | Applying any rule without hunting the ribbon | Then `H` for Highlight Cells Rules |
+| `Alt` + `H` + `L` + `R` | Opens Manage Rules directly | Auditing an inherited file, or debugging why a cell isn't colouring | Set the dropdown to This Worksheet |
+| `Alt` + `H` + `L` + `C` | Clear Rules | Starting clean on a file with accumulated duplicate rules | Clear from entire sheet, then reapply once |
+| `Alt` + `;` | Selects visible cells only | Applying formatting to filtered rows without affecting hidden ones | Filter first, then Alt+; |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Duplicate rules from copy-paste** | Slow file, unpredictable formatting | Manage Rules → This Worksheet → delete and reapply once |
+| Hard-coding the threshold in the rule | Nobody can find or change it | Reference a labelled cell: `=$F$1` |
+| Data bar Minimum left on Automatic | The smallest value shows no bar at all | Set Minimum to Number 0 |
+| Rules in the wrong order | A later rule silently overrides an earlier one | Reorder in Manage Rules, or use **Stop If True** |
+| Colour scale on a single column | Less informative than a data bar | Match the visual to the question |
+| Formatting applied to whole columns | File size balloons | Apply to the used range only |
+| Expecting it to change the value | It only changes appearance | It's formatting — the cell still holds its number |
+
+</MistakeTable>
+
+<Callout type="story">
+**Rohit, Inventory Analyst.** His stock sheet flagged low items in red. Over two years of copying rows between sheets, the rule count reached 240 — Manage Rules took ten seconds just to open, and the file was 31 MB for 400 rows of data.
+
+Worse than slow, it was wrong. Overlapping rules applied in list order, so some genuinely low-stock items showed no colour at all because a later "greater than 0, green fill" rule from an old copy-paste was overriding the red. Two stockouts had gone unflagged.
+
+He cleared every rule from the workbook, then applied four — one per sheet, to the correct range, with the threshold referenced from a labelled cell. File: 31 MB → 900 KB.
+
+**Conditional formatting rules accumulate silently and apply in order.** If a cell isn't colouring the way you expect, the problem is almost always another rule you didn't know was there. Open Manage Rules before you assume the rule you just wrote is broken.
+</Callout>
+
+## Practice
+
+<Exercise id="6.5.e1">
+
+<Scenario>
+Build a stock monitoring sheet where low items are visible at a glance and the alert threshold can be changed without editing any rule.
+</Scenario>
+
+<Dataset name="Inventory_Stock" starter="starter/06-05-conditional-formatting.xlsx">
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | SKU | Item | ClosingQty | ReorderLevel | UnitCost |
+| **2** | SK101 | Laptop | 4 | 10 | 54000 |
+| **3** | SK102 | Monitor | 28 | 15 | 12500 |
+| **4** | SK103 | Keyboard | 9 | 20 | 1800 |
+| **5** | SK104 | Mouse | 45 | 25 | 650 |
+| **6** | SK105 | Docking Station | 2 | 8 | 7200 |
+| **7** | SK106 | Headset | 18 | 12 | 2400 |
+| **8** | SK107 | Webcam | 6 | 15 | 3100 |
+
+**G1** `Critical Below` = `10`
+
+</Dataset>
+
+<Task>
+
+1. Highlight ClosingQty in red fill when it falls below the value in G1. Reference the cell, don't type 10.
+2. Change G1 to `5`. How many cells stay highlighted?
+3. Set G1 back to 10. Add data bars to ClosingQty, with Minimum set to Number 0 and Show Bar Only enabled.
+4. Add a 3-traffic-light icon set to ReorderLevel: green at or above 20, amber at or above 10, red below.
+5. Use **Top/Bottom Rules** to highlight the top 3 items by UnitCost.
+6. Open Manage Rules set to This Worksheet. How many rules exist? Are any overlapping on the same range?
+7. Copy C2 and paste it into C12, C13 and C14. Re-open Manage Rules. What changed?
+8. Clear all rules from the sheet and reapply steps 1, 3 and 4 cleanly.
+
+</Task>
+
+<Expected>
+Step 1: 3 cells highlighted (4, 9, 2 — note 6 is also below 10, so 4 cells: SK101, SK103, SK105, SK107) · Step 2: 2 cells (4 and 2) · Step 7: rule count increases with new ranges added
+</Expected>
+
+<Solution>
+
+```
+Step 1: select C2:C8 → Conditional Formatting → Highlight Cells Rules → Less Than
+        → click G1 so the box reads =$G$1 → Light Red Fill → OK
+
+Step 3: Data Bars → Gradient Fill → Manage Rules → Edit Rule
+        → Minimum: Number, 0 → tick Show Bar Only
+
+Step 4: select D2:D8 → Icon Sets → 3 Traffic Lights → Edit Rule → set thresholds 20 and 10
+
+Step 5: select E2:E8 → Top/Bottom Rules → Top 10 Items → change 10 to 3
+```
+
+</Solution>
+
+<Why>
+
+**Step 1's cell reference is the habit that matters.** Typing `10` into the rule buries the threshold somewhere only Manage Rules will reveal it. Referencing `=$G$1` puts it in a labelled cell on the sheet, where anyone can see it and change it — and step 2 proves the rule follows. This is the same principle as putting rates in cells rather than formulas (Lesson 3.1), applied to formatting.
+
+**Step 3's Minimum setting matters because the default misleads.** On Automatic, Excel gives the *smallest value in the range* a zero-length bar — Docking Station at 2 shows no bar, which reads as "none" rather than "very low". Setting Minimum to Number 0 makes bar length proportional to the actual quantity.
+
+**Steps 6 and 7 are the maintenance lesson.** Every paste of a formatted cell adds a new rule with its own range rather than extending the existing one. Two years of that gives you Rohit's 240 rules — slow, and wrong where overlapping rules override each other. Clear everything, reapply once.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "6.5.q1",
+    type: "mcq",
+    question: "You want to compare revenue magnitudes down a single column at a glance. Which conditional format?",
+    options: ["Colour scale", "Data bars", "Icon set", "Highlight Cells Rules"],
+    correct: 1,
+    explanation: "Data bars give an in-cell bar proportional to the value, which is exactly the comparison you want in one column of comparable numbers. Colour scales are for finding hot and cold spots across a grid; icon sets are for a handful of discrete states like OK/watch/critical. Set the Minimum to Number 0 rather than Automatic, or the smallest value shows no bar and reads as zero."
+  },
+  {
+    id: "6.5.q2",
+    type: "scenario",
+    question: "A cell meets your \"less than 10, red fill\" rule but shows no red at all. The rule looks correct. What's the most likely cause?",
+    options: [
+      "The cell is formatted as text",
+      "Another conditional formatting rule is applying later and overriding it",
+      "Conditional formatting doesn't work on filtered data",
+      "The rule needs to be reapplied after every data change"
+    ],
+    correct: 1,
+    explanation: "Rules apply in the order listed in Manage Rules, and a later rule can override an earlier one on the same cell. Copy-pasting formatted cells silently accumulates duplicate and overlapping rules, which is how this happens without anyone adding a rule deliberately. Open Manage Rules set to This Worksheet, check the order, and use Stop If True to halt evaluation once a rule matches."
+  },
+  {
+    id: "6.5.q3",
+    type: "decision",
+    question: "Your low-stock alert threshold may change as the business adjusts its policy. How do you set up the rule?",
+    options: [
+      "Reference a labelled cell in the rule, e.g. Less Than =$G$1",
+      "Type the number into the rule and note it in a comment",
+      "Create one rule per possible threshold and enable the relevant one",
+      "Use a colour scale so no threshold is needed"
+    ],
+    correct: 0,
+    explanation: "A threshold typed into a rule is buried — invisible on the sheet and findable only through Manage Rules, so the next person maintaining the file won't know it exists. Referencing a labelled cell puts the number in plain sight, makes changing it a one-cell edit, and applies the change everywhere the rule reaches. It's the same reasoning as keeping rates and band thresholds in cells rather than formulas: a rule that might change belongs in data, not in configuration nobody can see."
+  }
+]

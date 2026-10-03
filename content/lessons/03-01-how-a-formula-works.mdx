@@ -1,0 +1,261 @@
+---
+id: "3.1"
+module: 3
+lesson: 1
+slug: "how-a-formula-works"
+title: "How a Formula Works"
+shortTitle: "How a Formula Works"
+stage: "Intermediate"
+durationMin: 10
+access: "paid"
+objectives:
+  - "Write formulas using operators in the correct order"
+  - "Reference cells instead of typing values, and explain why"
+  - "Read any formula someone else wrote"
+keys: ["F9", "Ctrl+`"]
+datasets: ["HR_Employee_Master"]
+starterFile: "starter/03-01-formulas.xlsx"
+solutionFile: "solution/03-01-formulas.xlsx"
+functions: []
+excelVersion: "all"
+shotCount: 4
+prev: "2.6"
+next: "3.2"
+videoUrl: null
+---
+
+## Why this matters
+
+A formula is an instruction. Get one habit right here — referencing cells rather than typing numbers — and your workbooks stay correct as they age. Get it wrong and they quietly go stale, which is how eleven salespeople end up underpaid for four months.
+
+## How it works
+
+Every formula starts with `=`. Excel does whatever comes next.
+
+<FormulaBlock>
+```
+=100+50          → 150
+=B2+B3           → whatever's in B2 plus whatever's in B3
+=B2*12           → B2 multiplied by 12
+```
+</FormulaBlock>
+
+### The rule that separates beginners from everyone else
+
+**Never type a number into a formula if that number lives in a cell.**
+
+`=640000*12` works. `=B2*12` also works — and it keeps working when the salary changes, it tells the reader where the number came from, and it can be audited. Hard-coded numbers are the most common cause of reports that are quietly wrong for months.
+
+### The operators
+
+| Operator | Does | Example |
+|---|---|---|
+| `+` `-` `*` `/` | Arithmetic | `=B2*12` |
+| `^` | Power | `=B2^2` |
+| `&` | Joins text | `=B2&" "&C2` |
+| `=` `<>` `>` `<` `>=` `<=` | Compare — returns TRUE/FALSE | `=B2>50000` |
+
+### Order of operations
+
+Excel does **not** read left to right. It follows a fixed priority:
+
+```
+1. ( )        brackets first
+2. ^          powers
+3. * and /    left to right
+4. + and -    left to right
+5. &          text joining
+6. comparisons
+```
+
+So `=2+3*4` is **14**, not 20. And `=(2+3)*4` is **20**.
+
+This matters more than it looks. `=B2+C2/2` means "B2 plus half of C2" — not "half of B2 plus C2". That's the difference between a correct average and a wrong one, and it produces a plausible number either way.
+
+<Callout type="warning">
+**Excel never tells you your logic is wrong.** An operator-precedence error returns a number, not an error. Use brackets even when they're optional — `=(B2+C2)/2` says exactly what it means, and formulas get reviewed by people under time pressure.
+</Callout>
+
+<Callout type="tip">
+`F9` is the debugging tool nobody teaches. Press `F2` to edit, select just one part of the formula with the mouse, press `F9` — Excel replaces it with its result so you can see what that piece actually returns. Press `Esc`, not Enter, to restore the formula.
+</Callout>
+
+## Do it
+
+| | A | B | C | D | E |
+|---|---|---|---|---|---|
+| **1** | Employee | Basic | HRA % | Deductions | Net Pay |
+| **2** | Anil Kumar | 45000 | 0.40 | 5200 | ? |
+| **3** | Meera Nair | 62000 | 0.40 | 7800 | ? |
+| **4** | Rahul Shah | 38000 | 0.35 | 4100 | ? |
+
+Net Pay = Basic + (Basic × HRA%) − Deductions
+
+1. Click **E2**. Type `=`.
+2. Click **B2**, type `+(`, click **B2** again, type `*`, click **C2**, type `)`.
+3. Type `-`, click **D2**. Press <Kbd>Enter</Kbd> → **57,800**.
+4. Double-click the fill handle. Click **E3** — it reads `=B3+(B3*C3)-D3`. Excel adjusted every reference.
+5. Change **B2** to `50000`. E2 becomes **64,800** instantly.
+
+<Shot id="3.1.1" />
+
+### Test the order of operations yourself
+
+6. In G1 type `=2+3*4` → **14**
+7. In G2 type `=(2+3)*4` → **20**
+8. In G3 type `=10-2^2` → **6** (power before subtraction)
+9. In G4 type `=100/10/2` → **5** (left to right)
+10. In G5 type `=100/(10/2)` → **20**
+
+Five seconds each, and the concept stops being abstract.
+
+<Shot id="3.1.2" />
+
+### See why hard-coding fails
+
+11. In F2 type `=B2*0.05` — the commission rate hard-coded. Fill down.
+12. In H1 put `5%`. In G2 type `=B2*$H$1`. Fill down.
+13. Now change H1 to `7%`. Column G updates. **Column F doesn't**, and nothing indicates it's stale.
+
+<Shot id="3.1.3" />
+
+### Debug with F9
+
+14. Click E2, press <Kbd>F2</Kbd>, select just `B2*C2` with the mouse, press <Kbd>F9</Kbd>. It shows `18000`. Press <Kbd>Esc</Kbd>.
+15. Press <Kbd>Ctrl</Kbd>+<Kbd>`</Kbd> to show every formula on the sheet at once. Press again to return.
+
+<Shot id="3.1.4" />
+
+## Shortcuts
+
+<ShortcutTable>
+
+| Shortcut | What it does | When to use it | Example |
+|---|---|---|---|
+| `F9` on a selected part of a formula | Evaluates just that piece | A formula returns the wrong number and you need to know which part | Select `B2*C2` → `18000`, then Esc |
+| `Ctrl` + `` ` `` | Shows every formula instead of results | Reviewing a sheet you didn't build — spots where someone typed over a formula | The odd cell with no `=` is your suspect |
+| `Alt` + `=` | AutoSum | Any column total | Click below the column, press it, Enter |
+| `F2` | Edit in place, with coloured reference highlighting | Checking a formula points at the cells you intended | Every formula review |
+
+</ShortcutTable>
+
+## Watch out
+
+<MistakeTable>
+
+| Mistake | What you see | Fix |
+|---|---|---|
+| **Hard-coding a value** | The report goes stale silently when the value changes | Reference a labelled cell |
+| Missing brackets | `=B2+C2/2` halves only C2 | `=(B2+C2)/2` |
+| Forgetting the `=` | The cell shows text | Every formula starts with `=` |
+| Referencing a text cell in arithmetic | `#VALUE!` | Check with `ISNUMBER` (Lesson 2.2) |
+| Unmatched brackets | Excel refuses the entry | Excel colour-codes matching pairs as you type |
+| A formula referencing its own cell | Circular reference warning | Excel names the cell — fix the reference |
+
+</MistakeTable>
+
+<Callout type="story">
+**Vikram, Sales Manager.** Commission for 40 salespeople, built as `=B2*0.05` all the way down — 5% hard-coded into forty formulas.
+
+In April the structure changed to 6%. He updated the ones he remembered and missed eleven.
+
+The error surfaced in the August audit: eleven people had been underpaid for four months. The company paid the arrears, the salespeople lost trust in the payroll process, and Vikram spent a day rebuilding the file.
+
+The correct version puts `6%` in a cell labelled "Commission Rate" and every formula reads `=B2*$F$1`. A rate change becomes a one-cell edit that's impossible to get partially right.
+
+**Any number appearing in more than one formula belongs in a cell.** That's not a style preference — it's the difference between a file that ages well and one that becomes a liability.
+</Callout>
+
+## Practice
+
+<Exercise id="3.1.e1">
+
+<Scenario>
+Build a monthly payroll calculator for a five-person team.
+</Scenario>
+
+<Dataset name="HR_Employee_Master" starter="starter/03-01-formulas.xlsx">
+
+| | A | B | C | D |
+|---|---|---|---|---|
+| **1** | Employee | Basic | Days Worked | Advance |
+| **2** | Anil Kumar | 45000 | 22 | 5000 |
+| **3** | Meera Nair | 62000 | 20 | 0 |
+| **4** | Rahul Shah | 38000 | 24 | 3000 |
+| **5** | Sneha Rao | 51000 | 18 | 8000 |
+| **6** | Kabir Menon | 47000 | 24 | 0 |
+
+Rates in labelled cells: **H1** `Working Days` = `24` · **H2** `HRA %` = `40%` · **H3** `PF %` = `12%`
+
+</Dataset>
+
+<Task>
+
+1. In E2, calculate earned basic: Basic ÷ Working Days × Days Worked. **Reference H1, don't type 24.**
+2. In F2, HRA = Earned Basic × HRA%.
+3. In G2, Gross = Earned Basic + HRA. In H5... use **I2** for PF = Earned Basic × PF%.
+4. In J2, Net Pay = Gross − PF − Advance. Fill everything down.
+5. Change H2 from 40% to 45%. Confirm every row updates. If any row doesn't, what did you do wrong?
+6. In L1, total the Net Pay column. In L2, average it.
+7. Predict before testing: what does `=B2/H1*C2` give versus `=B2/(H1*C2)`? Try both.
+
+</Task>
+
+<Expected>
+E2 = 41,250 · F2 = 16,500 · G2 = 57,750 · I2 = 4,950 · J2 = 47,800 · Total Net Pay ≈ 260,693
+</Expected>
+
+<Solution>
+
+```
+E2: =B2/$H$1*C2
+F2: =E2*$H$2
+G2: =E2+F2
+I2: =E2*$H$3
+J2: =G2-I2-D2
+L1: =SUM(J2:J6)
+L2: =AVERAGE(J2:J6)
+```
+
+</Solution>
+
+<Why>
+
+**Step 7 is the order-of-operations lesson made concrete.** `=B2/H1*C2` divides then multiplies, left to right: 45000 ÷ 24 = 1875, × 22 = **41,250**. Correct — daily rate times days worked.
+
+`=B2/(H1*C2)` does the bracket first: 24 × 22 = 528, then 45000 ÷ 528 = **85.23**. Completely wrong, and it doesn't *look* wrong — it's just a small number in a cell.
+
+That's the danger of precedence errors generally: they produce numbers, not errors. Building the calculation in labelled steps — earned basic, then HRA, then gross — rather than one giant formula means each step is checkable on its own.
+
+**Step 5 is the hard-coding test.** If any rate was typed into a formula, that row quietly keeps the old value. On five rows you'd notice. On a 400-row payroll you wouldn't.
+
+</Why>
+
+</Exercise>
+
+## Quiz
+
+export const quiz = [
+  {
+    id: "3.1.q1",
+    type: "mcq",
+    question: "What does =10+5*2 return?",
+    options: ["30", "20", "25", "15"],
+    correct: 1,
+    explanation: "Multiplication runs before addition: 5×2 = 10, then 10+10 = 20. For 30 you'd need =(10+5)*2. Excel follows a fixed priority — brackets, powers, multiply/divide, add/subtract — not left to right, and getting this wrong produces a plausible number rather than an error."
+  },
+  {
+    id: "3.1.q2",
+    type: "truefalse",
+    question: "=B2+C2/2 and =(B2+C2)/2 return the same result.",
+    correct: false,
+    explanation: "The first divides C2 by 2 (division outranks addition) then adds B2 — \"B2 plus half of C2\". The second adds them first, then halves the total — a genuine average. These produce very different numbers and neither errors, which is exactly why bracket discipline matters even when brackets are optional."
+  },
+  {
+    id: "3.1.q3",
+    type: "formula",
+    question: "The commission rate is in H1 and sales are in B2. Write a formula for the commission that will still be correct after someone changes the rate in H1.",
+    accept: ["=B2*$H$1", "=B2*H1", "=$H$1*B2"],
+    explanation: "Referencing the cell means a rate change is one edit that applies everywhere — it cannot apply partially, which is what caught Vikram when he updated 29 of 40 hard-coded formulas. The $ signs lock the reference so it doesn't drift when you fill down, which is Lesson 3.3."
+  }
+]
