@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ALL_LESSONS, COURSE, MODULES, lessonHref } from "@/lib/curriculum";
 import { ProgressBar } from "@/components/lesson/journey";
 import { loadAssessment } from "@/lib/assessments";
+import SignOutButton from "@/components/SignOutButton";
 import RecordRegistration from "@/components/RecordRegistration";
 
 export const metadata: Metadata = { title: "Your dashboard" };
@@ -45,7 +46,10 @@ export default async function DashboardPage() {
   return (
     <div className="container-page py-10">
       <RecordRegistration />
-      <h1 className="text-3xl font-bold text-heading">Welcome back{first ? `, ${first}` : ""}</h1>
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h1 className="text-3xl font-bold text-heading">Welcome back{first ? `, ${first}` : ""}</h1>
+        <SignOutButton />
+      </div>
 
       <section className="mt-6 grid gap-5 lg:grid-cols-[2fr_1fr]" aria-label="Where you are">
         <div className="rounded-2xl border border-line bg-surface p-6 shadow-card">
