@@ -108,11 +108,11 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
           {locked ? (
             <Paywall objectives={frontmatter?.objectives ?? []}>
               <p className="mt-5 text-sm text-muted">
-                Plans start at {formatRupees(TIERS[0].pricePaise)}, with a 14-day refund window.
+                The full course is {formatRupees(TIERS[0].pricePaise)} for lifetime access, with a 14-day refund window.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link href="/pricing" className="rounded-xl bg-cta px-6 py-3 font-semibold text-cta-ink hover:brightness-110">
-                  See plans
+                  Get the full course
                 </Link>
                 {!entitlement.signedIn && (
                   <Link href={`/login?next=${encodeURIComponent(lessonHref(lesson))}`} className="rounded-xl border border-line px-6 py-3 font-semibold">

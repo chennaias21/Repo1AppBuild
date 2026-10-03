@@ -62,7 +62,7 @@ export async function POST(request: Request) {
 
   const now = new Date().toISOString();
 
-  // Timed plans (Essentials) end a fixed number of months after the confirmed payment.
+  // Timed plans end a fixed number of months after the confirmed payment.
   const tier = getTier(payment.tier ?? "complete");
   let expiresAt: string | null = null;
   if (tier?.accessMonths) {
@@ -149,6 +149,8 @@ async function handleRefund(event: Record<string, unknown>) {
   const now = new Date().toISOString();
 
   await admin.from("payments").update({ status: "refunded" }).eq("id", payment.id);
+  // A refunded learner no longer holds a valid certificate.
+  await admin.from("certificates").delete().eq("user_id", payment.user_id);
 
   await admin
     .from("profiles")

@@ -21,7 +21,7 @@ export default function TermsPage() {
         {
           heading: "2. What you are buying",
           paragraphs: [
-            `The ${BUSINESS.name} course is a self-paced online Excel training programme delivered through this website. What you can access depends on the plan you buy: Essentials gives one year of access to all lessons, quizzes and practice files with project briefs; the Complete plans give lifetime access, full projects and a certificate. The Pricing page lists what each plan includes.`,
+            `The ${BUSINESS.name} course is a self-paced online Excel training programme delivered through this website. Purchase gives you lifetime access to all lessons, quizzes, module assessments, practice files and capstone projects, and a certificate on completing the course.`,
             "Access is granted to the individual who registered and paid. It is personal and non-transferable.",
           ],
         },
@@ -37,7 +37,7 @@ export default function TermsPage() {
         {
           heading: "4. Pricing and payment",
           paragraphs: [
-            `SkillSopan is sold in three plans (Essentials, Complete and Complete + Review). The price of each plan is shown on the Pricing page and at checkout, inclusive of applicable taxes. Payments are processed by Razorpay, and we do not store your card or banking details at any point.`,
+            `The price is shown on the Pricing page and at checkout, inclusive of applicable taxes. Payments are processed by Razorpay, and we do not store your card or banking details at any point.`,
             "Full course access is granted only after payment is confirmed by the payment gateway. We reserve the right to change pricing at any time; changes do not affect purchases already completed.",
           ],
         },

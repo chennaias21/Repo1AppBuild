@@ -53,8 +53,8 @@ export default async function AssessmentPage({ params }: { params: Promise<{ mod
       <div className="mt-8">
         {locked ? (
           <Paywall objectives={[]}>
-            <p className="mt-4">The Module {mod.number} assessment is part of the paid plans.</p>
-            <Link href="/pricing" className="mt-5 inline-flex rounded-xl bg-cta px-6 py-3 font-semibold text-cta-ink hover:brightness-110">See plans</Link>
+            <p className="mt-4">The Module {mod.number} assessment is part of the full course.</p>
+            <Link href="/pricing" className="mt-5 inline-flex rounded-xl bg-cta px-6 py-3 font-semibold text-cta-ink hover:brightness-110">Get the full course</Link>
           </Paywall>
         ) : (
           <AssessmentRunner

@@ -75,12 +75,19 @@ export default async function DashboardPage() {
           ) : (
             <>
               <p className="mt-2 text-sm text-muted">Modules 1 and 2 are open. Unlock everything when you are ready.</p>
-              <Link href="/pricing" className="mt-4 inline-flex rounded-lg border-2 border-primary px-4 py-2 text-sm font-semibold text-primary">See plans</Link>
+              <Link href="/pricing" className="mt-4 inline-flex rounded-lg border-2 border-primary px-4 py-2 text-sm font-semibold text-primary">Get the full course</Link>
             </>
           )}
           {avg !== null && <p className="mt-4 text-sm">Average quiz score: <strong>{avg}%</strong> across {latest.size} lessons</p>}
         </div>
       </section>
+
+      {e.certificate && (
+        <p className="mt-6 rounded-xl border border-line bg-surface px-5 py-4">
+          <span className="font-semibold text-heading">Certificate: </span>
+          <Link href="/certificate" className="font-semibold text-link underline">See what is left to earn it</Link>
+        </p>
+      )}
 
       <section className="mt-10" aria-labelledby="modules-h">
         <h2 id="modules-h" className="text-xl font-bold text-heading">Your modules</h2>
@@ -100,7 +107,7 @@ export default async function DashboardPage() {
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-sm font-bold text-white" aria-hidden="true">{m.number}</span>
                 <span className="mt-3 block font-semibold text-heading">{m.title}</span>
                 <span className="mt-1 block text-sm text-muted">
-                  {locked ? "🔒 Paid plans" : `${done}/${m.lessons.length} complete`}
+                  {locked ? "🔒 Full course" : `${done}/${m.lessons.length} complete`}
                 </span>
                 <ProgressBar value={(done / m.lessons.length) * 100} label={`Module ${m.number} progress`} className="mt-3" />
                 {assessment && best !== undefined && (

@@ -15,8 +15,8 @@ export const FAQ: { q: string; a: string }[] = [
     a: "Most lessons work in any recent desktop version of Excel. A few lessons use newer functions, and those carry a badge showing the version they need.",
   },
   {
-    q: "What is the difference between the plans?",
-    a: "Essentials gives you all lessons, quizzes and practice files for one year, with project briefs. Complete adds lifetime access, full project walkthroughs, a certificate and email support. Complete + Review adds written feedback from the instructor on two of your projects.",
+    q: "What do I get when I buy?",
+    a: "Lifetime access to all 56 lessons, the quizzes and module assessments, the practice files, the three capstone projects with step-by-step solutions, a certificate when you complete the course, and email support.",
   },
   {
     q: "How long does the course take?",
@@ -32,6 +32,6 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "How do I get help if I am stuck?",
-    a: `Complete and Complete + Review include email support at ${BUSINESS.supportEmail}. We reply within ${BUSINESS.responseTimeHours} hours on working days.`,
+    a: `Email support is included. Write to ${BUSINESS.supportEmail}. We reply within ${BUSINESS.responseTimeHours} hours on working days.`,
   },
 ];

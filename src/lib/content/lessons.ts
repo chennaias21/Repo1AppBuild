@@ -6,7 +6,6 @@ import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { createElement, type ReactElement } from "react";
 import { SubmitCard } from "@/components/lesson/project";
-import { SITE } from "@/lib/site";
 import { mdxComponents, slugify } from "@/components/lesson/mdx";
 import type { QuizQuestion } from "@/lib/quiz";
 
@@ -125,7 +124,7 @@ export function withoutSolution(body: string): string {
 export async function loadDocument(
   dir: "lessons" | "projects",
   file: string,
-  options: { hideSolution?: boolean; reviewIncluded?: boolean } = {}
+  options: { hideSolution?: boolean } = {}
 ): Promise<LoadedDocument | null> {
   const raw = readFile(dir, file);
   if (!raw) return null;
@@ -141,13 +140,7 @@ export async function loadDocument(
     source,
     components: {
       ...mdxComponents,
-      Submit: () =>
-        createElement(SubmitCard, {
-          projectId: raw.frontmatter.id,
-          projectTitle: raw.frontmatter.title,
-          supportEmail: SITE.supportEmail,
-          reviewIncluded: Boolean(options.reviewIncluded),
-        }),
+      Submit: () => createElement(SubmitCard),
     },
     options: { scope: { quiz: quiz ?? [] }, mdxOptions: { remarkPlugins: [remarkGfm] } },
   });

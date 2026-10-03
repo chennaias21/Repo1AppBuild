@@ -172,23 +172,15 @@ export default function Home() {
 
       {/* Pricing summary */}
       <section className="container-page py-16">
-        <h2 className="text-center text-3xl font-bold text-heading">Simple pricing, paid once</h2>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {TIERS.map((t) => (
-            <div key={t.id} className={`rounded-2xl border bg-surface p-6 ${t.featured ? "border-2 border-accent" : "border-line"}`}>
-              <h3 className="text-lg font-bold text-heading">{t.name}</h3>
-              <p className="mt-2">
-                <span className="text-3xl font-bold">{formatRupees(effectivePricePaise(t))}</span>
-                {effectivePricePaise(t) !== t.pricePaise && (
-                  <span className="ml-2 text-muted line-through"><span className="sr-only">Regular price </span>{formatRupees(t.pricePaise)}</span>
-                )}
-              </p>
-              <p className="mt-3 text-sm text-muted">{t.blurb}</p>
-            </div>
-          ))}
+        <h2 className="text-center text-3xl font-bold text-heading">One course. One price.</h2>
+        <div className="mx-auto mt-10 max-w-md rounded-2xl border-2 border-accent bg-surface p-7 text-center shadow-card">
+          <p className="text-xs font-bold uppercase tracking-wider text-accent">Introductory price for early learners</p>
+          <p className="mt-3 text-5xl font-bold">{formatRupees(effectivePricePaise(TIERS[0]))}</p>
+          <p className="mt-1 text-muted">Pay once. Lifetime access.</p>
+          <p className="mt-4 text-sm">{TIERS[0].blurb}</p>
         </div>
         <p className="mt-6 text-center">
-          <Link href="/pricing" className="rounded-xl bg-cta px-7 py-3 font-semibold text-cta-ink hover:brightness-110">Compare plans</Link>
+          <Link href="/pricing" className="rounded-xl bg-cta px-7 py-3 font-semibold text-cta-ink hover:brightness-110">Get the full course</Link>
         </p>
         <p className="mt-4 text-center text-sm text-muted">{BUSINESS.refundWindowDays}-day refund, no questions asked.</p>
       </section>

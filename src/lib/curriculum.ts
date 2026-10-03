@@ -76,6 +76,10 @@ export function findProject(slug: string): { project: ProjectRef; module: Module
   return undefined;
 }
 
+export function findProjectById(id: string): ProjectRef | undefined {
+  return MODULES.flatMap((m) => m.projects ?? []).find((p) => p.id === id);
+}
+
 export function lessonHref(l: Pick<LessonWithModule, "slug"> & { module: { number: number } }): string {
   return `/learn/${l.module.number}/${l.slug}`;
 }

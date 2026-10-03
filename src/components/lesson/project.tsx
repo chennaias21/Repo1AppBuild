@@ -47,39 +47,12 @@ export function Rubric({ children }: { children: ReactNode }) {
   );
 }
 
-/**
- * End-of-project card. Instructor review is a Complete + Review benefit and is handled by email,
- * so the button opens a pre-addressed message; other plans are pointed at the rubric instead.
- */
-export function SubmitCard({
-  projectId,
-  projectTitle,
-  supportEmail,
-  reviewIncluded,
-}: {
-  projectId: string;
-  projectTitle: string;
-  supportEmail: string;
-  reviewIncluded: boolean;
-}) {
-  const subject = encodeURIComponent(`Project review: ${projectId} ${projectTitle}`);
-  const body = encodeURIComponent("Hello,\n\nI have finished this project and would like my instructor review. My workbook is attached.\n\nThank you");
+/** Self-check card at the end of a project: learners mark their own work against the rubric. */
+export function SubmitCard() {
   return (
-    <section className="my-8 rounded-2xl border-2 border-accent/60 bg-accent-tint p-6" aria-label="Submit your project">
-      <h2 className="text-xl font-bold text-heading">Submit your project</h2>
-      {reviewIncluded ? (
-        <>
-          <p className="mt-2">Your plan includes written feedback from the instructor on two of your projects. Email your finished workbook and we will reply with feedback against the marking guide above.</p>
-          <a
-            href={`mailto:${supportEmail}?subject=${subject}&body=${body}`}
-            className="mt-4 inline-flex rounded-xl bg-cta px-6 py-3 font-semibold text-cta-ink hover:brightness-110"
-          >
-            Email my workbook for review
-          </a>
-        </>
-      ) : (
-        <p className="mt-2">Mark your own work against the marking guide above. Written instructor feedback on projects comes with the Complete + Review plan.</p>
-      )}
+    <section className="my-8 rounded-2xl border-2 border-accent/60 bg-accent-tint p-6" aria-label="Finish your project">
+      <h2 className="text-xl font-bold text-heading">Finish your project</h2>
+      <p className="mt-2">Mark your own work against the marking guide above, fix what falls short, then tick the project complete at the top of the page.</p>
     </section>
   );
 }

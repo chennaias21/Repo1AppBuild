@@ -9,6 +9,7 @@ import { getEntitlement } from "@/lib/access";
 import { getCompletedLessonIds } from "@/lib/progress";
 import { Paywall } from "@/components/lesson/journey";
 import LessonSidebar, { type SidebarModule } from "@/components/lesson/LessonSidebar";
+import ProjectComplete from "@/components/ProjectComplete";
 import OnThisPage from "@/components/lesson/OnThisPage";
 import { formatRupees, TIERS } from "@/lib/tiers";
 
@@ -47,7 +48,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   }));
 
   const frontmatter = readFrontmatter("projects", project.file);
-  const doc = locked ? null : await loadDocument("projects", project.file, { hideSolution: !entitlement.fullProjects, reviewIncluded: (entitlement.tier?.instructorReviews ?? 0) > 0 });
+  const doc = locked ? null : await loadDocument("projects", project.file, { hideSolution: !entitlement.fullProjects });
   const datasets = (frontmatter?.datasets ?? [])
     .map((name) => `starter/${name}.xlsx`)
     .filter((f) => fs.existsSync(path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "files", f)));
@@ -84,22 +85,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </ul>
         )}
 
+        {!locked && <ProjectComplete projectId={project.id} initial={completed.has(project.id)} />}
+
         <div className="mt-8">
           {locked ? (
             <Paywall objectives={[]}>
-              <p className="mt-4">Projects are part of the paid plans, starting at {formatRupees(TIERS[0].pricePaise)}.</p>
-              <Link href="/pricing" className="mt-5 inline-flex rounded-xl bg-cta px-6 py-3 font-semibold text-cta-ink hover:brightness-110">See plans</Link>
+              <p className="mt-4">Projects are part of the full course, {formatRupees(TIERS[0].pricePaise)} for lifetime access.</p>
+              <Link href="/pricing" className="mt-5 inline-flex rounded-xl bg-cta px-6 py-3 font-semibold text-cta-ink hover:brightness-110">Get the full course</Link>
             </Paywall>
           ) : doc ? (
             <>
               {doc.content}
-              {!entitlement.fullProjects && (
-                <div className="my-8 rounded-2xl border-2 border-accent/60 bg-accent-tint p-6">
-                  <h2 className="text-xl font-bold text-heading">Solution walkthrough</h2>
-                  <p className="mt-2">Step-by-step solutions are included in the Complete plans. Your Essentials plan includes the full project brief and data.</p>
-                  <Link href="/pricing" className="mt-4 inline-flex rounded-xl bg-cta px-5 py-2.5 font-semibold text-cta-ink hover:brightness-110">Compare plans</Link>
-                </div>
-              )}
             </>
           ) : (
             <div className="rounded-2xl border border-line bg-tint p-6">

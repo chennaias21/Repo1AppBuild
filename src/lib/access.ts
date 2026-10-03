@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import { getTier, type Tier, type TierId } from "@/lib/tiers";
+import { getTier, type Tier } from "@/lib/tiers";
 
 export interface Entitlement {
   signedIn: boolean;
@@ -15,8 +15,6 @@ export interface Entitlement {
   certificate: boolean;
   expiresAt: string | null;
 }
-
-const RANK: Record<TierId, number> = { essentials: 1, complete: 2, complete_review: 3 };
 
 const ANONYMOUS: Entitlement = {
   signedIn: false,
@@ -57,7 +55,7 @@ export async function getEntitlement(): Promise<Entitlement> {
     const tier = getTier(p.tier ?? "complete"); // rows from before tiers existed were the single full-access purchase
     if (!tier) continue;
     if (p.expires_at && new Date(p.expires_at).getTime() < now) continue;
-    if (!best || RANK[tier.id] > RANK[best.tier.id]) best = { tier, expiresAt: p.expires_at ?? null };
+    if (!best)  best = { tier, expiresAt: p.expires_at ?? null };
   }
 
   if (!best && profile?.access_status === "paid") {

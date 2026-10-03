@@ -66,7 +66,7 @@ export default function PricingCards({ cards, mode }: { cards: PricingCard[]; mo
         {note}
       </p>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+      <div className={`mt-6 grid gap-6 ${cards.length > 1 ? "lg:grid-cols-3" : ""}`}>
         {cards.map((t) => {
           const price = final(t.pricePaise);
           const struck = promo ? t.pricePaise : t.regularPaise;
@@ -76,7 +76,7 @@ export default function PricingCards({ cards, mode }: { cards: PricingCard[]; mo
               aria-labelledby={`tier-${t.id}`}
               className={`flex flex-col rounded-2xl border bg-surface p-7 shadow-card ${t.featured ? "border-2 border-accent" : "border-line"}`}
             >
-              {t.featured && <p className="mb-3 text-xs font-bold uppercase tracking-wider text-accent">Best value</p>}
+              {t.featured && cards.length > 1 && <p className="mb-3 text-xs font-bold uppercase tracking-wider text-accent">Best value</p>}
               <h2 id={`tier-${t.id}`} className="text-2xl font-bold text-heading">{t.name}</h2>
               <p className="mt-4">
                 <span className="text-4xl font-bold text-ink">{rupees(price)}</span>

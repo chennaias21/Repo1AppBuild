@@ -17,7 +17,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ mod
 
   const entitlement = await getEntitlement();
   if (!assessmentIsFree(mod) && !entitlement.hasAccess) {
-    return NextResponse.json({ error: "This assessment is part of the paid plans" }, { status: 403 });
+    return NextResponse.json({ error: "This assessment is part of the full course" }, { status: 403 });
   }
 
   const body = await request.json().catch(() => null);

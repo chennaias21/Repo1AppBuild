@@ -90,6 +90,8 @@ anyone unlocking the course without paying.
 **SkillSopan redesign:** after this, repeat steps 2–6 once more with
 [`supabase/migrations/0002_tiers_progress.sql`](./supabase/migrations/0002_tiers_progress.sql).
 It adds the plan columns and the progress and quiz tables, and is safe to run twice.
+Then do the same once more with
+[`supabase/migrations/0003_certificates.sql`](./supabase/migrations/0003_certificates.sql) (certificates).
 
 **What success looks like:** a green message saying *"Success. No rows returned"*. That is
 correct — this command creates tables rather than returning data, so "no rows" is expected.
