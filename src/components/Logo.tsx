@@ -1,6 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
 import Image from "next/image";
+import logoPng from "../../public/brand/logo-skillsopan.png";
 
 /** Cell counts per step, left to right: the logo's four stepped "Excel sheet" bars. */
 const STEPS = [
@@ -47,31 +46,10 @@ export function LogoMark({ className = "h-9 w-auto" }: { className?: string }) {
   );
 }
 
-const PNG = path.join(process.cwd(), "public", "brand", "logo-skillsopan.png");
-
 export default function Logo({ className = "h-9" }: { className?: string }) {
-  if (fs.existsSync(PNG)) {
-    return (
-      <span className="logo-tile inline-flex">
-        <Image
-          src="/brand/logo-skillsopan.png"
-          alt="SkillSopan"
-          width={1153}
-          height={326}
-          priority
-          className={`${className} w-auto`}
-        />
-      </span>
-    );
-  }
-
   return (
-    <span className="logo-tile inline-flex items-center gap-2" aria-label="SkillSopan">
-      <LogoMark className={className} />
-      <span className="text-[1.6rem] font-bold leading-none tracking-tight" aria-hidden="true">
-        <span style={{ color: "#004080" }}>Skill</span>
-        <span style={{ color: "#f06808" }}>Sopan</span>
-      </span>
+    <span className="logo-tile inline-flex">
+      <Image src={logoPng} alt="SkillSopan" priority className={`${className} w-auto`} />
     </span>
   );
 }
