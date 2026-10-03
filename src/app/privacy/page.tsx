@@ -3,7 +3,7 @@ import PolicyPage from "@/components/PolicyPage";
 import { BUSINESS } from "@/lib/business";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Excel Mastery",
+  title: "Privacy Policy",
 };
 
 export default function PrivacyPage() {

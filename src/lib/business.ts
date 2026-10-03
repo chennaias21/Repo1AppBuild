@@ -7,7 +7,7 @@
  */
 export const BUSINESS = {
   /** Trading name shown across the site. */
-  name: "Excel Mastery",
+  name: "SkillSopan",
 
   /** Registered legal entity name, if different from the trading name. */
   legalName: "TO BE FILLED — your registered business or proprietor name",
@@ -28,7 +28,7 @@ export const BUSINESS = {
   responseTimeHours: 48,
 
   /** Refund window in days from purchase. Keep this consistent with what you tell Razorpay. */
-  refundWindowDays: 7,
+  refundWindowDays: 14,
 
   /** Date the policies were last reviewed. Update when you edit them. */
   policiesLastUpdated: "9 September 2026",

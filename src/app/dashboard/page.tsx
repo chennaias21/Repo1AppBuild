@@ -1,123 +1,105 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCurrentProfile } from "@/lib/access";
+import { getEntitlement } from "@/lib/access";
+import { getCompletedLessonIds } from "@/lib/progress";
 import { createClient } from "@/lib/supabase/server";
-import { CURRICULUM, allLessons, totalLessonCount } from "@/lib/curriculum";
-import { COURSE_PRICE_INR } from "@/lib/razorpay";
+import { ALL_LESSONS, COURSE, MODULES, lessonHref } from "@/lib/curriculum";
+import { ProgressBar } from "@/components/lesson/journey";
 import RecordRegistration from "@/components/RecordRegistration";
 
+export const metadata: Metadata = { title: "Your dashboard" };
+
 export default async function DashboardPage() {
-  const current = await getCurrentProfile();
-  if (!current) redirect("/login");
+  const e = await getEntitlement();
+  if (!e.signedIn || !e.userId) redirect("/login?next=/dashboard");
+
+  const completed = await getCompletedLessonIds(e.userId);
+  const open = (l: (typeof ALL_LESSONS)[number]) => l.access === "free" || e.hasAccess;
+  const available = ALL_LESSONS.filter(open);
+  const doneCount = ALL_LESSONS.filter((l) => completed.has(l.id)).length;
+  const percent = Math.round((doneCount / COURSE.totalLessons) * 100);
+  const next = available.find((l) => !completed.has(l.id));
 
   const supabase = await createClient();
-  const { data: progressRows } = await supabase
-    .from("lesson_progress")
-    .select("lesson_slug")
-    .eq("user_id", current.userId)
-    .eq("completed", true);
+  const { data: attempts } = await supabase
+    .from("quiz_attempts")
+    .select("lesson_id, score, total, created_at")
+    .eq("user_id", e.userId)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const latest = new Map<string, { score: number; total: number }>();
+  for (const a of attempts ?? []) if (!latest.has(a.lesson_id)) latest.set(a.lesson_id, { score: a.score, total: a.total });
+  const avg = latest.size
+    ? Math.round(([...latest.values()].reduce((s, a) => s + a.score / a.total, 0) / latest.size) * 100)
+    : null;
 
-  const completedSlugs = new Set((progressRows ?? []).map((r) => r.lesson_slug));
-  const unlocked = current.profile.access_status === "paid";
-  const total = totalLessonCount();
-  const completedCount = allLessons().filter((l) => completedSlugs.has(l.slug)).length;
-  const percent = total === 0 ? 0 : Math.round((completedCount / total) * 100);
-
-  const nextLesson = allLessons().find(
-    (l) => (l.isFree || unlocked) && !completedSlugs.has(l.slug)
-  );
-
-  const milestones = [
-    { key: "started", label: "First Lesson Completed", earned: completedCount >= 1 },
-    { key: "quarter", label: "25% Through the Course", earned: percent >= 25 },
-    { key: "half", label: "Halfway There", earned: percent >= 50 },
-    { key: "finished", label: "Course Complete", earned: percent === 100 },
-  ];
+  const first = e.name?.split(" ")[0];
 
   return (
-    <div className="container-page py-12">
+    <div className="container-page py-10">
       <RecordRegistration />
-      <h1 className="text-3xl font-bold">
-        Welcome back{current.profile.full_name ? `, ${current.profile.full_name.split(" ")[0]}` : ""}
-      </h1>
+      <h1 className="text-3xl font-bold text-heading">Welcome back{first ? `, ${first}` : ""}</h1>
 
-      {!unlocked && (
-        <div className="mt-6 rounded-lg border border-brand-200 bg-brand-50 p-4 flex items-center justify-between gap-4 flex-wrap">
-          <p className="text-sm text-brand-800">
-            You have free access to the basics. Unlock every module for ₹{COURSE_PRICE_INR}.
-          </p>
-          <Link
-            href="/checkout"
-            className="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 shrink-0"
-          >
-            Unlock Full Course
-          </Link>
+      <section className="mt-6 grid gap-5 lg:grid-cols-[2fr_1fr]" aria-label="Where you are">
+        <div className="rounded-2xl border border-line bg-surface p-6 shadow-card">
+          <p className="text-sm font-semibold text-muted">{doneCount} of {COURSE.totalLessons} lessons complete</p>
+          <p className="mt-1 text-4xl font-bold text-ink">{percent}%</p>
+          <ProgressBar value={percent} label="Course progress" className="mt-4" />
+          <div className="mt-6">
+            {next ? (
+              <Link href={lessonHref(next)} className="inline-flex rounded-xl bg-cta px-6 py-3 font-semibold text-cta-ink hover:brightness-110">
+                {doneCount === 0 ? "Start" : "Continue"}: {next.id} {next.shortTitle || next.title} →
+              </Link>
+            ) : available.length === ALL_LESSONS.length ? (
+              <p className="font-semibold text-success">You have completed every lesson. 🎉</p>
+            ) : (
+              <p className="font-semibold text-success">You have finished all the free lessons.</p>
+            )}
+          </div>
         </div>
-      )}
 
-      <div className="mt-8 grid sm:grid-cols-3 gap-4">
-        <div className="rounded-lg border border-black/10 p-5">
-          <p className="text-sm text-ink-500">Overall progress</p>
-          <p className="mt-1 text-3xl font-bold text-brand-700">{percent}%</p>
-          <p className="text-xs text-ink-500">
-            {completedCount} of {total} items complete
-          </p>
-        </div>
-        <div className="rounded-lg border border-black/10 p-5">
-          <p className="text-sm text-ink-500">Access level</p>
-          <p className="mt-1 text-xl font-bold">{unlocked ? "Full Course" : "Free"}</p>
-        </div>
-        <div className="rounded-lg border border-black/10 p-5">
-          <p className="text-sm text-ink-500">Up next</p>
-          {nextLesson ? (
-            <Link href={`/lesson/${nextLesson.slug}`} className="mt-1 block font-semibold text-brand-700 hover:underline">
-              {nextLesson.title}
-            </Link>
+        <div className="rounded-2xl border border-line bg-surface p-6 shadow-card">
+          <p className="text-sm font-semibold text-muted">Your plan</p>
+          <p className="mt-1 text-2xl font-bold text-heading">{e.tier ? e.tier.name : "Free lessons"}</p>
+          {e.tier ? (
+            <p className="mt-2 text-sm text-muted">
+              {e.expiresAt ? `Access until ${new Date(e.expiresAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}` : "Lifetime access"}
+            </p>
           ) : (
-            <p className="mt-1 font-semibold text-ink-700">All caught up!</p>
+            <>
+              <p className="mt-2 text-sm text-muted">Modules 1 and 2 are open. Unlock everything when you are ready.</p>
+              <Link href="/pricing" className="mt-4 inline-flex rounded-lg border-2 border-primary px-4 py-2 text-sm font-semibold text-primary">See plans</Link>
+            </>
           )}
-        </div>
-      </div>
-
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">Achievements</h2>
-        <div className="mt-4 grid sm:grid-cols-4 gap-3">
-          {milestones.map((m) => (
-            <div
-              key={m.key}
-              className={`rounded-lg border p-4 text-center ${
-                m.earned ? "border-brand-300 bg-brand-50" : "border-black/10 opacity-50"
-              }`}
-            >
-              <div className="text-2xl">{m.earned ? "🏆" : "🔒"}</div>
-              <p className="mt-1 text-xs font-medium text-ink-700">{m.label}</p>
-            </div>
-          ))}
+          {avg !== null && <p className="mt-4 text-sm">Average quiz score: <strong>{avg}%</strong> across {latest.size} lessons</p>}
         </div>
       </section>
 
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">Module Progress</h2>
-        <div className="mt-4 space-y-2">
-          {CURRICULUM.map((module) => {
-            const moduleCompleted = module.lessons.filter((l) => completedSlugs.has(l.slug)).length;
+      <section className="mt-10" aria-labelledby="modules-h">
+        <h2 id="modules-h" className="text-xl font-bold text-heading">Your modules</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {MODULES.map((m) => {
+            const done = m.lessons.filter((l) => completed.has(l.id)).length;
+            const firstOpen = m.lessons.find((l) => open({ ...l, module: m }) && !completed.has(l.id)) ?? m.lessons[0];
+            const locked = m.lessons.every((l) => !open({ ...l, module: m }));
             return (
-              <div key={module.slug} className="flex items-center justify-between rounded-md border border-black/10 px-4 py-3">
-                <span className="text-sm font-medium">{module.title}</span>
-                <span className="text-xs text-ink-500">
-                  {moduleCompleted}/{module.lessons.length}
+              <Link
+                key={m.number}
+                href={lessonHref({ ...firstOpen, module: m })}
+                className="rounded-2xl border border-line bg-surface p-5 hover:border-primary"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-sm font-bold text-white" aria-hidden="true">{m.number}</span>
+                <span className="mt-3 block font-semibold text-heading">{m.title}</span>
+                <span className="mt-1 block text-sm text-muted">
+                  {locked ? "🔒 Paid plans" : `${done}/${m.lessons.length} complete`}
                 </span>
-              </div>
+                <ProgressBar value={(done / m.lessons.length) * 100} label={`Module ${m.number} progress`} className="mt-3" />
+              </Link>
             );
           })}
         </div>
       </section>
-
-      <div className="mt-10">
-        <Link href="/curriculum" className="text-brand-700 font-semibold hover:underline">
-          Go to full curriculum →
-        </Link>
-      </div>
     </div>
   );
 }

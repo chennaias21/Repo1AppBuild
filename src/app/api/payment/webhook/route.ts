@@ -3,6 +3,7 @@ import { verifyWebhookSignature } from "@/lib/razorpay";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendWelcomeEmail } from "@/lib/email";
 import { syncRegistrationToSheet } from "@/lib/sheets";
+import { getTier } from "@/lib/tiers";
 
 /**
  * Razorpay webhook — the only place that ever grants course access.
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
 
   const { data: payment } = await admin
     .from("payments")
-    .select("id, user_id, status, amount_paise")
+    .select("id, user_id, status, amount_paise, tier")
     .eq("razorpay_order_id", orderId)
     .single();
 
@@ -61,9 +62,18 @@ export async function POST(request: Request) {
 
   const now = new Date().toISOString();
 
+  // Timed plans (Essentials) end a fixed number of months after the confirmed payment.
+  const tier = getTier(payment.tier ?? "complete");
+  let expiresAt: string | null = null;
+  if (tier?.accessMonths) {
+    const d = new Date();
+    d.setMonth(d.getMonth() + tier.accessMonths);
+    expiresAt = d.toISOString();
+  }
+
   await admin
     .from("payments")
-    .update({ status: "paid", razorpay_payment_id: paymentId, verified_at: now })
+    .update({ status: "paid", razorpay_payment_id: paymentId, verified_at: now, expires_at: expiresAt })
     .eq("id", payment.id);
 
   await admin

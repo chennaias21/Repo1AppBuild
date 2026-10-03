@@ -1,22 +1,9 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { getEntitlement } from "@/lib/access";
 
-/** Polled by the "verifying payment…" screen after Razorpay checkout closes. */
+/** Polled by the "verifying payment" screen after Razorpay checkout closes. */
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("access_status")
-    .eq("id", user.id)
-    .single();
-
-  return NextResponse.json({ accessStatus: profile?.access_status ?? "free" });
+  const e = await getEntitlement();
+  if (!e.signedIn) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  return NextResponse.json({ hasAccess: e.hasAccess, tier: e.tier?.id ?? null }, { headers: { "Cache-Control": "no-store" } });
 }

@@ -46,7 +46,8 @@ The reference below covers the same ground in less detail.
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Project Settings → API Keys: copy the **Project URL**, the **anon/publishable key**, and
    the **service_role/secret key** into your `.env.local` (copy `.env.example` first).
-3. SQL Editor → paste the contents of `supabase/migrations/0001_init.sql` and run it.
+3. SQL Editor → paste the contents of `supabase/migrations/0001_init.sql` and run it, then do the same
+   with `supabase/migrations/0002_tiers_progress.sql` (plans, lesson progress, quiz attempts).
 4. Authentication → URL Configuration: set **Site URL** to your deployed address and add
    `<your-address>/**` to **Redirect URLs**. Sign-in links won't work without this.
    No email template editing is needed — the flow uses Supabase's default email.

@@ -17,25 +17,25 @@ export default function PolicyPage({
 }) {
   return (
     <div className="container-page py-12 max-w-3xl">
-      <h1 className="text-3xl font-bold">{title}</h1>
-      <p className="mt-2 text-sm text-ink-500">
+      <h1 className="text-3xl font-bold text-heading">{title}</h1>
+      <p className="mt-2 text-sm text-muted">
         Last updated: {BUSINESS.policiesLastUpdated}
       </p>
-      <p className="mt-6 text-ink-700">{intro}</p>
+      <p className="mt-6 text-ink">{intro}</p>
 
       {sections.map((section) => (
         <section key={section.heading} className="mt-8">
-          <h2 className="text-lg font-bold text-ink-900">{section.heading}</h2>
+          <h2 className="text-lg font-bold text-heading">{section.heading}</h2>
           {section.paragraphs?.map((paragraph, i) => (
-            <p key={i} className="mt-3 text-ink-700">
+            <p key={i} className="mt-3 text-ink">
               {paragraph}
             </p>
           ))}
           {section.bullets && (
             <ul className="mt-3 space-y-2">
               {section.bullets.map((bullet, i) => (
-                <li key={i} className="flex gap-2 text-ink-700">
-                  <span className="text-brand-600">•</span>
+                <li key={i} className="flex gap-2 text-ink">
+                  <span className="text-accent">•</span>
                   <span>{bullet}</span>
                 </li>
               ))}
@@ -44,8 +44,8 @@ export default function PolicyPage({
         </section>
       ))}
 
-      <div className="mt-12 rounded-lg border border-black/10 p-5 text-sm text-ink-700">
-        <p className="font-semibold text-ink-900">Questions about this policy?</p>
+      <div className="mt-12 rounded-lg border border-line p-5 text-sm text-ink">
+        <p className="font-semibold text-heading">Questions about this policy?</p>
         <p className="mt-2">
           Email {BUSINESS.supportEmail} or call {BUSINESS.supportPhone}. We respond within{" "}
           {BUSINESS.responseTimeHours} hours during {BUSINESS.supportHours}.

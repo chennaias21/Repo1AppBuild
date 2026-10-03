@@ -3,7 +3,7 @@ import PolicyPage from "@/components/PolicyPage";
 import { BUSINESS } from "@/lib/business";
 
 export const metadata: Metadata = {
-  title: "Refund and Cancellation Policy — Excel Mastery",
+  title: "Refund and Cancellation Policy",
 };
 
 export default function RefundPolicyPage() {

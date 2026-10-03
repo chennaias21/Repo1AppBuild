@@ -87,6 +87,10 @@ anyone unlocking the course without paying.
 5. Paste it into the big empty box in the Supabase SQL Editor.
 6. Click **Run** (bottom right, or press Ctrl+Enter).
 
+**SkillSopan redesign:** after this, repeat steps 2–6 once more with
+[`supabase/migrations/0002_tiers_progress.sql`](./supabase/migrations/0002_tiers_progress.sql).
+It adds the plan columns and the progress and quiz tables, and is safe to run twice.
+
 **What success looks like:** a green message saying *"Success. No rows returned"*. That is
 correct — this command creates tables rather than returning data, so "no rows" is expected.
 

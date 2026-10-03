@@ -1,0 +1,113 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { TIERS, INTRO_OFFER, formatRupees, effectivePricePaise, type Tier } from "@/lib/tiers";
+import { COURSE } from "@/lib/curriculum";
+import { BUSINESS } from "@/lib/business";
+import BuyButton from "@/components/BuyButton";
+import { getEntitlement } from "@/lib/access";
+
+export const metadata: Metadata = { title: "Pricing" };
+
+function Check({ yes }: { yes: boolean }) {
+  return yes ? (
+    <span className="text-success" aria-label="Included">✓</span>
+  ) : (
+    <span className="text-muted" aria-label="Not included">–</span>
+  );
+}
+
+const ROWS: { label: string; value: (t: Tier) => React.ReactNode }[] = [
+  { label: `All ${COURSE.totalLessons} lessons, quizzes and practice files`, value: () => <Check yes /> },
+  { label: "Access", value: (t) => (t.accessMonths ? `${t.accessMonths} months` : "Lifetime") },
+  { label: "Capstone projects", value: (t) => (t.projects === "full" ? "Full, with walkthroughs" : "Briefs and data") },
+  { label: "Certificate you can verify online", value: (t) => <Check yes={t.certificate} /> },
+  { label: "Email support", value: (t) => <Check yes={t.support !== "none"} /> },
+  { label: "Instructor feedback on 2 projects", value: (t) => <Check yes={t.instructorReviews > 0} /> },
+  { label: "Course updates", value: (t) => <Check yes={t.updates} /> },
+];
+
+export default async function PricingPage() {
+  const e = await getEntitlement();
+
+  return (
+    <div className="container-page py-14">
+      <header className="mx-auto max-w-2xl text-center">
+        <h1 className="text-4xl font-bold text-heading">Pick the plan that fits</h1>
+        <p className="mt-4 text-lg text-muted">
+          One payment, no subscription. Not sure yet? <Link href="/free" className="font-semibold text-link underline">Start with the 12 free lessons</Link>.
+        </p>
+      </header>
+
+      <div className="mt-12 grid gap-6 lg:grid-cols-3">
+        {TIERS.map((t) => {
+          const price = effectivePricePaise(t);
+          const discounted = price !== t.pricePaise;
+          return (
+            <section
+              key={t.id}
+              aria-labelledby={`tier-${t.id}`}
+              className={`flex flex-col rounded-2xl border bg-surface p-7 shadow-card ${t.featured ? "border-2 border-accent" : "border-line"}`}
+            >
+              {t.featured && <p className="mb-3 text-xs font-bold uppercase tracking-wider text-accent">Best value</p>}
+              <h2 id={`tier-${t.id}`} className="text-2xl font-bold text-heading">{t.name}</h2>
+              <p className="mt-4">
+                <span className="text-4xl font-bold text-ink">{formatRupees(price)}</span>
+                {discounted && <span className="ml-2 text-lg text-muted line-through">{formatRupees(t.pricePaise)}</span>}
+              </p>
+              {discounted && INTRO_OFFER && <p className="mt-1 text-sm font-semibold text-accent">{INTRO_OFFER.label}</p>}
+              <p className="mt-4 flex-1 text-[0.97rem]">{t.blurb}</p>
+              <div className="mt-6">
+                {e.hasAccess ? (
+                  <Link href="/dashboard" className="block rounded-xl border-2 border-primary px-6 py-3 text-center font-semibold text-primary">
+                    Go to your dashboard
+                  </Link>
+                ) : e.signedIn ? (
+                  <BuyButton tier={t.id} label={`Get ${t.name}`} featured={t.featured} />
+                ) : (
+                  <Link
+                    href="/login?next=/pricing"
+                    className={`block rounded-xl px-6 py-3 text-center font-semibold hover:brightness-110 ${t.featured ? "bg-cta text-cta-ink" : "border-2 border-primary text-primary"}`}
+                  >
+                    Sign in to get {t.name}
+                  </Link>
+                )}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+
+      <div className="mt-14 overflow-x-auto rounded-2xl border border-line" role="region" aria-label="Plan comparison" tabIndex={0}>
+        <table className="w-full min-w-[40rem] border-collapse text-left">
+          <caption className="sr-only">What each plan includes</caption>
+          <thead className="bg-tint">
+            <tr>
+              <th scope="col" className="px-5 py-3 font-semibold text-heading">What is included</th>
+              {TIERS.map((t) => (
+                <th key={t.id} scope="col" className="px-5 py-3 font-semibold text-heading">{t.name}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {ROWS.map((r) => (
+              <tr key={r.label} className="border-t border-line">
+                <th scope="row" className="px-5 py-3 font-medium">{r.label}</th>
+                {TIERS.map((t) => (
+                  <td key={t.id} className="px-5 py-3">{r.value(t)}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <section className="mx-auto mt-14 max-w-2xl rounded-2xl border border-line bg-tint p-7 text-center">
+        <h2 className="text-xl font-bold text-heading">{BUSINESS.refundWindowDays}-day refund, no questions asked</h2>
+        <p className="mt-2">
+          If the course is not for you, write to {BUSINESS.supportEmail} within {BUSINESS.refundWindowDays} days of buying and we will refund you.
+          Payments are processed securely by Razorpay (UPI, cards, net banking).
+        </p>
+      </section>
+    </div>
+  );
+}

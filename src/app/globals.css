@@ -1,33 +1,192 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand-50: #eefcf3;
-  --color-brand-100: #d6f7e1;
-  --color-brand-200: #adeec6;
-  --color-brand-300: #79dea6;
-  --color-brand-400: #46c785;
-  --color-brand-500: #21a86a;
-  --color-brand-600: #158755;
-  --color-brand-700: #126b46;
-  --color-brand-800: #12553a;
-  --color-brand-900: #114631;
-  --color-ink-900: #0f172a;
-  --color-ink-700: #334155;
-  --color-ink-500: #64748b;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+/*
+ * SkillSopan design tokens.
+ * Components never use raw hex values: they use the semantic utilities below
+ * (bg-page, text-ink, bg-primary ...), so a palette change is a one-file edit.
+ */
+
+:root {
+  /* Brand, sampled from the logo */
+  --navy: #004080;
+  --orange: #f06808;
+  --blue: #1888d0;
+  --teal: #089898;
+  --amber: #f88c10;
+
+  /* Light theme */
+  --page: #ffffff;
+  --tint: #f2f5fa;
+  --surface: #ffffff;
+  --line: #e3e8ef;
+  --ink: #1b2733;
+  --muted: #5b6b7b;
+
+  --primary: #004080; /* buttons, nav accents */
+  --primary-ink: #ffffff;
+  --heading: #004080;
+  --link: #0a66b0;
+  --cta: #c94f00; /* orange darkened for white-text contrast (4.5:1) */
+  --cta-ink: #ffffff;
+  --accent: #f06808; /* decorative orange: rules, highlights, logo */
+  --accent-tint: #fff1e6;
+  --success: #067a7a;
+  --success-tint: #e3f5f4;
+  --warn-tint: #fff7e0;
+  --danger: #b3261e;
+  --danger-tint: #fdecea;
+  --key: #f7f9fc;
+  --key-edge: #c5ceda;
+  --code-bg: #f2f5fa;
+
+  --logo-tile: transparent;
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 4px 12px rgb(16 24 40 / 0.06);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --page: #0d1520;
+  --tint: #121e2e;
+  --surface: #162233;
+  --line: #2a3b52;
+  --ink: #e8eef5;
+  --muted: #9fb0c3;
+
+  --primary: #2a6fbf;
+  --primary-ink: #ffffff;
+  --heading: #9ccbff;
+  --link: #7dbcff;
+  --cta: #c94f00;
+  --cta-ink: #ffffff;
+  --accent: #ff8a3d;
+  --accent-tint: #33231a;
+  --success: #3cc4c4;
+  --success-tint: #12302f;
+  --warn-tint: #33290f;
+  --danger: #ff8f87;
+  --danger-tint: #3a1d1b;
+  --key: #1f2f44;
+  --key-edge: #3c516b;
+  --code-bg: #101b29;
+
+  --logo-tile: #ffffff;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.35);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0d1520;
+    --tint: #121e2e;
+    --surface: #162233;
+    --line: #2a3b52;
+    --ink: #e8eef5;
+    --muted: #9fb0c3;
+    --primary: #2a6fbf;
+    --heading: #9ccbff;
+    --link: #7dbcff;
+    --accent: #ff8a3d;
+    --accent-tint: #33231a;
+    --success: #3cc4c4;
+    --success-tint: #12302f;
+    --warn-tint: #33290f;
+    --danger: #ff8f87;
+    --danger-tint: #3a1d1b;
+    --key: #1f2f44;
+    --key-edge: #3c516b;
+    --code-bg: #101b29;
+    --logo-tile: #ffffff;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.35);
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-tint: var(--tint);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-ink: var(--primary-ink);
+  --color-heading: var(--heading);
+  --color-link: var(--link);
+  --color-cta: var(--cta);
+  --color-cta-ink: var(--cta-ink);
+  --color-accent: var(--accent);
+  --color-accent-tint: var(--accent-tint);
+  --color-success: var(--success);
+  --color-success-tint: var(--success-tint);
+  --color-warn-tint: var(--warn-tint);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+  --color-key: var(--key);
+  --color-key-edge: var(--key-edge);
+  --color-code: var(--code-bg);
+  --color-navy: var(--navy);
+  --color-sky: var(--blue);
+  --color-teal: var(--teal);
+  --color-amber: var(--amber);
+  --shadow-card: var(--shadow);
+  --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: #fbfdfc;
-  color: var(--color-ink-900);
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.65;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .container-page {
-  max-width: 72rem;
+  width: 100%;
+  max-width: 76rem;
   margin-inline: auto;
   padding-inline: 1.25rem;
+}
+
+/* Reading column for lesson prose */
+.measure {
+  max-width: 72ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.logo-tile {
+  background: var(--logo-tile);
+  border-radius: 0.6rem;
+  padding: 0.25rem 0.6rem;
 }

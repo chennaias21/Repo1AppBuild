@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -28,5 +29,11 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=expired_link`);
   }
 
-  return NextResponse.redirect(`${origin}/dashboard`);
+  // Honour the page the learner came from, but only ever a path on this site.
+  const cookieStore = await cookies();
+  const next = decodeURIComponent(cookieStore.get("post_login_next")?.value ?? "");
+  const safe = next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+  const response = NextResponse.redirect(`${origin}${safe}`);
+  response.cookies.set("post_login_next", "", { path: "/", maxAge: 0 });
+  return response;
 }

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import PolicyPage from "@/components/PolicyPage";
 import { BUSINESS } from "@/lib/business";
-import { COURSE_PRICE_INR } from "@/lib/razorpay";
 
 export const metadata: Metadata = {
-  title: "Terms and Conditions — Excel Mastery",
+  title: "Terms and Conditions",
 };
 
 export default function TermsPage() {
@@ -22,7 +21,7 @@ export default function TermsPage() {
         {
           heading: "2. What you are buying",
           paragraphs: [
-            `The ${BUSINESS.name} course is a self-paced online Excel training programme delivered through this website. Purchase gives you access to all course modules, lessons, exercises, quizzes, projects, shortcut challenges and cheat sheets described on the curriculum page.`,
+            `The ${BUSINESS.name} course is a self-paced online Excel training programme delivered through this website. What you can access depends on the plan you buy: Essentials gives one year of access to all lessons, quizzes and practice files with project briefs; the Complete plans give lifetime access, full projects and a certificate. The Pricing page lists what each plan includes.`,
             "Access is granted to the individual who registered and paid. It is personal and non-transferable.",
           ],
         },
@@ -38,7 +37,7 @@ export default function TermsPage() {
         {
           heading: "4. Pricing and payment",
           paragraphs: [
-            `The course is priced at ₹${COURSE_PRICE_INR} inclusive of applicable taxes, unless stated otherwise at checkout. Payments are processed by Razorpay, and we do not store your card or banking details at any point.`,
+            `SkillSopan is sold in three plans (Essentials, Complete and Complete + Review). The price of each plan is shown on the Pricing page and at checkout, inclusive of applicable taxes. Payments are processed by Razorpay, and we do not store your card or banking details at any point.`,
             "Full course access is granted only after payment is confirmed by the payment gateway. We reserve the right to change pricing at any time; changes do not affect purchases already completed.",
           ],
         },
