@@ -3,12 +3,13 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { createImplicitClient } from "@/lib/supabase/implicit";
 
-type Mode = "signin" | "register" | "forgot" | "code" | "newpass" | "confirm";
+type Mode = "signin" | "register" | "forgot" | "sent" | "confirm";
 
 const ERROR_MESSAGES: Record<string, string> = {
   expired_link:
-    "That email link didn't work. Links only work in the same browser you asked for them in. Sign in with your password instead, or use “Forgot password” to get a code.",
+    "That email link didn't work. Links only work in the same browser you asked for them in. Sign in with your password instead, or use “Forgot password” to get a reset link.",
   missing_code: "That link didn't look right. Sign in with your password below.",
 };
 
@@ -31,8 +32,7 @@ function LoginForm() {
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [code, setCode] = useState("");
-  const [show, setShow] = useState(false);
+    const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [info, setInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(linkError ? (ERROR_MESSAGES[linkError] ?? "Something went wrong. Please try again.") : null);
@@ -89,33 +89,14 @@ function LoginForm() {
     });
   };
 
-  const sendCode = (e: React.FormEvent) => {
+  const sendReset = (e: React.FormEvent) => {
     e.preventDefault();
     return run(async () => {
-      const { error: err } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } });
+      const { error: err } = await createImplicitClient().auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/auth/reset`,
+      });
       if (err) return setError(err.message);
-      setMode("code");
-      setInfo(`We sent a code to ${email.trim()}. It is valid for a short time.`);
-    });
-  };
-
-  const verifyCode = (e: React.FormEvent) => {
-    e.preventDefault();
-    return run(async () => {
-      const { error: err } = await supabase.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: "email" });
-      if (err) return setError("That code is wrong or has expired. Check the latest email, or request a new code.");
-      setMode("newpass");
-      setInfo("You are signed in. Choose a password so you can sign in directly next time.");
-    });
-  };
-
-  const savePassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    return run(async () => {
-      if (password.length < 8) return setError("Choose a password of at least 8 characters.");
-      const { error: err } = await supabase.auth.updateUser({ password });
-      if (err) setError(err.message);
-      else done();
+      setMode("sent");
     });
   };
 
@@ -173,7 +154,7 @@ function LoginForm() {
       ) : (
         <>
           <h1 className="text-3xl font-bold text-heading">
-            {mode === "register" ? "Create your account" : mode === "signin" ? "Sign in" : mode === "newpass" ? "Set a password" : "Reset your password"}
+            {mode === "register" ? "Create your account" : mode === "signin" ? "Sign in" : "Reset your password"}
           </h1>
           {mode === "signin" && <p className="mt-2 text-sm text-muted">New here? <button onClick={() => go("register")} className={link}>Create an account</button></p>}
           {mode === "register" && <p className="mt-2 text-sm text-muted">Already registered? <button onClick={() => go("signin")} className={link}>Sign in</button></p>}
@@ -206,33 +187,21 @@ function LoginForm() {
           )}
 
           {mode === "forgot" && (
-            <form onSubmit={sendCode} className="mt-8 space-y-4">
-              <p className="text-sm text-muted">Enter your email and we will send you a code. You will then choose a new password.</p>
+            <form onSubmit={sendReset} className="mt-8 space-y-4">
+              <p className="text-sm text-muted">Enter your email and we will send you a link to choose a new password. It works on any device.</p>
               {emailField}
               {messages}
-              <button disabled={busy} className={BUTTON}>{busy ? "Sending…" : "Email me a code"}</button>
+              <button disabled={busy} className={BUTTON}>{busy ? "Sending…" : "Email me a reset link"}</button>
               <p><button type="button" onClick={() => go("signin")} className={link}>Back to sign in</button></p>
             </form>
           )}
 
-          {mode === "code" && (
-            <form onSubmit={verifyCode} className="mt-8 space-y-4">
-              <div>
-                <label htmlFor="code" className="block text-sm font-medium">Code from your email</label>
-                <input id="code" required inputMode="numeric" autoComplete="one-time-code" maxLength={8} value={code} onChange={(e) => setCode(e.target.value)} className={`${FIELD} font-mono tracking-widest`} />
-              </div>
-              {messages}
-              <button disabled={busy} className={BUTTON}>{busy ? "Checking…" : "Continue"}</button>
-              <p><button type="button" onClick={() => go("forgot")} className={link}>Send a new code</button></p>
-            </form>
-          )}
-
-          {mode === "newpass" && (
-            <form onSubmit={savePassword} className="mt-8 space-y-4">
-              {passwordField("new-password", "New password (8 or more characters)")}
-              {messages}
-              <button disabled={busy} className={BUTTON}>{busy ? "Saving…" : "Save password and continue"}</button>
-            </form>
+          {mode === "sent" && (
+            <div className="mt-8">
+              <p>We sent a reset link to <strong>{email}</strong>. Open it, choose a new password, and you will be signed in.</p>
+              <p className="mt-3 text-sm text-muted">Nothing after a couple of minutes? Check your spam folder.</p>
+              <button onClick={() => go("forgot")} className={`mt-6 ${link}`}>Send it again</button>
+            </div>
           )}
         </>
       )}
