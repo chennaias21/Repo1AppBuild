@@ -41,6 +41,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   const sidebar: SidebarModule[] = MODULES.map((mod) => ({
     number: mod.number,
     title: mod.title,
+    assessment: { href: `/learn/${mod.number}/assessment`, locked: !mod.lessons.every((l) => l.access === "free") && !entitlement.hasAccess },
     lessons: mod.lessons.map((l) => ({
       id: l.id,
       title: l.shortTitle || l.title,

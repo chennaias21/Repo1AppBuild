@@ -1,0 +1,198 @@
+{
+  "id": "assessment.07",
+  "module": 7,
+  "title": "Module 7 assessment",
+  "subtitle": "Data Cleaning, Pivot Tables & Analysis",
+  "description": "Fifteen questions across the whole of Module 7. Every question explains its answer, right or wrong.",
+  "questionCount": 15,
+  "passMark": 70,
+  "passRequires": 11,
+  "retakes": "unlimited",
+  "shuffleQuestions": true,
+  "shuffleOptions": false,
+  "showExplanations": "after-submit",
+  "questions": [
+    {
+      "id": "7.a1",
+      "type": "mcq",
+      "lesson": "7.4",
+      "question": "A formula returns #REF!. What happened?",
+      "options": [
+        "A divide by zero",
+        "The column is too narrow",
+        "A function name is misspelled",
+        "A referenced cell was deleted"
+      ],
+      "correct": 3,
+      "explanation": "#REF! means the reference no longer exists - usually a deleted row, column or sheet. It is the one error you cannot fix by correcting inputs, because the formula has lost the information about what it pointed at."
+    },
+    {
+      "id": "7.a2",
+      "type": "truefalse",
+      "lesson": "7.4",
+      "question": "##### means the formula is broken.",
+      "correct": false,
+      "explanation": "It means the column is too narrow to display the value, or a date has gone negative. Widen the column and it resolves - it is a display state, not an error."
+    },
+    {
+      "id": "7.a3",
+      "type": "mcq",
+      "lesson": "7.2",
+      "question": "Why is Remove Duplicates risky on a selection of two columns from a six-column table?",
+      "options": [
+        "It deletes whole rows based only on the columns you selected, discarding differences in the others",
+        "It is slow",
+        "It cannot be undone",
+        "It only removes the first duplicate"
+      ],
+      "correct": 0,
+      "explanation": "Two rows identical in name and department but different in salary count as duplicates, and one is deleted. Work on a copy, and select every column that makes a record unique."
+    },
+    {
+      "id": "7.a4",
+      "type": "truefalse",
+      "lesson": "7.2",
+      "question": "Flash Fill updates automatically when the source data changes.",
+      "correct": false,
+      "explanation": "Flash Fill writes static values once - change the source and the output stays as it was. Use it for a one-off clean-up; use formulas where the result must stay in step."
+    },
+    {
+      "id": "7.a5",
+      "type": "scenario",
+      "lesson": "7.3",
+      "question": "A column has blanks that should repeat the value above, across 4,000 rows. What is the fast route?",
+      "options": [
+        "Fill down manually",
+        "Select the column, Go To Special > Blanks, type = and the cell above, then Ctrl+Enter",
+        "Sort then fill",
+        "A nested IF"
+      ],
+      "correct": 1,
+      "explanation": "Go To Special selects every blank at once, and Ctrl+Enter commits the relative formula into all of them. It is a four-second job that people often do by hand for an hour."
+    },
+    {
+      "id": "7.a6",
+      "type": "mcq",
+      "lesson": "7.5",
+      "question": "The four zones of a pivot table are Filters, Columns, Rows and which?",
+      "options": [
+        "Totals",
+        "Fields",
+        "Values",
+        "Data"
+      ],
+      "correct": 2,
+      "explanation": "Values is where the numbers go, and what you drop there determines whether you get a sum, a count or something else. A text field dropped into Values counts rather than sums, which is a useful trick and an occasional surprise."
+    },
+    {
+      "id": "7.a7",
+      "type": "truefalse",
+      "lesson": "7.5",
+      "question": "A pivot table updates automatically when its source data changes.",
+      "correct": false,
+      "explanation": "It reads from a cached snapshot and needs a refresh - Ctrl+Alt+F5 for all. A dashboard that looks stale usually just has not been refreshed, which is why a Last Refreshed stamp is worth adding."
+    },
+    {
+      "id": "7.a8",
+      "type": "mcq",
+      "lesson": "7.7",
+      "question": "Why can a pivot calculated field give a wrong margin percentage?",
+      "options": [
+        "It rounds too early",
+        "It cannot divide",
+        "It ignores filters",
+        "It applies the formula to the summed values, not row by row"
+      ],
+      "correct": 3,
+      "explanation": "A calculated field sums revenue, sums cost, then divides - which is right for a margin but wrong for anything averaging a ratio, and badly wrong for Units x Price. Calculate in the source Table instead."
+    },
+    {
+      "id": "7.a9",
+      "type": "formula",
+      "lesson": "7.4",
+      "question": "Write a formula that divides B2 by C2 and shows a dash instead of #DIV/0! when C2 is zero.",
+      "accept": [
+        "=IFERROR(B2/C2,\"-\")"
+      ],
+      "explanation": "IFERROR is right here because any error in a simple division is a data problem you want hidden consistently. On a lookup you would prefer IFNA, so a genuine #REF! still shows."
+    },
+    {
+      "id": "7.a10",
+      "type": "mcq",
+      "lesson": "7.1",
+      "question": "Text to Columns with Delimited and then Finish is a common trick for what, besides splitting?",
+      "options": [
+        "Forcing text-numbers and text-dates to convert to real values",
+        "Removing formatting",
+        "Sorting",
+        "Removing duplicates"
+      ],
+      "correct": 0,
+      "explanation": "Running it on a single column with no delimiter makes Excel re-parse each cell, converting text that looks numeric into numbers. It is the fastest bulk fix for an imported column that will not sum."
+    },
+    {
+      "id": "7.a11",
+      "type": "decision",
+      "lesson": "7.6",
+      "question": "You need monthly totals from a column of daily dates in a pivot. Group the dates, or add a Month column to the source?",
+      "options": [
+        "Group the dates in the pivot - it is quicker",
+        "Add a Month column to the source - it is explicit, portable and survives version differences",
+        "Either is equally robust",
+        "Use a separate pivot per month"
+      ],
+      "correct": 1,
+      "explanation": "Grouping is quicker and lives inside the pivot, so it is invisible to anyone reading the source and behaves differently across Excel versions. A column in the source is visible, testable and reusable by other pivots."
+    },
+    {
+      "id": "7.a12",
+      "type": "mcq",
+      "lesson": "7.8",
+      "question": "What does GETPIVOTDATA give you that a direct cell reference does not?",
+      "options": [
+        "Faster calculation",
+        "Automatic formatting",
+        "A reference by field name, which survives the pivot changing shape",
+        "Error handling"
+      ],
+      "correct": 2,
+      "explanation": "Point a dashboard tile at =B7 and it breaks silently the moment the pivot gains a row. GETPIVOTDATA asks for the field by name, so it either finds it or errors - which is the behaviour you want."
+    },
+    {
+      "id": "7.a13",
+      "type": "scenario",
+      "lesson": "7.9",
+      "question": "You need the discount rate that makes a quote total exactly 500,000. One input, one target. Which tool?",
+      "options": [
+        "Scenario Manager",
+        "A data table",
+        "Solver",
+        "Goal Seek"
+      ],
+      "correct": 3,
+      "explanation": "Goal Seek is built for exactly this - one changing cell, one target value. Scenario Manager compares whole sets of inputs; Solver handles multiple variables with constraints."
+    },
+    {
+      "id": "7.a14",
+      "type": "truefalse",
+      "lesson": "7.1",
+      "question": "A six-point check on new data should include looking for text-numbers, text-dates, trailing spaces, duplicates, blanks and inconsistent spellings.",
+      "correct": true,
+      "explanation": "Running it before you build anything costs ten minutes and saves rebuilding a model on data that turns out to be dirty. Inconsistent spellings are the one people skip, and 'North' against 'north ' breaks every grouping."
+    },
+    {
+      "id": "7.a15",
+      "type": "mcq",
+      "lesson": "7.3",
+      "question": "Find & Replace with 'Match entire cell contents' unticked, replacing 'HR' with 'People', will also change what?",
+      "options": [
+        "'CHRIS' and 'THRESHOLD', because it matches inside words",
+        "Nothing else",
+        "Only whole words",
+        "Only the first match"
+      ],
+      "correct": 0,
+      "explanation": "Without that tick, Excel replaces the fragment wherever it appears. Preview with Find All first - the damage is quiet and spread across the sheet."
+    }
+  ]
+}

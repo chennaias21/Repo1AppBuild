@@ -1,0 +1,194 @@
+{
+  "id": "assessment.05",
+  "module": 5,
+  "title": "Module 5 assessment",
+  "subtitle": "Lookup & Reference Functions",
+  "description": "Fifteen questions across the whole of Module 5. Every question explains its answer, right or wrong.",
+  "questionCount": 15,
+  "passMark": 70,
+  "passRequires": 11,
+  "retakes": "unlimited",
+  "shuffleQuestions": true,
+  "shuffleOptions": false,
+  "showExplanations": "after-submit",
+  "questions": [
+    {
+      "id": "5.a1",
+      "type": "mcq",
+      "lesson": "5.1",
+      "question": "`=VLOOKUP(A2,Data!B:F,3,FALSE)` returns a value from which column?",
+      "options": [
+        "Column C",
+        "Column D",
+        "Column E",
+        "Column F"
+      ],
+      "correct": 1,
+      "explanation": "The column index counts from the first column of the lookup range, not from column A of the sheet. B is 1, C is 2, D is 3. Counting from the sheet instead of the range is the classic VLOOKUP error."
+    },
+    {
+      "id": "5.a2",
+      "type": "truefalse",
+      "lesson": "5.1",
+      "question": "Leaving VLOOKUP's fourth argument out gives an exact match.",
+      "correct": false,
+      "explanation": "Omitting it gives TRUE - approximate match - which on unsorted data returns confidently wrong answers rather than an error. Always write FALSE, or 0, unless you specifically want banding behaviour."
+    },
+    {
+      "id": "5.a3",
+      "type": "formula",
+      "lesson": "5.2",
+      "question": "EmpID is in A2. Return the name from the Emp table, with \"Not found\" when there is no match. Use XLOOKUP.",
+      "accept": [
+        "=XLOOKUP(A2,Emp[EmpID],Emp[Name],\"Not found\")"
+      ],
+      "explanation": "XLOOKUP takes the not-found message as its fourth argument, so no IFERROR wrapper is needed. It also defaults to exact match and can look leftward - the three things that make VLOOKUP awkward."
+    },
+    {
+      "id": "5.a4",
+      "type": "mcq",
+      "lesson": "5.3",
+      "question": "Why does INDEX + MATCH survive a column being inserted when VLOOKUP does not?",
+      "options": [
+        "It is newer",
+        "It is faster",
+        "MATCH finds the column by its header each time, instead of a fixed number",
+        "It does not use ranges"
+      ],
+      "correct": 2,
+      "explanation": "VLOOKUP's column index is a hard-coded number, so inserting a column shifts the data without changing the 3. INDEX + MATCH asks where the column is, every time - the lookup repairs itself."
+    },
+    {
+      "id": "5.a5",
+      "type": "decision",
+      "lesson": "5.2",
+      "question": "Your company is on Excel 2016, which has no XLOOKUP. You need a leftward lookup. What do you use?",
+      "options": [
+        "HLOOKUP",
+        "VLOOKUP with a negative column number",
+        "Rearrange the source data so the key is on the left",
+        "INDEX + MATCH"
+      ],
+      "correct": 3,
+      "explanation": "INDEX + MATCH has no direction restriction and works in every version. Rearranging someone else's source data is the option that breaks whatever else depends on it - avoid it when a formula will do."
+    },
+    {
+      "id": "5.a6",
+      "type": "truefalse",
+      "lesson": "5.5",
+      "question": "Approximate match requires the lookup column to be sorted ascending.",
+      "correct": true,
+      "explanation": "On unsorted data it returns whatever it happens to land on, with no error. That is precisely why approximate match is the right tool for banded tables - tax slabs, grades, discount tiers - where the bands are naturally in order."
+    },
+    {
+      "id": "5.a7",
+      "type": "mcq",
+      "lesson": "5.5",
+      "question": "In a banded table starting 0, 7, 21, 90, an approximate-match lookup of 11.4 returns the band for which value?",
+      "options": [
+        "7",
+        "0",
+        "21",
+        "It returns #N/A"
+      ],
+      "correct": 0,
+      "explanation": "Approximate match finds the largest value not exceeding the lookup, so 11.4 falls in the 7 band. Each row's number is the floor of its band, which is why the first band must start at the lowest possible value."
+    },
+    {
+      "id": "5.a8",
+      "type": "scenario",
+      "lesson": "5.1",
+      "question": "A VLOOKUP works on 400 rows and returns #N/A on 30. The IDs look identical. What is the most likely cause?",
+      "options": [
+        "The table range is not locked with $",
+        "The 30 are text where the others are numbers, or carry trailing spaces",
+        "VLOOKUP has a row limit",
+        "The file needs recalculating"
+      ],
+      "correct": 1,
+      "explanation": "A lookup compares types as well as characters, so the text \"1001\" never matches the number 1001. Check with ISNUMBER on both sides, and remember TRIM for the space case."
+    },
+    {
+      "id": "5.a9",
+      "type": "mcq",
+      "lesson": "5.4",
+      "question": "What makes INDIRECT risky in a shared workbook?",
+      "options": [
+        "It is slow",
+        "It needs macros",
+        "It builds a reference from text, so renaming a sheet silently breaks it",
+        "It cannot cross sheets"
+      ],
+      "correct": 2,
+      "explanation": "Excel updates real references when you rename a sheet, but INDIRECT's reference is just a string, so it becomes #REF! and nothing warned you. Use it only where a dynamic reference is genuinely needed."
+    },
+    {
+      "id": "5.a10",
+      "type": "formula",
+      "lesson": "5.3",
+      "question": "Write an INDEX + MATCH that finds the value in C2:C100 for the ID in F2, where IDs are in A2:A100.",
+      "accept": [
+        "=INDEX(C2:C100,MATCH(F2,A2:A100,0))"
+      ],
+      "explanation": "MATCH returns the position; INDEX returns what sits at that position. The 0 forces exact match, and it is as easy to forget here as in VLOOKUP - without it MATCH assumes sorted data."
+    },
+    {
+      "id": "5.a11",
+      "type": "mcq",
+      "lesson": "5.4",
+      "question": "What does `=CHOOSE(2,\"North\",\"South\",\"East\")` return?",
+      "options": [
+        "North",
+        "#VALUE!",
+        "East",
+        "South"
+      ],
+      "correct": 3,
+      "explanation": "CHOOSE picks the nth item from a list written into the formula. It suits a short fixed list - quarters, a status map - but a list that changes belongs in cells, not inside a formula."
+    },
+    {
+      "id": "5.a12",
+      "type": "truefalse",
+      "lesson": "5.2",
+      "question": "XLOOKUP can return several adjacent columns at once.",
+      "correct": true,
+      "explanation": "Give it a multi-column return array and it spills the whole row - name, department and location from one formula. That replaces three separate lookups and keeps them in step."
+    },
+    {
+      "id": "5.a13",
+      "type": "scenario",
+      "lesson": "5.3",
+      "question": "Someone asks why your lookups use whole-column references like A:A and whether that is a problem.",
+      "options": [
+        "On large workbooks it forces far more cells to be evaluated, so a bounded range or a Table reference is better",
+        "It is fine and always fastest",
+        "Whole columns do not work in lookups",
+        "It only matters with VLOOKUP"
+      ],
+      "correct": 0,
+      "explanation": "Whole-column references are convenient and cost calculation time on large files. A Table reference gives you the convenience without the cost, because it expands to exactly the rows in use."
+    },
+    {
+      "id": "5.a14",
+      "type": "mcq",
+      "lesson": "5.5",
+      "question": "A two-way lookup needs a value at the intersection of a row and a column. Which combination does it?",
+      "options": [
+        "VLOOKUP inside VLOOKUP",
+        "INDEX with MATCH for the row and MATCH for the column",
+        "Two SUMIFs",
+        "CHOOSE with MATCH"
+      ],
+      "correct": 1,
+      "explanation": "INDEX takes a row number and a column number, so one MATCH supplies each. It is the cleanest two-way lookup and does not care whether either axis is sorted."
+    },
+    {
+      "id": "5.a15",
+      "type": "truefalse",
+      "lesson": "5.1",
+      "question": "When you fill a VLOOKUP down a column, Excel keeps the table range fixed for you.",
+      "correct": false,
+      "explanation": "It does not - you must lock it with $ yourself. Without locking, the range drifts down with each row and the last formulas search a range that no longer covers the data - returning #N/A at the bottom while the top looks fine. A Table reference avoids the issue entirely."
+    }
+  ]
+}

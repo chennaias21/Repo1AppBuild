@@ -1,0 +1,198 @@
+{
+  "id": "assessment.02",
+  "module": 2,
+  "title": "Module 2 assessment",
+  "subtitle": "Workbooks, Data Entry & Formatting",
+  "description": "Fifteen questions across the whole of Module 2. Every question explains its answer, right or wrong.",
+  "questionCount": 15,
+  "passMark": 70,
+  "passRequires": 11,
+  "retakes": "unlimited",
+  "shuffleQuestions": true,
+  "shuffleOptions": false,
+  "showExplanations": "after-submit",
+  "questions": [
+    {
+      "id": "2.a1",
+      "type": "mcq",
+      "lesson": "2.2",
+      "question": "You type `07-10` into a cell and Excel shows `07-Oct`. What happened?",
+      "options": [
+        "Excel corrupted the entry",
+        "Excel stored the text '07-10'",
+        "Excel read it as a date and stored a serial number",
+        "Excel rounded it"
+      ],
+      "correct": 2,
+      "explanation": "Excel recognises anything that looks like a date and converts it to a serial number counting days from 1 Jan 1900. The cell now holds a number, not your text - which is why 07-10 can come back as 7 October when you meant product code 07-10. Format the column as Text first."
+    },
+    {
+      "id": "2.a2",
+      "type": "truefalse",
+      "lesson": "2.4",
+      "question": "Changing a cell's number format changes the value stored underneath.",
+      "correct": false,
+      "explanation": "Formatting changes only what you see. A cell showing 4 may hold 3.6 - and SUM adds the 3.6, not the 4, which is why a formatted column can appear not to add up. ROUND changes the value; formatting never does."
+    },
+    {
+      "id": "2.a3",
+      "type": "mcq",
+      "lesson": "2.5",
+      "question": "Why do experienced users avoid Merge & Center?",
+      "options": [
+        "It looks dated",
+        "It increases file size",
+        "It cannot be undone",
+        "It breaks sorting, filtering and many formulas"
+      ],
+      "correct": 3,
+      "explanation": "A merged cell is one cell pretending to be several, so Excel refuses to sort or filter across it and references behave oddly. Center Across Selection, under Format Cells > Alignment, looks identical and breaks nothing."
+    },
+    {
+      "id": "2.a4",
+      "type": "formula",
+      "lesson": "2.3",
+      "question": "A1 contains `Jan`. You drag its fill handle down four cells. What appears in A3?",
+      "accept": [
+        "Mar"
+      ],
+      "explanation": "AutoFill recognises built-in lists - months, weekdays - and continues the series rather than copying. You can add your own under File > Options > Advanced > Edit Custom Lists, which is how to make a department or branch order fill automatically."
+    },
+    {
+      "id": "2.a5",
+      "type": "mcq",
+      "lesson": "2.3",
+      "question": "You type 1 in A1 and 2 in A2, select both, then drag down. What does A5 contain?",
+      "options": [
+        "5",
+        "2",
+        "1",
+        "4"
+      ],
+      "correct": 0,
+      "explanation": "Two cells establish the step, so Excel continues 3, 4, 5. With one cell selected it would simply copy. This is also how to build any arithmetic series - 5, 10 gives you fifteens and twenties."
+    },
+    {
+      "id": "2.a6",
+      "type": "scenario",
+      "lesson": "2.6",
+      "question": "Your report prints across nine pages and column headers appear only on page one. What do you set?",
+      "options": [
+        "Print Area",
+        "Rows to repeat at top, under Page Setup > Sheet",
+        "Freeze Panes",
+        "A larger paper size"
+      ],
+      "correct": 1,
+      "explanation": "Freeze Panes is a screen feature and has no effect on print. Page Setup > Sheet > Rows to repeat at top prints the header row on every page - the difference between a report people can read and one they put down."
+    },
+    {
+      "id": "2.a7",
+      "type": "truefalse",
+      "lesson": "2.1",
+      "question": "Deleting a worksheet can be undone with Ctrl+Z.",
+      "correct": false,
+      "explanation": "Sheet deletion is one of the few actions Excel cannot undo - it clears the undo stack entirely. Right-click > Move or Copy to a backup workbook before deleting anything you might want back."
+    },
+    {
+      "id": "2.a8",
+      "type": "decision",
+      "lesson": "2.4",
+      "question": "A column of amounts must show as 1,250 and also feed a SUM. Custom number format, or TEXT()?",
+      "options": [
+        "Either works identically",
+        "TEXT() - it gives exact control over the display",
+        "Custom number format - the cell keeps a real number",
+        "Type the comma in manually"
+      ],
+      "correct": 2,
+      "explanation": "TEXT() returns text, and text does not add up - SUM would return 0. Format the cell when the value must stay numeric; reserve TEXT() for joining a number into a sentence, where text is what you actually want."
+    },
+    {
+      "id": "2.a9",
+      "type": "mcq",
+      "lesson": "2.2",
+      "question": "A column of numbers imported from a system is left-aligned by default and will not SUM. What is the most likely cause?",
+      "options": [
+        "The column is too narrow",
+        "They need rounding",
+        "The sheet is protected",
+        "They are stored as text, not numbers"
+      ],
+      "correct": 3,
+      "explanation": "Excel right-aligns numbers and left-aligns text by default, so alignment is a free diagnostic. ISNUMBER confirms it, and Text to Columns with Finish is the quickest bulk fix."
+    },
+    {
+      "id": "2.a10",
+      "type": "mcq",
+      "lesson": "2.4",
+      "question": "Which number format shows a negative value in red with brackets?",
+      "options": [
+        "A custom format with a section after the first semicolon",
+        "Accounting only",
+        "Currency only",
+        "Conditional formatting only"
+      ],
+      "correct": 0,
+      "explanation": "A custom format has up to four sections separated by semicolons: positive;negative;zero;text. `#,##0;[Red](#,##0)` handles the first two. Knowing the semicolon structure unlocks most of what custom formats can do."
+    },
+    {
+      "id": "2.a11",
+      "type": "truefalse",
+      "lesson": "2.3",
+      "question": "To put the same entry into every selected cell at once, you type it and press Enter.",
+      "correct": false,
+      "explanation": "Enter commits to one cell and moves on; Ctrl+Enter is the one that fills the whole selection. Select the range, type once, press Ctrl+Enter - the entry lands in all of them, with formula references adjusting per cell. It is the fastest way to fill a filtered or scattered selection where dragging will not work."
+    },
+    {
+      "id": "2.a12",
+      "type": "scenario",
+      "lesson": "2.5",
+      "question": "A colleague's sheet uses eight colours, four fonts and three border styles, and nobody can see the numbers that matter. What is the fix?",
+      "options": [
+        "More colour to highlight the key figures",
+        "Remove formatting until only meaning-bearing emphasis remains",
+        "Increase the font size throughout",
+        "Merge the headers"
+      ],
+      "correct": 1,
+      "explanation": "Formatting is a signal, and signal only works against a quiet background. If everything is emphasised, nothing is. One accent colour used consistently beats eight used decoratively."
+    },
+    {
+      "id": "2.a13",
+      "type": "mcq",
+      "lesson": "2.6",
+      "question": "Your report is one column too wide for the page. Which Page Setup option fixes it without shrinking everything?",
+      "options": [
+        "Fit to 1 page wide by 1 tall",
+        "Reduce the font to 6pt",
+        "Fit to 1 page wide, leaving the height automatic",
+        "Switch to A3"
+      ],
+      "correct": 2,
+      "explanation": "Setting width to 1 page and leaving height blank keeps the scale readable and lets the report run to as many pages as it needs. Forcing 1 by 1 on a long report shrinks it to the point of uselessness."
+    },
+    {
+      "id": "2.a14",
+      "type": "mcq",
+      "lesson": "2.1",
+      "question": "What does right-clicking a sheet tab and choosing Move or Copy with 'Create a copy' ticked do?",
+      "options": [
+        "Moves the sheet",
+        "Creates a link to the sheet",
+        "Copies only the values",
+        "Duplicates the sheet, including its formulas and formatting"
+      ],
+      "correct": 3,
+      "explanation": "It duplicates everything, and formulas pointing within the sheet re-point to the copy. It is the safe way to experiment - work on the duplicate and the original is untouched if you are wrong."
+    },
+    {
+      "id": "2.a15",
+      "type": "truefalse",
+      "lesson": "2.2",
+      "question": "A date and a time can be stored in the same cell as one number.",
+      "correct": true,
+      "explanation": "The whole number is the day and the decimal is the fraction of a day, so 45200.75 is a date at 6pm. That is why you can subtract one timestamp from another and get a sensible duration."
+    }
+  ]
+}

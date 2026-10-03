@@ -1,0 +1,198 @@
+{
+  "id": "assessment.01",
+  "module": 1,
+  "title": "Module 1 assessment",
+  "subtitle": "Excel Foundations",
+  "description": "Fifteen questions across the whole of Module 1. Every question explains its answer, right or wrong.",
+  "questionCount": 15,
+  "passMark": 70,
+  "passRequires": 11,
+  "retakes": "unlimited",
+  "shuffleQuestions": true,
+  "shuffleOptions": false,
+  "showExplanations": "after-submit",
+  "questions": [
+    {
+      "id": "1.a1",
+      "type": "mcq",
+      "lesson": "1.2",
+      "question": "You click a cell and the Name Box shows `D12`, while the Formula Bar shows `=B12*C12`. What is actually stored in D12?",
+      "options": [
+        "The number you can see in the cell",
+        "The formula `=B12*C12`",
+        "A link to B12 and C12",
+        "The cell's address"
+      ],
+      "correct": 1,
+      "explanation": "The cell stores the formula; the grid shows its result. This is the single most useful habit in Excel - when a number looks wrong, click it and read the Formula Bar, because the grid never tells you where a number came from."
+    },
+    {
+      "id": "1.a2",
+      "type": "truefalse",
+      "lesson": "1.3",
+      "question": "In the address `B3`, the letter is the column and the number is the row.",
+      "correct": true,
+      "explanation": "Column first, then row - always. B3 is column B, row 3. Getting this backwards is why people write =A1 when they meant =1A, and it matters more later when you read a range like B3:F20 at a glance."
+    },
+    {
+      "id": "1.a3",
+      "type": "mcq",
+      "lesson": "1.4",
+      "question": "You have built a file containing a recorded macro. Which format must you save it as for the macro to survive?",
+      "options": [
+        ".xlsx",
+        ".csv",
+        ".xlsm",
+        ".xls"
+      ],
+      "correct": 2,
+      "explanation": ".xlsm is the macro-enabled workbook. Saving a macro file as .xlsx silently strips the code - Excel warns you, but the warning is easy to click past, and the macro is simply gone next time you open it."
+    },
+    {
+      "id": "1.a4",
+      "type": "truefalse",
+      "lesson": "1.4",
+      "question": "Saving a three-sheet workbook as .csv keeps all three sheets.",
+      "correct": false,
+      "explanation": "A .csv file holds one sheet of plain text - no formulas, no formatting, no second sheet. Excel saves only the active sheet and discards the rest. For sharing data with another system .csv is right; for keeping your work it is a trap."
+    },
+    {
+      "id": "1.a5",
+      "type": "formula",
+      "lesson": "1.3",
+      "question": "Someone asks you to check the cell at column D, row 12. Write that cell address as Excel would show it in the Name Box.",
+      "accept": [
+        "D12"
+      ],
+      "explanation": "Column letter then row number, no space. The Name Box also works in reverse: type D12 into it and press Enter to jump straight there, which is faster than scrolling on a large sheet."
+    },
+    {
+      "id": "1.a6",
+      "type": "mcq",
+      "lesson": "1.5",
+      "question": "You press Ctrl+End on a sheet that visibly ends at row 40, and Excel jumps to row 9,312. What does that tell you?",
+      "options": [
+        "The file is corrupt",
+        "There is data below row 40 you cannot see",
+        "Ctrl+End always goes to the last row of the sheet",
+        "Excel still thinks cells down to row 9,312 were used at some point"
+      ],
+      "correct": 3,
+      "explanation": "Ctrl+End goes to the last cell of the USED range, which remembers cells that once held data or formatting even after you cleared them. It is the usual reason a small sheet becomes a huge file - delete those rows entirely and save to reset it."
+    },
+    {
+      "id": "1.a7",
+      "type": "mcq",
+      "lesson": "1.5",
+      "question": "What is the difference between Ctrl+Down Arrow and Ctrl+Shift+Down Arrow?",
+      "options": [
+        "Ctrl+Shift also selects everything it travels over",
+        "No difference",
+        "Ctrl+Shift moves twice as far",
+        "Ctrl+Shift moves to the very last row"
+      ],
+      "correct": 0,
+      "explanation": "Adding Shift to any navigation shortcut turns the move into a selection. That one rule gives you a dozen shortcuts for free, and it is how you select a 4,000-row column without touching the mouse."
+    },
+    {
+      "id": "1.a8",
+      "type": "scenario",
+      "lesson": "1.2",
+      "question": "You select a column of 300 numbers to sanity-check them. Without typing a formula, where can you read their sum and average immediately?",
+      "options": [
+        "The Name Box",
+        "The Status Bar at the bottom of the window",
+        "The Formula Bar",
+        "The Ribbon's Home tab"
+      ],
+      "correct": 1,
+      "explanation": "The Status Bar shows Count, Sum and Average of whatever is selected, and you can right-click it to add Minimum and Maximum. It is the fastest check in Excel and most people never notice it."
+    },
+    {
+      "id": "1.a9",
+      "type": "truefalse",
+      "lesson": "1.1",
+      "question": "A modern Excel worksheet holds just over 65,000 rows.",
+      "correct": false,
+      "explanation": "It holds 1,048,576 rows and 16,384 columns. Worth knowing because it tells you when you have outgrown Excel - a dataset approaching that limit belongs in a database, and the file will be painful long before you reach it."
+    },
+    {
+      "id": "1.a10",
+      "type": "decision",
+      "lesson": "1.1",
+      "question": "Your team tracks 400,000 transaction records that six people need to update at the same time. Excel or a database?",
+      "options": [
+        "Excel, split across several workbooks",
+        "Excel - 400,000 rows fits inside the row limit",
+        "A database - Excel cannot handle concurrent editing or that volume well",
+        "Excel with the file on a shared drive"
+      ],
+      "correct": 2,
+      "explanation": "Fitting is not the same as working. The volume alone would make Excel slow, but concurrent editing is the real blocker - Excel locks the file for one editor at a time. Knowing where Excel stops is part of using it well."
+    },
+    {
+      "id": "1.a11",
+      "type": "mcq",
+      "lesson": "1.4",
+      "question": "What does Protected View mean when a downloaded workbook opens in it?",
+      "options": [
+        "The file is read-only forever",
+        "The file is password protected",
+        "The file is corrupted",
+        "Excel has opened it in a sandbox because it came from outside your machine"
+      ],
+      "correct": 3,
+      "explanation": "Protected View is a safety sandbox for files from email, the internet or another machine - formulas do not calculate and macros do not run until you choose Enable Editing. It is also why automation scripts fail on freshly downloaded files."
+    },
+    {
+      "id": "1.a12",
+      "type": "scenario",
+      "lesson": "1.6",
+      "question": "You use Paste Values twenty times a day and it takes four clicks each time. What is the right fix?",
+      "options": [
+        "Add Paste Values to the Quick Access Toolbar",
+        "Learn to live with it",
+        "Record a macro",
+        "Use a different program"
+      ],
+      "correct": 0,
+      "explanation": "The Quick Access Toolbar gives any command a permanent one-click home, and its first ten items get Alt+1 to Alt+0 as shortcuts automatically. Twenty times a day times three saved clicks is real time."
+    },
+    {
+      "id": "1.a13",
+      "type": "mcq",
+      "lesson": "1.3",
+      "question": "What does the range reference `B3:F20` describe?",
+      "options": [
+        "Cells B3 and F20 only",
+        "Every cell in the rectangle from B3 to F20",
+        "Column B rows 3 to 20",
+        "Twenty cells starting at B3"
+      ],
+      "correct": 1,
+      "explanation": "A colon means 'through', and the result is the whole rectangular block - here 5 columns by 18 rows, 90 cells. Reading ranges fluently is what lets you check a SUM's range at a glance instead of trusting it."
+    },
+    {
+      "id": "1.a14",
+      "type": "truefalse",
+      "lesson": "1.2",
+      "question": "The Formula Bar can be expanded to show a long formula over several lines.",
+      "correct": true,
+      "explanation": "Click the small chevron at its right edge, or press Ctrl+Shift+U. Long nested formulas become readable instead of scrolling sideways, and you can press Alt+Enter inside a formula to break it onto lines deliberately."
+    },
+    {
+      "id": "1.a15",
+      "type": "mcq",
+      "lesson": "1.5",
+      "question": "What does pressing Ctrl+Home do?",
+      "options": [
+        "Opens the Home tab",
+        "Goes to the start of the current row",
+        "Goes to cell A1",
+        "Opens the start screen"
+      ],
+      "correct": 2,
+      "explanation": "Ctrl+Home returns to A1 from anywhere, which is the companion to Ctrl+End. Leaving a file saved at A1 on every sheet is a small courtesy to whoever opens it next."
+    }
+  ]
+}

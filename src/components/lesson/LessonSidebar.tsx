@@ -6,6 +6,7 @@ import { useState } from "react";
 export interface SidebarModule {
   number: number;
   title: string;
+  assessment?: { href: string; locked: boolean };
   lessons: { id: string; title: string; href: string; locked: boolean; done: boolean; free: boolean }[];
 }
 
@@ -54,6 +55,18 @@ function Contents({ modules, currentId, onNavigate }: { modules: SidebarModule[]
                   </li>
                 );
               })}
+              {m.assessment && (
+                <li>
+                  <Link
+                    href={m.assessment.href}
+                    onClick={onNavigate}
+                    className="flex items-start gap-2.5 px-3.5 py-2 text-sm font-semibold text-link hover:bg-tint"
+                  >
+                    <span className="mt-0.5 w-5 shrink-0 text-center" aria-hidden="true">{m.assessment.locked ? "🔒" : "✎"}</span>
+                    <span>Module {m.number} assessment{m.assessment.locked && <span className="sr-only"> (locked)</span>}</span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </details>
         );

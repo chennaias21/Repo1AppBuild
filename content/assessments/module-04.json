@@ -1,0 +1,200 @@
+{
+  "id": "assessment.04",
+  "module": 4,
+  "title": "Module 4 assessment",
+  "subtitle": "Logical, Text and Date Functions",
+  "description": "Fifteen questions across the whole of Module 4. Every question explains its answer, right or wrong.",
+  "questionCount": 15,
+  "passMark": 70,
+  "passRequires": 11,
+  "retakes": "unlimited",
+  "shuffleQuestions": true,
+  "shuffleOptions": false,
+  "showExplanations": "after-submit",
+  "questions": [
+    {
+      "id": "4.a1",
+      "type": "formula",
+      "lesson": "4.1",
+      "question": "B2 holds a score. Write a formula returning \"Pass\" when it is 40 or more and \"Fail\" otherwise.",
+      "accept": [
+        "=IF(B2>=40,\"Pass\",\"Fail\")"
+      ],
+      "explanation": "Condition, then value if true, then value if false. The commonest error is omitting the last argument - IF(B2>=40,\"Pass\") returns FALSE rather than \"Fail\", which looks like a bug but is Excel doing exactly what you asked."
+    },
+    {
+      "id": "4.a2",
+      "type": "mcq",
+      "lesson": "4.2",
+      "question": "You are writing a seventh nested IF. What does that suggest?",
+      "options": [
+        "A lookup table with VLOOKUP or XLOOKUP is the right structure",
+        "Use IFS instead",
+        "Nest more carefully",
+        "Split it over two cells"
+      ],
+      "correct": 0,
+      "explanation": "Beyond three or four levels, the logic is really a table of bands - and a table can be read, changed and audited by someone who does not write formulas. IFS flattens the syntax but keeps the rules locked inside the formula."
+    },
+    {
+      "id": "4.a3",
+      "type": "truefalse",
+      "lesson": "4.3",
+      "question": "`=AND(A1>10,B1<5)` returns TRUE when either condition is met.",
+      "correct": false,
+      "explanation": "AND needs every condition true; OR needs at least one. The mix-up is easy to make and produces plausible-looking results, which is why it is worth testing a logical formula against a row you know should fail."
+    },
+    {
+      "id": "4.a4",
+      "type": "mcq",
+      "lesson": "4.4",
+      "question": "What is the practical difference between IFERROR and IFNA?",
+      "options": [
+        "None",
+        "IFERROR catches every error; IFNA catches only #N/A",
+        "IFNA is newer and faster",
+        "IFERROR works only with lookups"
+      ],
+      "correct": 1,
+      "explanation": "That difference matters on a lookup. IFERROR hides a genuine #REF! or #VALUE! alongside the expected 'not found', so a broken formula returns your tidy message instead of alerting you. On lookups, prefer IFNA."
+    },
+    {
+      "id": "4.a5",
+      "type": "scenario",
+      "lesson": "4.5",
+      "question": "An imported name column will not match your master list, though the names look identical. What do you check first?",
+      "options": [
+        "Spelling",
+        "Capitalisation",
+        "Trailing spaces, with TRIM and LEN",
+        "The column width"
+      ],
+      "correct": 2,
+      "explanation": "LEN on both versions shows the difference immediately - 'Anil Kumar ' is eleven characters against ten. TRIM strips leading, trailing and repeated internal spaces. It is the most common cause of a lookup that should work and does not."
+    },
+    {
+      "id": "4.a6",
+      "type": "mcq",
+      "lesson": "4.5",
+      "question": "`=LEN(\"  Anil  Kumar  \")` returns 15. What does `=LEN(TRIM(\"  Anil  Kumar  \"))` return?",
+      "options": [
+        "15",
+        "12",
+        "11",
+        "10"
+      ],
+      "correct": 3,
+      "explanation": "TRIM removes the leading and trailing spaces and collapses the double space between the words to one, leaving 'Anil Kumar' at ten characters. It does not remove every space - only the ones that are not single separators."
+    },
+    {
+      "id": "4.a7",
+      "type": "truefalse",
+      "lesson": "4.6",
+      "question": "SUBSTITUTE is case-sensitive.",
+      "correct": true,
+      "explanation": "SUBSTITUTE(\"Ltd\",\"ltd\",\"Limited\") finds nothing, because the case differs. REPLACE, by contrast, works by position and ignores content entirely - use SUBSTITUTE when you know the text, REPLACE when you know where it sits."
+    },
+    {
+      "id": "4.a8",
+      "type": "mcq",
+      "lesson": "4.6",
+      "question": "Which function joins a list of names with commas and skips the blank cells?",
+      "options": [
+        "TEXTJOIN with its second argument TRUE",
+        "CONCAT",
+        "CONCATENATE",
+        "The & operator"
+      ],
+      "correct": 0,
+      "explanation": "TEXTJOIN(\", \",TRUE,A2:A20) handles the delimiter and the gaps in one go. CONCAT joins everything including blanks, leaving ', ,' where the gaps were - cleaning that up afterwards is the slow path."
+    },
+    {
+      "id": "4.a9",
+      "type": "formula",
+      "lesson": "4.7",
+      "question": "DOB is in B2. Write a formula giving completed age in whole years as at today.",
+      "accept": [
+        "=DATEDIF(B2,TODAY(),\"Y\")"
+      ],
+      "explanation": "DATEDIF is undocumented - it does not appear in Excel's function list - but it is the correct tool for completed years and handles leap years properly. Subtracting dates and dividing by 365 drifts by a day every four years."
+    },
+    {
+      "id": "4.a10",
+      "type": "mcq",
+      "lesson": "4.7",
+      "question": "`=NETWORKDAYS(\"01-Oct-2024\",\"07-Oct-2024\")` returns what, with no holidays given?",
+      "options": [
+        "7",
+        "5",
+        "6",
+        "4"
+      ],
+      "correct": 1,
+      "explanation": "It counts both endpoints and excludes Saturdays and Sundays. 1 to 7 October 2024 spans a weekend, leaving five working days. Pass a holiday range as the third argument to exclude public holidays too."
+    },
+    {
+      "id": "4.a11",
+      "type": "decision",
+      "lesson": "4.2",
+      "question": "Grading into five bands by score. Nested IFs or a lookup table with approximate match?",
+      "options": [
+        "IFS - it is cleaner than nesting",
+        "Nested IFs - they are self-contained",
+        "A lookup table - the bands become data the business owner can change",
+        "Either, it makes no difference"
+      ],
+      "correct": 2,
+      "explanation": "Both work, but only one lets the policy change without editing a formula. Put the bands in a labelled table and anyone can adjust a threshold; bury them in a formula and every change needs you."
+    },
+    {
+      "id": "4.a12",
+      "type": "truefalse",
+      "lesson": "4.1",
+      "question": "A blank cell is ignored by a comparison like `=IF(B2>100,...)`, so that row is skipped.",
+      "correct": false,
+      "explanation": "It is not skipped - blank evaluates as 0, which is fine for a greater-than test and dangerous for a less-than one - an empty cell passes `<100` and quietly joins your result set. Test for the blank explicitly when it could mean 'not yet known'."
+    },
+    {
+      "id": "4.a13",
+      "type": "scenario",
+      "lesson": "4.4",
+      "question": "A report shows #N/A in thirty rows and the manager wants it to look clean. What is the right response?",
+      "options": [
+        "Wrap every lookup in IFERROR and move on",
+        "Format the error text white",
+        "Delete the thirty rows",
+        "Find out why thirty rows do not match, then handle the genuine misses with IFNA"
+      ],
+      "correct": 3,
+      "explanation": "#N/A is information - thirty unmatched records usually means a data problem worth knowing about. Hide it first and you ship a clean-looking report built on thirty gaps."
+    },
+    {
+      "id": "4.a14",
+      "type": "mcq",
+      "lesson": "4.3",
+      "question": "`=NOT(A1=\"Active\")` is equivalent to which of these?",
+      "options": [
+        "=A1<>\"Active\"",
+        "=A1=\"Active\"",
+        "=AND(A1,\"Active\")",
+        "=OR(A1,\"Active\")"
+      ],
+      "correct": 0,
+      "explanation": "NOT inverts a logical result, and <> is the not-equal operator, so both return TRUE when the status is anything but Active. The operator form is usually easier to read inside a longer condition."
+    },
+    {
+      "id": "4.a15",
+      "type": "mcq",
+      "lesson": "4.6",
+      "question": "Why wrap a date in TEXT() when joining it into a sentence?",
+      "options": [
+        "To make it bold",
+        "Because joining a date with & gives the serial number, not the date",
+        "To change the date",
+        "TEXT is not needed"
+      ],
+      "correct": 1,
+      "explanation": "`=\"Due \"&B2` returns 'Due 45200'. `=\"Due \"&TEXT(B2,\"dd-mmm-yyyy\")` returns 'Due 07-Oct-2024'. The & operator converts to raw text, and a date's raw text is its serial number."
+    }
+  ]
+}

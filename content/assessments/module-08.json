@@ -1,0 +1,198 @@
+{
+  "id": "assessment.08",
+  "module": 8,
+  "title": "Module 8 assessment",
+  "subtitle": "Dashboards, Advanced Excel & Business Projects",
+  "description": "Fifteen questions across the whole of Module 8. Every question explains its answer, right or wrong.",
+  "questionCount": 15,
+  "passMark": 70,
+  "passRequires": 11,
+  "retakes": "unlimited",
+  "shuffleQuestions": true,
+  "shuffleOptions": false,
+  "showExplanations": "after-submit",
+  "questions": [
+    {
+      "id": "8.a1",
+      "type": "mcq",
+      "lesson": "8.1",
+      "question": "You want to show one department's share of total headcount across eight departments. Which chart?",
+      "options": [
+        "A bar chart",
+        "A pie chart",
+        "A line chart",
+        "A scatter plot"
+      ],
+      "correct": 0,
+      "explanation": "Pie charts become unreadable past four or five slices, because people compare angles poorly. A bar chart sorted descending answers the same question and lets the reader rank as well as compare."
+    },
+    {
+      "id": "8.a2",
+      "type": "truefalse",
+      "lesson": "8.2",
+      "question": "A combo chart needs a secondary axis when the two series use different scales.",
+      "correct": true,
+      "explanation": "Revenue in millions and margin at 18% on one axis leaves the margin line flat on the baseline. The secondary axis gives it its own scale - and should be labelled, or the reader cannot tell which line belongs to which."
+    },
+    {
+      "id": "8.a3",
+      "type": "mcq",
+      "lesson": "8.3",
+      "question": "What is the most common dashboard design mistake?",
+      "options": [
+        "Too few colours",
+        "Showing everything that can be measured rather than what drives a decision",
+        "Using charts at all",
+        "Too much white space"
+      ],
+      "correct": 1,
+      "explanation": "A dashboard exists to prompt an action. Every tile should have an answer to 'what would I do differently if this number changed' - the ones that do not are costing attention the important numbers need."
+    },
+    {
+      "id": "8.a4",
+      "type": "formula",
+      "lesson": "8.5",
+      "question": "Write a formula returning the unique list of regions from the Region column of the Orders Table, sorted alphabetically.",
+      "accept": [
+        "=SORT(UNIQUE(Orders[Region]))"
+      ],
+      "explanation": "The result spills down as far as it needs and resizes when the data changes. Reference the whole spill elsewhere with a # after the top-left cell, as in H2#."
+    },
+    {
+      "id": "8.a5",
+      "type": "mcq",
+      "lesson": "8.5",
+      "question": "A dynamic array formula returns #SPILL!. What does that mean?",
+      "options": [
+        "The formula is wrong",
+        "The array is too large",
+        "Something is blocking the cells the result needs",
+        "The function is unsupported"
+      ],
+      "correct": 2,
+      "explanation": "Clear whatever sits in the spill range - often a stray value or a merged cell. It is a positioning problem, not a logic one, and the formula itself is usually fine."
+    },
+    {
+      "id": "8.a6",
+      "type": "truefalse",
+      "lesson": "8.6",
+      "question": "LET lets you name a calculation once and reuse it within the same formula.",
+      "correct": true,
+      "explanation": "It makes long formulas readable and can be faster, because a named expression is evaluated once rather than each time it appears. It is the closest Excel gets to a variable."
+    },
+    {
+      "id": "8.a7",
+      "type": "mcq",
+      "lesson": "8.6",
+      "question": "What does SUMPRODUCT do that makes it useful beyond multiplying lists?",
+      "options": [
+        "It is faster than SUM",
+        "It ignores errors",
+        "It handles text",
+        "It evaluates arrays, so conditions turned into 1s and 0s can be counted and summed"
+      ],
+      "correct": 3,
+      "explanation": "=SUMPRODUCT(--ISTEXT(A2:A100)) counts text entries in a numeric column - the double negative converts TRUE and FALSE into 1 and 0. It is the standard way to check a column is genuinely clean."
+    },
+    {
+      "id": "8.a8",
+      "type": "scenario",
+      "lesson": "8.7",
+      "question": "The same warehouse export needs the same twelve clean-up steps every week. What should you build?",
+      "options": [
+        "A Power Query that records the steps and re-runs them on refresh",
+        "A macro",
+        "A template with the steps written down",
+        "A longer formula"
+      ],
+      "correct": 0,
+      "explanation": "Power Query keeps the steps as a recipe applied to whatever arrives, so next week is one refresh. It also survives the source gaining a column far better than a recorded macro does."
+    },
+    {
+      "id": "8.a9",
+      "type": "mcq",
+      "lesson": "8.7",
+      "question": "Why is Unpivot the key step for a table with twelve month columns?",
+      "options": [
+        "It reduces file size",
+        "Analysis tools need one row per observation, not months spread across columns",
+        "It sorts the data",
+        "It removes blanks"
+      ],
+      "correct": 1,
+      "explanation": "Pivot tables and lookups both expect tall data - one Month column and one Value column. Unpivot does in two clicks what takes an hour by hand, and re-runs next month."
+    },
+    {
+      "id": "8.a10",
+      "type": "truefalse",
+      "lesson": "8.8",
+      "question": "An action performed by a macro can be undone with Ctrl+Z.",
+      "correct": false,
+      "explanation": "Running a macro clears the undo stack, so there is no way back. Save before you run anything new - that habit is worth more than any macro you will record."
+    },
+    {
+      "id": "8.a11",
+      "type": "decision",
+      "lesson": "8.8",
+      "question": "You record a macro to format a report, and it must work whatever cell you start from. Which recording mode?",
+      "options": [
+        "Either works",
+        "Absolute references",
+        "Relative references",
+        "Record twice, once each way"
+      ],
+      "correct": 2,
+      "explanation": "Absolute recording writes the exact cell addresses from your session, so the macro always formats the same cells regardless of your selection. Relative records the movements, which is what 'from wherever I am' requires."
+    },
+    {
+      "id": "8.a12",
+      "type": "mcq",
+      "lesson": "8.4",
+      "question": "On an interactive dashboard, what should every chart and tile be driven by?",
+      "options": [
+        "Separate manual filters",
+        "A macro",
+        "Direct cell references",
+        "The same pivot cache, connected to shared slicers"
+      ],
+      "correct": 3,
+      "explanation": "Pivots on one cache can share slicers, so one click moves everything together. Mixed sources are how a dashboard ends up showing a filtered chart beside an unfiltered tile."
+    },
+    {
+      "id": "8.a13",
+      "type": "truefalse",
+      "lesson": "8.1",
+      "question": "A chart axis that does not start at zero can mislead.",
+      "correct": true,
+      "explanation": "Truncating the axis exaggerates differences, turning a 3% change into a dramatic cliff. It is sometimes justified for a narrow range, and when you do it the axis should make it obvious."
+    },
+    {
+      "id": "8.a14",
+      "type": "scenario",
+      "lesson": "8.9",
+      "question": "You rebuild the same monthly report by hand each time. Beyond macros, what is the first thing to change?",
+      "options": [
+        "Separate the raw data, the calculations and the presentation, so next month only the data changes",
+        "Work faster",
+        "Use more shortcuts",
+        "Reduce the report's scope"
+      ],
+      "correct": 0,
+      "explanation": "Most monthly rework exists because data and presentation are tangled in the same sheet. Separate them and the monthly job becomes pasting new data and refreshing - which is also what makes the file safe to hand over."
+    },
+    {
+      "id": "8.a15",
+      "type": "mcq",
+      "lesson": "8.2",
+      "question": "What is a sparkline?",
+      "options": [
+        "A chart on its own sheet",
+        "A small chart inside a single cell showing one row's trend",
+        "A conditional format",
+        "A type of data bar"
+      ],
+      "correct": 1,
+      "explanation": "Sparklines sit beside the numbers they describe, so a table can show both the figures and each row's direction without a separate chart. They are ideal next to a list of SKUs or regions."
+    }
+  ]
+}

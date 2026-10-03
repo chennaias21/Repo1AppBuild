@@ -1,0 +1,201 @@
+{
+  "id": "assessment.03",
+  "module": 3,
+  "title": "Module 3 assessment",
+  "subtitle": "Formulas & Essential Functions",
+  "description": "Fifteen questions across the whole of Module 3. Every question explains its answer, right or wrong.",
+  "questionCount": 15,
+  "passMark": 70,
+  "passRequires": 11,
+  "retakes": "unlimited",
+  "shuffleQuestions": true,
+  "shuffleOptions": false,
+  "showExplanations": "after-submit",
+  "questions": [
+    {
+      "id": "3.a1",
+      "type": "mcq",
+      "lesson": "3.1",
+      "question": "What does `=2+3*4` return?",
+      "options": [
+        "20",
+        "9",
+        "24",
+        "14"
+      ],
+      "correct": 3,
+      "explanation": "Multiplication runs before addition: 3x4 is 12, plus 2 is 14. Excel never warns you about precedence because the result is a valid number - which is exactly why brackets are worth writing even when optional."
+    },
+    {
+      "id": "3.a2",
+      "type": "formula",
+      "lesson": "3.3",
+      "question": "Rates sit across row 1 in B1:F1, quantities down column A in A2:A20. Write the formula for B2 that fills correctly across the whole grid.",
+      "accept": [
+        "=$A2*B$1",
+        "=B$1*$A2"
+      ],
+      "explanation": "Column A is locked with the row free; row 1 is locked with the column free. This two-way grid pattern is the single most useful application of mixed references, and it is the difference between one formula and ninety-five."
+    },
+    {
+      "id": "3.a3",
+      "type": "truefalse",
+      "lesson": "3.2",
+      "question": "If six cells contain data and two of them hold a formula returning \"\", COUNTA returns 6 and COUNTBLANK returns 2.",
+      "correct": true,
+      "explanation": "Both are right at once, which surprises people. COUNTA counts anything that is not truly empty, including a formula returning an empty string; COUNTBLANK also counts that empty string as blank. They are not complementary, and assuming they are produces totals that do not reconcile."
+    },
+    {
+      "id": "3.a4",
+      "type": "mcq",
+      "lesson": "3.4",
+      "question": "`=ROUND(2.5,0)` and `=INT(2.5)` return what, in that order?",
+      "options": [
+        "3 and 2",
+        "2 and 2",
+        "3 and 3",
+        "2 and 3"
+      ],
+      "correct": 0,
+      "explanation": "ROUND goes to the nearest, with .5 going away from zero, so 3. INT simply discards the decimal part, so 2. On negatives they diverge further: INT(-2.5) is -3, because INT rounds down, not toward zero."
+    },
+    {
+      "id": "3.a5",
+      "type": "mcq",
+      "lesson": "3.5",
+      "question": "Which formula totals sales for the North region only, with regions in A2:A100 and amounts in B2:B100?",
+      "options": [
+        "=SUMIF(B2:B100,\"North\",A2:A100)",
+        "=SUMIF(A2:A100,\"North\",B2:B100)",
+        "=SUMIFS(A2:A100,\"North\",B2:B100)",
+        "=COUNTIF(A2:A100,\"North\")"
+      ],
+      "correct": 1,
+      "explanation": "SUMIF takes the range to test first, then the criterion, then the range to add. SUMIFS reverses it - the sum range comes first. That inconsistency between the two functions is the most common cause of a wrong total in this family."
+    },
+    {
+      "id": "3.a6",
+      "type": "decision",
+      "lesson": "3.5",
+      "question": "You need to total amounts matching three conditions at once. SUMIF or SUMIFS?",
+      "options": [
+        "SUMIF with the criteria joined by &",
+        "SUMIF repeated three times and added",
+        "SUMIFS - it takes multiple criteria pairs",
+        "Either works"
+      ],
+      "correct": 2,
+      "explanation": "SUMIF handles exactly one condition. SUMIFS takes up to 127 criteria pairs and is the one to default to - using SUMIFS even for a single condition keeps the argument order consistent across your workbook."
+    },
+    {
+      "id": "3.a7",
+      "type": "scenario",
+      "lesson": "3.6",
+      "question": "A commission rate used in forty formulas changes from 5% to 6%. The rate was typed into each formula. What went wrong, and what prevents it?",
+      "options": [
+        "Nothing - updating forty formulas is normal",
+        "The rate should have been formatted as a percentage",
+        "The formulas needed absolute references",
+        "Hard-coding. Put the rate in one named cell and reference it"
+      ],
+      "correct": 3,
+      "explanation": "Any number appearing in more than one formula belongs in a labelled cell. A rate change then becomes one edit that cannot be applied partially - which is the real risk, because updating 29 of 40 produces a file that is quietly wrong rather than obviously broken."
+    },
+    {
+      "id": "3.a8",
+      "type": "truefalse",
+      "lesson": "3.6",
+      "question": "A defined name is absolute by default, so it does not shift when you copy the formula.",
+      "correct": true,
+      "explanation": "Names behave like absolute references, which is most of their value - `=Price*TaxRate` reads like the business rule it encodes and survives copying. It also means a name is the wrong tool when you need the reference to move."
+    },
+    {
+      "id": "3.a9",
+      "type": "mcq",
+      "lesson": "3.7",
+      "question": "Formula auditing - what does Trace Precedents show?",
+      "options": [
+        "Which cells this one depends on",
+        "Which cells depend on this one",
+        "The formula's history",
+        "Cells with errors"
+      ],
+      "correct": 0,
+      "explanation": "Precedents feed in, dependents flow out. Trace Dependents is the one to run before deleting anything - it shows what will break, and it is how you avoid the #REF! that appears three sheets away."
+    },
+    {
+      "id": "3.a10",
+      "type": "mcq",
+      "lesson": "3.7",
+      "question": "You select part of a formula in the Formula Bar and press F9. What happens?",
+      "options": [
+        "The formula recalculates",
+        "The selected piece is replaced by its result, so you can see it",
+        "Excel shows an error",
+        "The formula is deleted"
+      ],
+      "correct": 1,
+      "explanation": "F9 evaluates just the highlighted fragment, which is how you find which part of a long formula is misbehaving. Press Esc, not Enter, afterwards - Enter commits the substitution and destroys the formula."
+    },
+    {
+      "id": "3.a11",
+      "type": "formula",
+      "lesson": "3.2",
+      "question": "Write a formula that returns the largest value in B2:B50.",
+      "accept": [
+        "=MAX(B2:B50)"
+      ],
+      "explanation": "MAX ignores text and blanks, so it is safe on a messy column. Pair it with MIN and AVERAGE for a three-formula sanity check on any new dataset - an impossible maximum usually means a stray entry or a units mistake."
+    },
+    {
+      "id": "3.a12",
+      "type": "truefalse",
+      "lesson": "3.3",
+      "question": "Pressing F9 while editing a reference cycles through the four locking combinations.",
+      "correct": false,
+      "explanation": "F4 is the one that cycles A1, $A$1, A$1, $A1, then back. F9 evaluates the selected part of a formula instead. Press F4 repeatedly rather than typing dollar signs - it is faster and avoids the mis-typed `$A1$` that Excel rejects."
+    },
+    {
+      "id": "3.a13",
+      "type": "mcq",
+      "lesson": "3.5",
+      "question": "`=COUNTIF(A2:A100,\"*ltd*\")` counts what?",
+      "options": [
+        "Cells exactly equal to 'ltd'",
+        "Cells starting with 'ltd'",
+        "Cells containing 'ltd' anywhere in the text",
+        "Nothing - COUNTIF does not take wildcards"
+      ],
+      "correct": 2,
+      "explanation": "An asterisk stands for any run of characters, so this matches 'Acme Ltd' and 'Ltd Partners' alike. A question mark stands for exactly one character. Both work in COUNTIF, SUMIF and their IFS variants."
+    },
+    {
+      "id": "3.a14",
+      "type": "scenario",
+      "lesson": "3.1",
+      "question": "A report has been quietly wrong for four months. Which habit would most likely have caught it?",
+      "options": [
+        "Printing it monthly",
+        "Saving more often",
+        "Using a larger font",
+        "Pressing Ctrl+` to show every formula and scanning for typed-over cells"
+      ],
+      "correct": 3,
+      "explanation": "Ctrl+` reveals the whole sheet as formulas, and a cell holding a hard number where its neighbours hold formulas stands out immediately. That is the classic failure: someone typed over one formula to 'fix' a figure."
+    },
+    {
+      "id": "3.a15",
+      "type": "mcq",
+      "lesson": "3.4",
+      "question": "Why does ROUND matter for currency when formatting already shows two decimals?",
+      "options": [
+        "Formatting only hides the extra decimals, so totals can differ by a few paise from the displayed figures",
+        "It does not",
+        "ROUND is faster to calculate",
+        "Currency format requires it"
+      ],
+      "correct": 0,
+      "explanation": "Twenty rows each hiding a third decimal can make a total that disagrees with the sum of what is on screen. Where the figure is money that someone will reconcile, round the value rather than the display."
+    }
+  ]
+}

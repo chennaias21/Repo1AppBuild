@@ -6,6 +6,7 @@ import { getCompletedLessonIds } from "@/lib/progress";
 import { createClient } from "@/lib/supabase/server";
 import { ALL_LESSONS, COURSE, MODULES, lessonHref } from "@/lib/curriculum";
 import { ProgressBar } from "@/components/lesson/journey";
+import { loadAssessment } from "@/lib/assessments";
 import RecordRegistration from "@/components/RecordRegistration";
 
 export const metadata: Metadata = { title: "Your dashboard" };
@@ -29,7 +30,12 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false })
     .limit(200);
   const latest = new Map<string, { score: number; total: number }>();
-  for (const a of attempts ?? []) if (!latest.has(a.lesson_id)) latest.set(a.lesson_id, { score: a.score, total: a.total });
+  const bestAssessment = new Map<string, number>();
+  for (const a of attempts ?? []) {
+    if (a.lesson_id.startsWith("assessment.")) {
+      bestAssessment.set(a.lesson_id, Math.max(bestAssessment.get(a.lesson_id) ?? 0, a.score));
+    } else if (!latest.has(a.lesson_id)) latest.set(a.lesson_id, { score: a.score, total: a.total });
+  }
   const avg = latest.size
     ? Math.round(([...latest.values()].reduce((s, a) => s + a.score / a.total, 0) / latest.size) * 100)
     : null;
@@ -82,6 +88,8 @@ export default async function DashboardPage() {
           {MODULES.map((m) => {
             const done = m.lessons.filter((l) => completed.has(l.id)).length;
             const firstOpen = m.lessons.find((l) => open({ ...l, module: m }) && !completed.has(l.id)) ?? m.lessons[0];
+            const assessment = loadAssessment(m.number);
+            const best = bestAssessment.get(`assessment.0${m.number}`);
             const locked = m.lessons.every((l) => !open({ ...l, module: m }));
             return (
               <Link
@@ -95,6 +103,11 @@ export default async function DashboardPage() {
                   {locked ? "🔒 Paid plans" : `${done}/${m.lessons.length} complete`}
                 </span>
                 <ProgressBar value={(done / m.lessons.length) * 100} label={`Module ${m.number} progress`} className="mt-3" />
+                {assessment && best !== undefined && (
+                  <span className={`mt-3 block text-sm font-semibold ${best >= assessment.passRequires ? "text-success" : "text-muted"}`}>
+                    Assessment: {best}/{assessment.questionCount} {best >= assessment.passRequires ? "✓ passed" : "(not passed yet)"}
+                  </span>
+                )}
               </Link>
             );
           })}

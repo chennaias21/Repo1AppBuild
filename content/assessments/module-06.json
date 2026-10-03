@@ -1,0 +1,198 @@
+{
+  "id": "assessment.06",
+  "module": 6,
+  "title": "Module 6 assessment",
+  "subtitle": "Data Management & Presentation",
+  "description": "Fifteen questions across the whole of Module 6. Every question explains its answer, right or wrong.",
+  "questionCount": 15,
+  "passMark": 70,
+  "passRequires": 11,
+  "retakes": "unlimited",
+  "shuffleQuestions": true,
+  "shuffleOptions": false,
+  "showExplanations": "after-submit",
+  "questions": [
+    {
+      "id": "6.a1",
+      "type": "truefalse",
+      "lesson": "6.1",
+      "question": "A Table's Total Row uses SUM, so it keeps showing the whole dataset even when the Table is filtered.",
+      "correct": false,
+      "explanation": "It uses SUBTOTAL, which is why the total respects filters - filter to one region and the total follows. A plain SUM underneath would keep showing the whole-dataset figure while the visible rows say otherwise."
+    },
+    {
+      "id": "6.a2",
+      "type": "mcq",
+      "lesson": "6.1",
+      "question": "What does `Sales[Revenue]` refer to?",
+      "options": [
+        "Cell Sales on sheet Revenue",
+        "A named range",
+        "The Revenue column of the Table named Sales",
+        "A pivot field"
+      ],
+      "correct": 2,
+      "explanation": "Structured references name the Table and the column, and they grow as rows are added. They also read like English, so a formula can be checked by someone who did not write it."
+    },
+    {
+      "id": "6.a3",
+      "type": "formula",
+      "lesson": "6.1",
+      "question": "Inside a Table, write the calculated-column formula for a row's revenue from its Units and UnitPrice columns.",
+      "accept": [
+        "=[@Units]*[@UnitPrice]"
+      ],
+      "explanation": "The @ means 'this row'. Type it once and Excel fills the whole column and keeps filling it as rows are added - no dragging, and no range to re-point next month."
+    },
+    {
+      "id": "6.a4",
+      "type": "mcq",
+      "lesson": "6.2",
+      "question": "You need to sort departments as Sales, Operations, Finance, HR - not alphabetically. What do you use?",
+      "options": [
+        "A helper column with numbers",
+        "Manual reordering",
+        "Sort by colour",
+        "A Custom List, then sort by it"
+      ],
+      "correct": 3,
+      "explanation": "Define the order once under File > Options > Advanced > Edit Custom Lists and it is available to every sort and to AutoFill. The helper-column trick works but has to be rebuilt each time."
+    },
+    {
+      "id": "6.a5",
+      "type": "truefalse",
+      "lesson": "6.3",
+      "question": "A slicer can drive several pivot tables at once.",
+      "correct": true,
+      "explanation": "Through Report Connections, which is where dashboards usually go wrong - a slicer attaches only to the pivots you tick, and an unticked one keeps showing unfiltered figures beside the filtered ones."
+    },
+    {
+      "id": "6.a6",
+      "type": "scenario",
+      "lesson": "6.7",
+      "question": "You set Data Validation to a five-item list, and a week later invalid values appear in the column. How?",
+      "options": [
+        "Someone pasted values in - paste bypasses validation entirely",
+        "Validation expires",
+        "The list was deleted",
+        "Validation only checks the first row"
+      ],
+      "correct": 0,
+      "explanation": "Validation checks typing, not pasting, and it does not re-check existing values. Circle Invalid Data on the Data Validation menu finds what got through."
+    },
+    {
+      "id": "6.a7",
+      "type": "mcq",
+      "lesson": "6.6",
+      "question": "In formula-based conditional formatting over A2:G50, which reference style highlights the whole row based on column E?",
+      "options": [
+        "=E2=\"Absent\"",
+        "=$E2=\"Absent\"",
+        "=$E$2=\"Absent\"",
+        "=E$2=\"Absent\""
+      ],
+      "correct": 1,
+      "explanation": "Lock the column and leave the row free, so every cell in the row tests the same column E while the rule moves down. $E$2 tests one cell for all 350 cells; E2 drifts sideways as well as down."
+    },
+    {
+      "id": "6.a8",
+      "type": "mcq",
+      "lesson": "6.5",
+      "question": "Why set a data bar's minimum to Number 0 rather than Automatic?",
+      "options": [
+        "It looks better",
+        "Automatic is slower",
+        "On Automatic the shortest bar is drawn at the lowest value in the range, so the worst item can appear half full",
+        "It is required for negative numbers"
+      ],
+      "correct": 2,
+      "explanation": "Automatic scales between the smallest and largest present, which exaggerates small differences and understates how close to zero the worst case is. Anchoring at 0 makes the bars mean what they look like."
+    },
+    {
+      "id": "6.a9",
+      "type": "truefalse",
+      "lesson": "6.5",
+      "question": "Stop If True halts every lower-priority rule on that cell, including data bars.",
+      "correct": true,
+      "explanation": "Which is why a row-colour rule with Stop If True can make your data bars vanish. If you want both, the data bar must sit above those rules in the list."
+    },
+    {
+      "id": "6.a10",
+      "type": "decision",
+      "lesson": "6.4",
+      "question": "You need to extract records matching a complex set of conditions to another sheet, repeatedly, each month. Advanced Filter or AutoFilter and copy?",
+      "options": [
+        "Either is equally maintainable",
+        "AutoFilter, then copy and paste",
+        "Sort, then copy the block",
+        "Advanced Filter - it writes the matching records out and takes a criteria range you can edit"
+      ],
+      "correct": 3,
+      "explanation": "Advanced Filter's criteria live in cells, so next month's change is an edit rather than a re-click. In the criteria range, conditions on the same row mean AND and conditions on different rows mean OR."
+    },
+    {
+      "id": "6.a11",
+      "type": "mcq",
+      "lesson": "6.7",
+      "question": "What makes a drop-down list dependent on another cell's choice?",
+      "options": [
+        "A list source using INDIRECT on the first cell's value, with named ranges per category",
+        "Two validations on the same cell",
+        "Conditional formatting",
+        "A macro"
+      ],
+      "correct": 0,
+      "explanation": "Name a range for each category to match the parent's values, then set the child's source to =INDIRECT(parent cell). Pick Sales and the second list shows only Sales roles."
+    },
+    {
+      "id": "6.a12",
+      "type": "scenario",
+      "lesson": "6.1",
+      "question": "Someone's SUM range has to be re-pointed every month when rows are added. What should they have done?",
+      "options": [
+        "Use whole-column references",
+        "Convert the data to a Table and reference the column",
+        "Add blank rows at the bottom in advance",
+        "Use a named range"
+      ],
+      "correct": 1,
+      "explanation": "A Table absorbs new rows and everything pointing at it follows - formulas, pivots, charts. It removes a whole class of monthly maintenance, which is the real reason to use Tables rather than the banding."
+    },
+    {
+      "id": "6.a13",
+      "type": "truefalse",
+      "lesson": "6.2",
+      "question": "Sorting one column on its own can scramble a dataset.",
+      "correct": true,
+      "explanation": "If Excel does not detect the surrounding data, or you expand to the wrong range, names stay put while salaries move - and the sheet still looks perfectly tidy. Sorting inside a Table makes this impossible."
+    },
+    {
+      "id": "6.a14",
+      "type": "mcq",
+      "lesson": "6.3",
+      "question": "A date filter offers 'This Month' and 'Last Month' options. What must be true of the column?",
+      "options": [
+        "It must be sorted",
+        "It must be in a Table",
+        "Excel must hold the values as real dates, not text",
+        "It must have no blanks"
+      ],
+      "correct": 2,
+      "explanation": "Text that looks like a date gets text filters only. The date filters appearing is itself a quick confirmation that the column is genuinely numeric."
+    },
+    {
+      "id": "6.a15",
+      "type": "mcq",
+      "lesson": "6.6",
+      "question": "Rule order matters when two conditional formats could apply to the same cell. Which wins?",
+      "options": [
+        "The last one created",
+        "Both are blended",
+        "The more specific one",
+        "The one higher in the Manage Rules list"
+      ],
+      "correct": 3,
+      "explanation": "Priority runs top-down in Manage Rules, and you reorder with the arrows. Put the most serious condition first - Critical should outrank Low, or a critical row quietly shows as merely low."
+    }
+  ]
+}
