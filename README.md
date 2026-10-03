@@ -1,4 +1,4 @@
-# Excel Mastery
+# SkillSopan
 
 **From Basics to Business-Ready Excel.** A Next.js course platform with free preview
 lessons, a paywalled full curriculum, Razorpay payments verified server-side, and a
@@ -73,7 +73,7 @@ The reference below covers the same ground in less detail.
 2. API Keys → create one → copy into `RESEND_API_KEY`.
 3. For now, `EMAIL_FROM` can stay as the default `onboarding@resend.dev` shared sender.
    Once you have your own domain, verify it in Resend and switch `EMAIL_FROM` to
-   `Excel Mastery <hello@yourdomain.com>` for better deliverability.
+   `SkillSopan <hello@yourdomain.com>` for better deliverability.
 
 ### 4. Google Sheets (admin reporting)
 

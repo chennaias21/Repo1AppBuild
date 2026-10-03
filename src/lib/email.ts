@@ -1,52 +1,63 @@
 import { Resend } from "resend";
+import { SITE } from "@/lib/site";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
-export async function sendWelcomeEmail(to: string, name: string) {
-  const resend = getResend();
-  const fromAddress = process.env.EMAIL_FROM ?? "Excel Mastery <onboarding@resend.dev>";
+const FROM = () => process.env.EMAIL_FROM ?? "SkillSopan <onboarding@resend.dev>";
+const SITE_URL = () => process.env.NEXT_PUBLIC_SITE_URL ?? "https://skillsopan.netlify.app";
 
-  await resend.emails.send({
-    from: fromAddress,
+/** Names come from a sign-up form, so they are escaped before going into HTML. */
+function esc(text: string): string {
+  return text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
+}
+
+function firstName(name: string): string {
+  return esc(name.trim().split(/\s+/)[0] || "there");
+}
+
+function layout(body: string): string {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: auto; color: #1b2733; line-height: 1.6;">
+      <p style="font-size: 22px; font-weight: bold; margin: 0 0 16px;">
+        <span style="color:#004080;">Skill</span><span style="color:#f06808;">Sopan</span>
+      </p>
+      ${body}
+      <p style="margin-top: 32px; color:#5b6b7b; font-size: 14px;">
+        ${esc(SITE.tagline)}<br />
+        Questions? Reply to this email or write to ${esc(SITE.supportEmail)}.
+      </p>
+    </div>`;
+}
+
+export async function sendWelcomeEmail(to: string, name: string) {
+  await getResend().emails.send({
+    from: FROM(),
     to,
-    subject: "You're in — welcome to Excel Mastery",
-    html: `
-      <div style="font-family: sans-serif; max-width: 560px; margin: auto; color: #0f172a;">
-        <h1 style="color:#158755;">Welcome to Excel Mastery, ${name.split(" ")[0] || "there"}!</h1>
-        <p>Your payment is confirmed and your full course is now unlocked — every module,
-        exercise, quiz, project, shortcut challenge, and cheat sheet from Basics to
-        Business-Ready Excel.</p>
-        <h2 style="font-size:16px;">Getting started</h2>
-        <ol>
-          <li>Log back in at any time with the same email you registered with.</li>
-          <li>Your dashboard picks up exactly where you left off.</li>
-          <li>Work through the modules in order — each one builds on the last.</li>
-          <li>Use the shortcut challenges and cheat sheets as quick revision whenever you need a refresher.</li>
-        </ol>
-        <p>If anything doesn't unlock as expected, just reply to this email.</p>
-        <p style="margin-top:32px;">— The Excel Mastery Team</p>
-      </div>
-    `,
+    subject: "Your full SkillSopan course is unlocked",
+    html: layout(`
+      <h1 style="color:#004080; font-size: 22px;">Welcome, ${firstName(name)}!</h1>
+      <p>Your payment is confirmed and the full course is now yours for life: all 56 lessons, the quizzes and module
+      assessments, the practice files, the three capstone projects with step-by-step solutions, and your certificate
+      when you finish.</p>
+      <p><a href="${SITE_URL()}/dashboard" style="display:inline-block; background:#c94f00; color:#ffffff; padding:12px 22px; border-radius:8px; text-decoration:none; font-weight:bold;">Go to my dashboard</a></p>
+      <p>Sign in any time with your email and password. Your dashboard shows where you left off.</p>
+      <p>If anything doesn't unlock as expected, just reply to this email.</p>
+    `),
   });
 }
 
 export async function sendRegistrationEmail(to: string, name: string) {
-  const resend = getResend();
-  const fromAddress = process.env.EMAIL_FROM ?? "Excel Mastery <onboarding@resend.dev>";
-
-  await resend.emails.send({
-    from: fromAddress,
+  await getResend().emails.send({
+    from: FROM(),
     to,
-    subject: "You're registered — Excel Mastery",
-    html: `
-      <div style="font-family: sans-serif; max-width: 560px; margin: auto; color: #0f172a;">
-        <h1 style="color:#158755;">Thanks for registering, ${name.split(" ")[0] || "there"}!</h1>
-        <p>You're one step away from full access to Excel Mastery — From Basics to
-        Business-Ready Excel. Complete your payment to unlock every module,
-        exercise, and project.</p>
-      </div>
-    `,
+    subject: "Welcome to SkillSopan",
+    html: layout(`
+      <h1 style="color:#004080; font-size: 22px;">Thanks for registering, ${firstName(name)}!</h1>
+      <p>Your account is ready. The first 12 lessons are free, so you can start climbing right now.</p>
+      <p><a href="${SITE_URL()}/dashboard" style="display:inline-block; background:#c94f00; color:#ffffff; padding:12px 22px; border-radius:8px; text-decoration:none; font-weight:bold;">Start learning</a></p>
+      <p>When you want the rest of the course, the projects and the certificate, you can unlock everything from the Pricing page. There is a 14-day refund, no questions asked.</p>
+    `),
   });
 }
