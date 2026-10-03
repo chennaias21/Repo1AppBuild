@@ -391,3 +391,13 @@ The `.netlify.app` address works fine and costs nothing. When you want your own 
 | Google Sheet stays empty | `SHEETS_WEBHOOK_SECRET` in Netlify doesn't exactly match `SHARED_SECRET` in the Apps Script, or the deployment's access isn't set to "Anyone" |
 | Build fails on Netlify | A missing or misspelled environment variable — check the deploy log, it names the one it wants |
 | Site was fine, now errors | Supabase free projects pause after 7 days of no activity. Open the Supabase dashboard and click Resume |
+
+## Previewing the redesign before it goes live
+
+The redesign lives on the branch `claude/skillsopan-redesign` and is built by Netlify as a **branch deploy**
+(Project configuration → Developer settings → Branches and deploy contexts → Branch deploys).
+The live site keeps running from the production branch until you choose to publish the redesign.
+
+The preview address looks like `https://claude-skillsopan-redesign--<your-site-name>.netlify.app`.
+For sign-in to work on the preview, add `<preview-address>/**` to Supabase → Authentication →
+URL Configuration → Redirect URLs.
