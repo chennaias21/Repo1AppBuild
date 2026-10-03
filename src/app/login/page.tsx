@@ -95,7 +95,7 @@ function LoginForm() {
       const { error: err } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } });
       if (err) return setError(err.message);
       setMode("code");
-      setInfo(`We sent a 6-digit code to ${email.trim()}. It is valid for a short time.`);
+      setInfo(`We sent a code to ${email.trim()}. It is valid for a short time.`);
     });
   };
 
@@ -207,7 +207,7 @@ function LoginForm() {
 
           {mode === "forgot" && (
             <form onSubmit={sendCode} className="mt-8 space-y-4">
-              <p className="text-sm text-muted">Enter your email and we will send you a 6-digit code. You will then choose a new password.</p>
+              <p className="text-sm text-muted">Enter your email and we will send you a code. You will then choose a new password.</p>
               {emailField}
               {messages}
               <button disabled={busy} className={BUTTON}>{busy ? "Sending…" : "Email me a code"}</button>
@@ -218,7 +218,7 @@ function LoginForm() {
           {mode === "code" && (
             <form onSubmit={verifyCode} className="mt-8 space-y-4">
               <div>
-                <label htmlFor="code" className="block text-sm font-medium">6-digit code</label>
+                <label htmlFor="code" className="block text-sm font-medium">Code from your email</label>
                 <input id="code" required inputMode="numeric" autoComplete="one-time-code" maxLength={8} value={code} onChange={(e) => setCode(e.target.value)} className={`${FIELD} font-mono tracking-widest`} />
               </div>
               {messages}
