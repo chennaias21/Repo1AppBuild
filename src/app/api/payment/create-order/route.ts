@@ -30,13 +30,19 @@ export async function POST(request: Request) {
     notes: { user_id: user.id, email: user.email ?? "", tier: tier.id, promo: promo ?? "" },
   });
 
-  const { error } = await createAdminClient().from("payments").insert({
+  const admin = createAdminClient();
+  const { data: profile } = await admin.from("profiles").select("full_name, mobile").eq("id", user.id).single();
+
+  const { error } = await admin.from("payments").insert({
     user_id: user.id,
     razorpay_order_id: order.id,
     amount_paise: amountPaise,
     currency: "INR",
     status: "created",
     tier: tier.id,
+    email: user.email ?? null,
+    full_name: profile?.full_name ?? null,
+    mobile: profile?.mobile ?? null,
   });
   if (error) return NextResponse.json({ error: "Could not start checkout." }, { status: 500 });
 

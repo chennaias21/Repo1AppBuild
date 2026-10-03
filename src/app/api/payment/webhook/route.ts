@@ -91,6 +91,12 @@ export async function POST(request: Request) {
   const email = authUser?.user?.email ?? "";
   const name = profile?.full_name ?? "";
 
+  // Keep who-paid on the payment row itself, so the table reads without any lookups.
+  await admin
+    .from("payments")
+    .update({ email: email || null, full_name: name || null, mobile: profile?.mobile ?? null })
+    .eq("id", payment.id);
+
   try {
     if (email) await sendWelcomeEmail(email, name);
   } catch {

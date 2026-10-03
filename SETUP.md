@@ -91,7 +91,7 @@ anyone unlocking the course without paying.
 [`supabase/migrations/0002_tiers_progress.sql`](./supabase/migrations/0002_tiers_progress.sql).
 It adds the plan columns and the progress and quiz tables, and is safe to run twice.
 Then do the same once more with
-[`supabase/migrations/0003_certificates.sql`](./supabase/migrations/0003_certificates.sql) (certificates).
+[`supabase/migrations/0003_certificates.sql`](./supabase/migrations/0003_certificates.sql) (certificates), and `0004_payment_account_details.sql` (email, name and mobile on each payment).
 
 **What success looks like:** a green message saying *"Success. No rows returned"*. That is
 correct — this command creates tables rather than returning data, so "no rows" is expected.
