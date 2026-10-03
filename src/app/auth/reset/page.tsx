@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { AUTH_CHANGED } from "@/components/HeaderActions";
 
 type State = "checking" | "ready" | "invalid";
 
@@ -41,6 +42,7 @@ export default function ResetPage() {
     const { error: err } = await createClient().auth.updateUser({ password });
     setBusy(false);
     if (err) return setError(err.message);
+    window.dispatchEvent(new Event(AUTH_CHANGED));
     router.push("/dashboard");
     router.refresh();
   }

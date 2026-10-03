@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import AuthNav from "@/components/AuthNav";
+import HeaderActions from "@/components/HeaderActions";
 
 export default function MobileNav({ links }: { links: { href: string; label: string }[] }) {
   const [open, setOpen] = useState(false);
@@ -38,17 +38,8 @@ export default function MobileNav({ links }: { links: { href: string; label: str
                 </Link>
               </li>
             ))}
-            <li className="border-b border-line py-3" onClick={() => setOpen(false)}>
-              <AuthNav />
-            </li>
+            <HeaderActions variant="mobile" onNavigate={() => setOpen(false)} />
           </ul>
-          <Link
-            href="/free"
-            onClick={() => setOpen(false)}
-            className="mt-4 block rounded-lg bg-cta px-5 py-3 text-center text-lg font-semibold text-cta-ink"
-          >
-            Start free
-          </Link>
         </nav>
       )}
     </div>

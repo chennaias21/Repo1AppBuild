@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { createImplicitClient } from "@/lib/supabase/implicit";
+import { AUTH_CHANGED } from "@/components/HeaderActions";
 
 type Mode = "signin" | "register" | "forgot" | "sent" | "confirm";
 
@@ -45,6 +46,7 @@ function LoginForm() {
   }
 
   function done() {
+    window.dispatchEvent(new Event(AUTH_CHANGED));
     router.push(next);
     router.refresh();
   }

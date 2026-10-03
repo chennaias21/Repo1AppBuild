@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
-import AuthNav from "@/components/AuthNav";
+import HeaderActions from "@/components/HeaderActions";
 import MobileNav from "@/components/MobileNav";
 
 export const NAV_LINKS = [
@@ -35,13 +35,7 @@ export default function Header() {
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <AuthNav className="hidden lg:inline text-[0.95rem]" />
-          <Link
-            href="/free"
-            className="hidden rounded-lg bg-cta px-5 py-2.5 text-[0.95rem] font-semibold text-cta-ink hover:brightness-110 lg:inline-block"
-          >
-            Start free
-          </Link>
+          <HeaderActions variant="desktop" />
           <MobileNav links={NAV_LINKS} />
         </div>
       </div>

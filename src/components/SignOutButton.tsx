@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { AUTH_CHANGED } from "@/components/HeaderActions";
 
 export default function SignOutButton() {
   const router = useRouter();
   async function out() {
     await createClient().auth.signOut();
+    window.dispatchEvent(new Event(AUTH_CHANGED));
     router.push("/");
     router.refresh();
   }
