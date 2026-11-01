@@ -1,0 +1,61 @@
+name: Rupee Routine - tests and Android APK
+
+on:
+  push:
+    paths: ['finance-app/**', '.github/workflows/finance-app-android.yml']
+  pull_request:
+    paths: ['finance-app/**']
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: finance-app
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Optional: add these 4 repository secrets to also get a signed Play Store bundle (see GUIDE.md).
+      RR_KEYSTORE_B64: ${{ secrets.RR_KEYSTORE_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: finance-app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - name: Unit tests (calculations, backup, database)
+        run: npm test
+      - name: Build web app
+        run: npm run build
+      - name: Sync into the Android project
+        run: npx cap sync android
+      - name: Build debug APK (installable on any phone)
+        working-directory: finance-app/android
+        run: ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RupeeRoutine-debug-apk
+          path: finance-app/android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Build signed release AAB for Play Store (only if signing secrets exist)
+        if: ${{ env.RR_KEYSTORE_B64 != '' }}
+        working-directory: finance-app/android
+        env:
+          RR_KEYSTORE_PASSWORD: ${{ secrets.RR_KEYSTORE_PASSWORD }}
+          RR_KEY_ALIAS: ${{ secrets.RR_KEY_ALIAS }}
+          RR_KEY_PASSWORD: ${{ secrets.RR_KEY_PASSWORD }}
+        run: |
+          echo "$RR_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          RR_KEYSTORE_FILE="$RUNNER_TEMP/release.jks" ./gradlew bundleRelease assembleRelease --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.RR_KEYSTORE_B64 != '' }}
+        with:
+          name: RupeeRoutine-release
+          path: |
+            finance-app/android/app/build/outputs/bundle/release/*.aab
+            finance-app/android/app/build/outputs/apk/release/*.apk

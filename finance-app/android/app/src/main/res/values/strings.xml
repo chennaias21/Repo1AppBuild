@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Rupee Routine</string>
+    <string name="title_activity_main">Rupee Routine</string>
+    <string name="package_name">com.rupeeroutine.app</string>
+    <string name="custom_url_scheme">com.rupeeroutine.app</string>
+</resources>
