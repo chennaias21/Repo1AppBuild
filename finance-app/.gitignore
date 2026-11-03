@@ -18,3 +18,5 @@ tests/e2e/shots
 *.jks
 *.keystore
 android/keystore.properties
+
+!android/app/debug.keystore

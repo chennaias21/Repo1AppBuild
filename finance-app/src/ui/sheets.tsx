@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import type { Behavior, Category, CategoryKind, Goal, Group, ID, Need, Priority, Recurring, TxnType } from '../core/types';
+import type { Behavior, Category, CategoryKind, Goal, Group, ID, Need, PaymentMethod, PaymentType, Priority, Recurring, TxnType } from '../core/types';
 import { budgetFor, goalProgress, goalSaved } from '../core/calc';
 import { formatINR, paiseToInput, parseINR } from '../core/money';
 import { monthLabel } from '../core/dates';
@@ -330,6 +330,71 @@ export function RecurringSheet({ edit, onClose }: { edit?: Recurring; onClose: (
       </Field>
       <Field label="Note (optional)"><input className="input" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Monthly rent" /></Field>
       <div className="row between"><b>Active</b><Switch on={active} onChange={setActive} label="Active" /></div>
+    </Sheet>
+  );
+}
+
+/* =========================== Payment method / credit card =========================== */
+export function PaymentSheet({ edit, type: initType, onClose }: { edit?: PaymentMethod; type?: PaymentType; onClose: () => void }) {
+  const { data, toast, confirm } = useApp();
+  const [name, setName] = useState(edit?.name ?? '');
+  const [type, setType] = useState<PaymentType>(edit?.type ?? initType ?? 'upi');
+  const [billing, setBilling] = useState(edit?.billingDay ? String(edit.billingDay) : '');
+  const [due, setDue] = useState(edit?.dueDay ? String(edit.dueDay) : '');
+  const [limitStr, setLimitStr] = useState(edit?.creditLimit ? paiseToInput(edit.creditLimit) : '');
+  const [openStr, setOpenStr] = useState(edit?.openingOutstanding ? paiseToInput(edit.openingOutstanding) : '');
+  const [tried, setTried] = useState(false);
+  const isCard = type === 'credit';
+  const bd = billing === '' ? null : parseInt(billing, 10);
+  const dd = due === '' ? null : parseInt(due, 10);
+  const limit = limitStr.trim() === '' ? null : parseINR(limitStr);
+  const opening = openStr.trim() === '' ? null : parseINR(openStr);
+  const errs = {
+    name: !name.trim() ? 'Give it a name' : null,
+    billing: bd !== null && !(bd >= 1 && bd <= 28) ? 'Use a day from 1 to 28' : null,
+    due: dd !== null && !(dd >= 1 && dd <= 28) ? 'Use a day from 1 to 28' : null,
+    pair: isCard && ((bd === null) !== (dd === null)) ? 'Enter both the statement day and the due day, or leave both empty' : null,
+    limit: limitStr.trim() !== '' && limit === null ? 'Enter a valid amount' : null,
+    open: openStr.trim() !== '' && opening === null ? 'Enter a valid amount' : null,
+  };
+  const onSave = async () => {
+    setTried(true);
+    if (Object.values(errs).some(Boolean)) return;
+    const rec: PaymentMethod = {
+      ...(edit ?? newRecord()), name: name.trim(), type, sort: edit?.sort ?? data.paymentMethods.length,
+      billingDay: isCard ? bd : null, dueDay: isCard ? dd : null, creditLimit: isCard ? limit : null, openingOutstanding: isCard ? opening : null,
+    } as PaymentMethod;
+    await save('paymentMethods', rec);
+    toast(`${edit ? 'Updated' : 'Added'} ${rec.name}`);
+    onClose();
+  };
+  const onDelete = async () => {
+    if (!edit) return;
+    const used = data.transactions.filter((t) => t.paymentMethodId === edit.id).length;
+    const ok = await confirm({ title: `Delete ${edit.name}?`, message: used ? `${used} transaction${used === 1 ? ' uses' : 's use'} it. They stay in your history without a payment method.` : 'It is not used by any transaction.', confirmLabel: 'Delete', danger: true });
+    if (ok) { await softDelete('paymentMethods', edit.id); toast(`${edit.name} removed`); onClose(); }
+  };
+  const TYPES: { value: PaymentType; label: string }[] = [{ value: 'cash', label: 'Cash' }, { value: 'upi', label: 'UPI' }, { value: 'debit', label: 'Debit card' }, { value: 'credit', label: 'Credit card' }, { value: 'other', label: 'Other' }];
+  return (
+    <Sheet title={edit ? 'Edit payment method' : isCard ? 'Add credit card' : 'Add payment method'} onClose={onClose}
+      footer={<>{edit && <button className="btn danger" style={{ flex: '0 0 auto' }} onClick={onDelete} aria-label="Delete"><Trash2 size={18} /></button>}<button className="btn primary" onClick={onSave}>Save</button></>}>
+      <div className="notice ok small">Names only. Never enter card numbers, bank account numbers or UPI IDs. The app doesn’t need them.</div>
+      <Field label="Name" error={tried ? errs.name : null}><input className="input" value={name} autoFocus={!edit} onChange={(e) => setName(e.target.value)} placeholder={isCard ? 'e.g. HDFC credit card' : 'e.g. Google Pay'} /></Field>
+      <Field label="Type"><select className="select" value={type} onChange={(e) => setType(e.target.value as PaymentType)}>{TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select></Field>
+      {isCard && (
+        <>
+          <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(min(150px,100%),1fr))' }}>
+            <Field label="Statement day (1–28)" error={tried ? errs.billing ?? errs.pair : null} help="The day your bill is generated.">
+              <input className="input" inputMode="numeric" value={billing} onChange={(e) => setBilling(e.target.value.replace(/\D/g, '').slice(0, 2))} placeholder="e.g. 15" />
+            </Field>
+            <Field label="Payment due day (1–28)" error={tried ? errs.due : null} help="The last day to pay without charges.">
+              <input className="input" inputMode="numeric" value={due} onChange={(e) => setDue(e.target.value.replace(/\D/g, '').slice(0, 2))} placeholder="e.g. 5" />
+            </Field>
+          </div>
+          <Field label="Credit limit (optional)" error={tried ? errs.limit : null} help="Shows how much of your limit you are using."><input className="input" inputMode="decimal" value={limitStr} onChange={(e) => setLimitStr(e.target.value.replace(/[^\d.]/g, ''))} placeholder="e.g. 100000" /></Field>
+          <Field label="Already owed before using this app (optional)" error={tried ? errs.open : null} help="If you have an unpaid balance today, enter it so your total is correct."><input className="input" inputMode="decimal" value={openStr} onChange={(e) => setOpenStr(e.target.value.replace(/[^\d.]/g, ''))} placeholder="0" /></Field>
+        </>
+      )}
     </Sheet>
   );
 }

@@ -135,7 +135,9 @@ export function buildSeed(o: SeedOptions): Dataset {
     const planned = budgets.reduce((a, b) => a + b.amount, 0) + goals.reduce((a, g) => a + g.monthlyContribution, 0);
     const target = Math.floor(o.salary / 10000) * 10000;
     const diff = target - planned;
-    const biggest = budgets.reduce((a, b) => (b.amount > a.amount ? b : a));
+    // adjust a flexible category (never a fixed bill such as Rent, which people know exactly)
+    const flexible = budgets.filter((b) => categories.find((c) => c.id === b.categoryId)?.behavior === 'flexible');
+    const biggest = (flexible.length ? flexible : budgets).reduce((a, b) => (b.amount > a.amount ? b : a));
     if (diff !== 0 && biggest.amount + diff > 0) biggest.amount += diff;
   }
 

@@ -1,19 +1,20 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import type { Category, CategoryKind, Dataset, Goal, Group, ID, Paise, Recurring, Transaction } from '../core/types';
+import type { Category, CategoryKind, Dataset, Goal, Group, ID, Paise, PaymentMethod, Recurring, Transaction } from '../core/types';
 import { summarize, currentKey, type MonthSummary } from '../core/calc';
 import { buildNudges, type Nudge } from '../core/insights';
 import { addMonths, todayStr } from '../core/dates';
 import { Sheet } from './components';
 import { TxnSheet } from './txnSheet';
-import { CategorySheet, GoalSheet, GroupSheet, RecurringSheet } from './sheets';
+import { CategorySheet, GoalSheet, GroupSheet, PaymentSheet, RecurringSheet } from './sheets';
 
-export interface TxnInit { type?: 'expense' | 'income' | 'save' | 'cardBill'; amount?: Paise; categoryId?: ID | null; note?: string; date?: string }
+export interface TxnInit { type?: 'expense' | 'income' | 'save' | 'cardBill'; amount?: Paise; categoryId?: ID | null; paymentMethodId?: ID | null; note?: string; date?: string }
 export type SheetState =
   | { kind: 'txn'; edit?: Transaction; init?: TxnInit }
   | { kind: 'category'; edit?: Category; defaults?: { groupId?: ID | null; kind?: CategoryKind } }
   | { kind: 'goal'; edit?: Goal }
   | { kind: 'group'; edit?: Group }
-  | { kind: 'recurring'; edit?: Recurring };
+  | { kind: 'recurring'; edit?: Recurring }
+  | { kind: 'payment'; edit?: PaymentMethod; type?: PaymentMethod['type'] };
 
 interface ConfirmOpts { title: string; message: string; confirmLabel?: string; danger?: boolean }
 interface Ctx {
@@ -87,6 +88,7 @@ export function AppProvider({ data, children }: { data: Dataset; children: React
       {sheet?.kind === 'category' && <CategorySheet key={key} edit={sheet.edit} defaults={sheet.defaults} onClose={closeSheet} />}
       {sheet?.kind === 'goal' && <GoalSheet key={key} edit={sheet.edit} onClose={closeSheet} />}
       {sheet?.kind === 'group' && <GroupSheet key={key} edit={sheet.edit} onClose={closeSheet} />}
+      {sheet?.kind === 'payment' && <PaymentSheet key={key} edit={sheet.edit} type={sheet.type} onClose={closeSheet} />}
       {sheet?.kind === 'recurring' && <RecurringSheet key={key} edit={sheet.edit} onClose={closeSheet} />}
       {confirmState && (
         <Sheet title={confirmState.title} onClose={() => { confirmState.resolve(false); setConfirmState(null); }}

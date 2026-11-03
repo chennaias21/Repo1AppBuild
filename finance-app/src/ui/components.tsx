@@ -133,3 +133,60 @@ export function EmojiPicker({ value, onChange }: { value: string; onChange: (e: 
     </div>
   );
 }
+
+/* ----- Charts (plain SVG/CSS: light, fast, work offline) ----- */
+export function StackedBar({ segments, height = 14 }: { segments: { value: number; color: string; label: string }[]; height?: number }) {
+  const total = segments.reduce((a, s) => a + Math.max(0, s.value), 0);
+  return (
+    <div className="split-bar" style={{ height }} role="img" aria-label={segments.map((s) => `${s.label} ${Math.round(total ? (s.value / total) * 100 : 0)}%`).join(', ')}>
+      {total > 0 && segments.filter((s) => s.value > 0).map((s, i) => <i key={i} title={s.label} style={{ width: `${(s.value / total) * 100}%`, background: s.color }} />)}
+    </div>
+  );
+}
+
+/** Income / expenses / savings per month. Bars are comparable across months (same scale). */
+export function TrendChart({ points }: { points: { label: string; income: number; spent: number; saved: number; current?: boolean }[] }) {
+  const W = 340, H = 150, top = 8, bottom = 22;
+  const max = Math.max(1, ...points.flatMap((p) => [p.income, p.spent, p.saved]));
+  const n = points.length;
+  const gw = W / n;
+  const bw = Math.max(5, Math.min(14, gw / 4));
+  const h = (v: number) => ((H - top - bottom) * v) / max;
+  const bar = (x: number, v: number, c: string, name: string) => <rect x={x} y={H - bottom - h(v)} width={bw} height={Math.max(v > 0 ? 2 : 0, h(v))} rx={3} fill={c}><title>{`${name}: ${Math.round(v / 100).toLocaleString('en-IN')}`}</title></rect>;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Income, expenses and savings for the last months" style={{ display: 'block' }}>
+      <line x1="0" x2={W} y1={H - bottom} y2={H - bottom} stroke="var(--border)" />
+      {points.map((p, i) => {
+        const cx = gw * i + gw / 2;
+        return (
+          <g key={i} opacity={p.current ? 1 : 0.92}>
+            {p.current && <rect x={gw * i + 2} y={0} width={gw - 4} height={H - bottom + 2} rx={8} fill="var(--primary-soft)" />}
+            {bar(cx - bw * 1.5 - 1, p.income, 'var(--blue)', 'Income')}
+            {bar(cx - bw / 2, p.spent, 'var(--orange)', 'Expenses')}
+            {bar(cx + bw / 2 + 1, p.saved, 'var(--green)', 'Savings')}
+            <text x={cx} y={H - 6} textAnchor="middle" fontSize="10.5" fill="var(--muted)" fontWeight={p.current ? 700 : 500}>{p.label}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+export const ChartLegend = () => (
+  <div className="row wrap small" style={{ gap: 14 }}>
+    <span className="row" style={{ gap: 6 }}><i style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--blue)' }} />Income</span>
+    <span className="row" style={{ gap: 6 }}><i style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--orange)' }} />Expenses</span>
+    <span className="row" style={{ gap: 6 }}><i style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--green)' }} />Savings</span>
+  </div>
+);
+
+/** Planned (budget) vs actual (spent) as one bar with a marker at the budget when overspent. */
+export function PlanBar({ planned, actual }: { planned: number; actual: number }) {
+  const over = planned > 0 && actual > planned;
+  const scale = Math.max(planned, actual, 1);
+  return (
+    <div className="bar thin" style={{ overflow: 'visible' }} role="img" aria-label={`${actual} of ${planned}`}>
+      <i style={{ width: `${(actual / scale) * 100}%`, background: over ? 'var(--red)' : actual / Math.max(planned, 1) >= 0.8 ? 'var(--amber)' : 'var(--green)' }} />
+      {over && <span className="marker" style={{ left: `${(planned / scale) * 100}%` }} />}
+    </div>
+  );
+}

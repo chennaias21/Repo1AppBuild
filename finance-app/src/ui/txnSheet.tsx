@@ -5,13 +5,16 @@ import { addDays } from '../core/dates';
 import { formatINR, paiseToInput, parseINR } from '../core/money';
 import { newRecord, save, softDelete, restore } from '../data/repo';
 import { Field, Segmented, Sheet } from './components';
+import { CategoryPicker } from './categoryPicker';
+import { findDuplicate } from '../core/analysis';
+import { cardSummaries } from '../core/cards';
 import { useApp, type TxnInit } from './app';
 
 type Mode = 'expense' | 'income' | 'save' | 'cardBill';
 const modeOf = (t: Transaction): Mode => (t.type === 'expense' ? 'expense' : t.type === 'income' ? 'income' : t.transferKind === 'cardBill' ? 'cardBill' : 'save');
 
 export function TxnSheet({ edit, init, onClose }: { edit?: Transaction; init?: TxnInit; onClose: () => void }) {
-  const { data, today, toast } = useApp();
+  const { data, today, toast, confirm, openSheet } = useApp();
   const cats = data.categories;
   const catMap = useMemo(() => new Map(cats.map((c) => [c.id, c])), [cats]);
   const pms = [...data.paymentMethods].sort((a, b) => a.sort - b.sort);
@@ -21,47 +24,34 @@ export function TxnSheet({ edit, init, onClose }: { edit?: Transaction; init?: T
   const [catId, setCatId] = useState<ID | null>(edit ? edit.categoryId ?? null : init?.categoryId ?? null);
   const [date, setDate] = useState(edit?.date ?? init?.date ?? today);
   const lastPm = useMemo(() => [...data.transactions].filter((t) => t.type === 'expense' && t.paymentMethodId).sort((a, b) => b.createdAt - a.createdAt)[0]?.paymentMethodId ?? null, [data.transactions]);
-  const [pmId, setPmId] = useState<ID | null>(edit ? edit.paymentMethodId ?? null : lastPm ?? pms[0]?.id ?? null);
+  const [pmId, setPmId] = useState<ID | null>(edit ? edit.paymentMethodId ?? null : init?.paymentMethodId ?? lastPm ?? pms[0]?.id ?? null);
   const [need, setNeed] = useState<Need | null>(edit?.need ?? null);
   const [needTouched, setNeedTouched] = useState(!!edit);
   const [note, setNote] = useState(edit?.note ?? init?.note ?? '');
-  const [showAll, setShowAll] = useState(false);
   const [tried, setTried] = useState(false);
   const amountRef = useRef<HTMLInputElement>(null);
 
   const kind = mode === 'expense' ? 'expense' : mode === 'income' ? 'income' : 'savings';
-  const roots = useMemo(() => cats.filter((c) => c.kind === kind && !c.parentId).sort((a, b) => a.sort - b.sort), [cats, kind]);
-  const usage = useMemo(() => {
-    const cutoff = addDays(today, -120);
-    const m = new Map<ID, number>();
-    for (const t of data.transactions) {
-      if (t.date < cutoff || !t.categoryId) continue;
-      const c = catMap.get(t.categoryId);
-      const rid = c?.parentId ?? c?.id;
-      if (rid) m.set(rid, (m.get(rid) ?? 0) + 1);
-    }
-    return m;
-  }, [data.transactions, catMap, today]);
-  // Most-used first; before there is history, everyday (flexible) categories come before fixed bills.
-  const ranked = useMemo(() => [...roots].sort((a, b) => (usage.get(b.id) ?? 0) - (usage.get(a.id) ?? 0) || Number(a.behavior === 'fixed') - Number(b.behavior === 'fixed') || a.sort - b.sort), [roots, usage]);
-
   const selected = catId ? catMap.get(catId) : undefined;
   const rootId = selected ? selected.parentId ?? selected.id : null;
-  const subs = useMemo(() => (rootId ? cats.filter((c) => c.parentId === rootId).sort((a, b) => a.sort - b.sort) : []), [cats, rootId]);
-  const top = ranked.slice(0, 8);
-  if (rootId && !top.some((c) => c.id === rootId)) { const r = catMap.get(rootId); if (r && r.kind === kind) top.push(r); }
 
-  const pickRoot = (id: ID) => {
+  const pickCategory = (id: ID) => {
     setCatId(id);
-    if (mode === 'expense' && !needTouched) setNeed(catMap.get(id)?.defaultNeed ?? null);
+    const c = catMap.get(id);
+    const root = c?.parentId ? catMap.get(c.parentId) : c;
+    if (mode === 'expense' && !needTouched) setNeed(c?.defaultNeed ?? root?.defaultNeed ?? null);
   };
   const changeMode = (m: Mode) => {
     setMode(m);
     const k = m === 'expense' ? 'expense' : m === 'income' ? 'income' : 'savings';
     if (selected && selected.kind !== k) setCatId(null);
-    if (m === 'cardBill') { const cc = pms.find((p) => p.type === 'credit'); if (cc) setPmId(cc.id); }
+    if (m === 'cardBill') {
+      const cc = (pmId && pms.find((p) => p.id === pmId && p.type === 'credit')) || pms.find((p) => p.type === 'credit');
+      if (cc) { setPmId(cc.id); const ci = cardInfo.get(cc.id); if (ci && !amountStr) setAmountStr(paiseToInput(ci.dueRemaining > 0 ? ci.dueRemaining : Math.max(0, ci.outstanding))); }
+    }
   };
 
+  const cardInfo = useMemo(() => new Map(cardSummaries(data, today).map((c) => [c.method.id, c])), [data, today]);
   const amount = parseINR(amountStr);
   const needsCat = mode !== 'cardBill';
   const valid = !!amount && amount > 0 && (!needsCat || !!catId);
@@ -81,6 +71,8 @@ export function TxnSheet({ edit, init, onClose }: { edit?: Transaction; init?: T
       transferKind: mode === 'save' ? 'savings' : mode === 'cardBill' ? 'cardBill' : null,
       goalId,
     };
+    const dup = findDuplicate(data.transactions, rec, edit?.id);
+    if (dup && !(await confirm({ title: 'Possible duplicate', message: `You already have a ${formatINR(amount)} ${mode === 'cardBill' ? 'card bill payment' : mode === 'save' ? 'saving' : mode === 'income' ? 'income entry' : 'expense'}${selected ? ' in ' + selected.name : ''} on ${date}.\nAdd this one anyway?`, confirmLabel: 'Add anyway' }))) return;
     await save('transactions', rec);
     const label = mode === 'cardBill' ? 'Card bill' : selected?.name ?? '';
     toast(`${edit ? 'Updated' : 'Saved'} ${formatINR(amount)}${label ? ' · ' + label : ''}`);
@@ -97,7 +89,6 @@ export function TxnSheet({ edit, init, onClose }: { edit?: Transaction; init?: T
   const chip = (id: ID, active: boolean, label: string, icon: string, onClick: () => void) => (
     <button key={id} type="button" className={`chip ${active ? 'on' : ''}`} onClick={onClick}><span>{icon}</span>{label}</button>
   );
-  const groups = data.groups;
 
   return (
     <Sheet title={edit ? 'Edit transaction' : 'Add'} onClose={onClose}
@@ -122,42 +113,21 @@ export function TxnSheet({ edit, init, onClose }: { edit?: Transaction; init?: T
 
       {mode !== 'cardBill' && (
         <Field label={mode === 'income' ? 'Income type' : mode === 'save' ? 'Save to' : 'Category'} error={tried && !catId ? 'Pick one' : null}>
-          {roots.length === 0 ? <p className="muted small">No categories yet. Add one in Budget.</p> : (
-            <div className="chips">
-              {top.map((c) => chip(c.id, rootId === c.id, c.name, c.icon, () => pickRoot(c.id)))}
-              {ranked.length > top.length && <button type="button" className="chip" onClick={() => setShowAll((s) => !s)}>{showAll ? 'Less ▴' : 'All ▾'}</button>}
-            </div>
-          )}
-          {showAll && (
-            <div className="stack" style={{ marginTop: 8 }}>
-              {(mode === 'income' ? [null] : groups).map((g) => {
-                const list = roots.filter((c) => (g ? c.groupId === g.id : true));
-                if (!list.length) return null;
-                return (
-                  <div key={g?.id ?? 'x'}>
-                    {g && <div className="lbl-s" style={{ marginBottom: 6 }}>{g.name}</div>}
-                    <div className="chips">{list.map((c) => chip(c.id, rootId === c.id, c.name, c.icon, () => pickRoot(c.id)))}</div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <CategoryPicker kind={kind} value={catId} onPick={pickCategory} />
         </Field>
       )}
 
-      {subs.length > 0 && (
-        <Field label="Subcategory (optional)">
-          <div className="chips">
-            {chip('none', catId === rootId, 'None', '•', () => setCatId(rootId))}
-            {subs.map((c) => chip(c.id, catId === c.id, c.name, c.icon, () => setCatId(c.id)))}
-          </div>
-        </Field>
+      {mode === 'cardBill' && !pms.some((p) => p.type === 'credit') && (
+        <div className="notice">You haven’t added a credit card yet. <button type="button" className="link" style={{ color: 'var(--primary)', fontWeight: 700 }} onClick={() => { onClose(); openSheet({ kind: 'payment', type: 'credit' }); }}>Add a credit card</button> to track bills and due dates.</div>
       )}
-
       {(mode === 'expense' || mode === 'cardBill') && pms.length > 0 && (
-        <Field label={mode === 'cardBill' ? 'Which card' : 'Paid with'} help={mode === 'expense' && pms.find((p) => p.id === pmId)?.type === 'credit' ? 'Card spends count now. Pay the bill later with “Card bill”.' : undefined}>
+        <Field label={mode === 'cardBill' ? 'Which card' : 'Paid with'} help={mode === 'expense' && pms.find((p) => p.id === pmId)?.type === 'credit' ? 'Counts as an expense now. Later, record the bill payment with “Card bill”. It will not be counted twice.' : mode === 'cardBill' && pmId && cardInfo.get(pmId) ? `You owe ${formatINR(Math.max(0, cardInfo.get(pmId)!.outstanding))} on this card. A bill payment settles dues and is not an expense.` : undefined}>
           <div className="chips">
-            {pms.filter((p) => mode !== 'cardBill' || p.type === 'credit' || pms.every((x) => x.type !== 'credit')).map((p) => chip(p.id, pmId === p.id, p.name, p.type === 'cash' ? '💵' : p.type === 'credit' ? '💳' : p.type === 'upi' ? '📲' : '🏧', () => setPmId(p.id)))}
+            {pms.filter((p) => mode !== 'cardBill' || p.type === 'credit').map((p) => chip(p.id, pmId === p.id, p.name, p.type === 'cash' ? '💵' : p.type === 'credit' ? '💳' : p.type === 'upi' ? '📲' : '🏧', () => {
+              setPmId(p.id);
+              const ci = cardInfo.get(p.id);
+              if (mode === 'cardBill' && ci && !amountStr) setAmountStr(paiseToInput(ci.dueRemaining > 0 ? ci.dueRemaining : Math.max(0, ci.outstanding)));
+            }))}
           </div>
         </Field>
       )}

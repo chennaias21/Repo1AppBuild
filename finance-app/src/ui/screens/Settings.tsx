@@ -6,8 +6,8 @@ import { buildBackup, countsOf, validateBackupText, type BackupFile } from '../.
 import { planImport, toExportRows, EXPORT_HEADERS, type ImportPlan } from '../../core/csv';
 import { todayStr } from '../../core/dates';
 import { formatINR, paiseToInput, parseINR } from '../../core/money';
-import type { Category, PaymentMethod, PaymentType, ThemePref } from '../../core/types';
-import { addTransactions, newRecord, replaceAll, resetAll, save, softDelete, updateSettings } from '../../data/repo';
+import type { Category, PaymentType, ThemePref } from '../../core/types';
+import { addTransactions, replaceAll, resetAll, save, updateSettings } from '../../data/repo';
 import { readFileBuffer, readFileText, saveFile, isNative } from '../../data/files';
 import { Field, Segmented, Sheet } from '../components';
 import { PageHeader } from '../page';
@@ -47,10 +47,12 @@ function Hub() {
         <div className="card">
           <div className="card-head"><h2>Appearance</h2><Palette size={18} className="muted" /></div>
           <Segmented<ThemePref> value={s.theme} onChange={(theme) => updateSettings({ theme })} options={[{ value: 'system', label: 'Auto' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }]} />
+          <DisplaySize />
         </div>
         <div className="card tight"><div className="list">
           <Row to="profile" icon={<User size={20} />} title="Salary & preferences" sub={`${formatINR(s.salary)} / month · budget month starts on day ${s.monthStartDay}`} />
           <Row to="categories" icon={<FolderTree size={20} />} title="Categories & groups" sub={`${alive(data.categories).filter((c) => !c.parentId).length} categories · ${data.groups.length} groups`} />
+          <button className="item" onClick={() => go('/cards')}><div className="emoji">💳</div><div className="grow"><div className="title">Credit cards</div><div className="sub">Outstanding, due dates and payments</div></div><ChevronRight size={18} className="muted" /></button>
           <Row to="payment" icon={<CreditCard size={20} />} title="Payment methods" sub={data.paymentMethods.map((p) => p.name).join(', ') || 'None yet'} />
           <Row to="recurring" icon={<Repeat size={20} />} title="Recurring entries" sub={`${data.recurring.length} set up (rent, EMI, SIP...)`} />
         </div></div>
@@ -61,6 +63,21 @@ function Hub() {
         </div></div>
       </div>
     </>
+  );
+}
+
+/* ---------------- Display size ---------------- */
+export const SCALES = [{ value: '0.9', label: 'Small' }, { value: '1', label: 'Normal' }, { value: '1.12', label: 'Large' }, { value: '1.25', label: 'Extra large' }];
+export function DisplaySize({ compact }: { compact?: boolean }) {
+  const { data } = useApp();
+  const scale = data.settings.uiScale ?? 1;
+  const key = SCALES.reduce((best, o) => (Math.abs(+o.value - scale) < Math.abs(+best.value - scale) ? o : best)).value;
+  return (
+    <div className="stack" style={{ gap: 8, marginTop: compact ? 0 : 14 }}>
+      {!compact && <div className="row between"><b className="small">Display size</b>{scale !== 1 && <button className="btn sm" onClick={() => updateSettings({ uiScale: 1 })}>Reset to normal</button>}</div>}
+      <Segmented value={key} onChange={(v) => updateSettings({ uiScale: +v })} options={SCALES} />
+      {!compact && <p className="help">Makes everything bigger or smaller on every screen. Pinch-zoom is turned off so pages never get stuck zoomed.</p>}
+    </div>
   );
 }
 
@@ -157,43 +174,31 @@ function ManageCategories() {
 
 /* ---------------- Payment methods ---------------- */
 function PaymentMethods() {
-  const { data, toast } = useApp();
-  const [name, setName] = useState('');
-  const [type, setType] = useState<PaymentType>('upi');
+  const { data, openSheet } = useApp();
   const list = [...data.paymentMethods].sort((a, b) => a.sort - b.sort);
-  const add = async () => {
-    if (!name.trim()) return;
-    await save('paymentMethods', { ...newRecord(), name: name.trim(), type, sort: list.length } as PaymentMethod);
-    setName('');
-  };
-  const TYPES: { value: PaymentType; label: string }[] = [{ value: 'cash', label: 'Cash' }, { value: 'upi', label: 'UPI' }, { value: 'debit', label: 'Debit card' }, { value: 'credit', label: 'Credit card' }, { value: 'other', label: 'Other' }];
+  const LABEL: Record<PaymentType, string> = { cash: 'Cash', upi: 'UPI', debit: 'Debit card', credit: 'Credit card', other: 'Other' };
+  const ICON: Record<PaymentType, string> = { cash: '💵', upi: '📲', debit: '🏧', credit: '💳', other: '🔖' };
   return (
     <>
-      <PageHeader title="Payment methods" backButton />
+      <PageHeader title="Payment methods" backButton right={<button className="btn sm primary" onClick={() => openSheet({ kind: 'payment' })}><Plus size={16} /> Add</button>} />
       <div className="stack">
         <div className="notice ok">Use names only, like “HDFC credit card”. Never enter card numbers, bank account numbers or UPI IDs. The app never asks for them.</div>
-        <div className="card stack">
-          {list.map((p) => <PmRow key={p.id} p={p} types={TYPES} onDelete={async () => { await softDelete('paymentMethods', p.id); toast(`${p.name} removed`); }} />)}
-          <div className="divider" style={{ margin: 0 }} />
-          <div className="lbl-s">Add a payment method</div>
-          <div className="row wrap">
-            <input className="input grow" style={{ minWidth: 160 }} placeholder="e.g. Axis credit card" value={name} onChange={(e) => setName(e.target.value)} />
-            <select className="select" style={{ width: 150 }} value={type} onChange={(e) => setType(e.target.value as PaymentType)}>{TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select>
-            <button className="btn primary" onClick={add} disabled={!name.trim()}>Add</button>
-          </div>
+        <div className="card tight">
+          {list.length === 0 ? <p className="muted" style={{ padding: 12 }}>None yet.</p> : (
+            <div className="list">
+              {list.map((p) => (
+                <button key={p.id} className="item" onClick={() => openSheet({ kind: 'payment', edit: p })}>
+                  <div className="emoji">{ICON[p.type]}</div>
+                  <div className="grow"><div className="title">{p.name}</div><div className="sub">{LABEL[p.type]}{p.type === 'credit' ? (p.billingDay && p.dueDay ? ` · statement ${p.billingDay}th, due ${p.dueDay}th` : ' · tap to set statement and due days') : ''}</div></div>
+                  <ChevronRight size={18} className="muted" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+        <button className="btn block" onClick={() => openSheet({ kind: 'payment', type: 'credit' })}><CreditCard size={18} /> Add a credit card</button>
       </div>
     </>
-  );
-}
-function PmRow({ p, types, onDelete }: { p: PaymentMethod; types: { value: PaymentType; label: string }[]; onDelete: () => void }) {
-  const [v, setV] = useState(p.name);
-  return (
-    <div className="row wrap">
-      <input className="input grow" style={{ minWidth: 140 }} value={v} aria-label="Payment method name" onChange={(e) => setV(e.target.value)} onBlur={() => v.trim() && v !== p.name && save('paymentMethods', { ...p, name: v.trim() })} />
-      <select className="select" style={{ width: 150 }} value={p.type} aria-label="Type" onChange={(e) => save('paymentMethods', { ...p, type: e.target.value as PaymentType })}>{types.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select>
-      <button className="icon-btn" aria-label={`Delete ${p.name}`} onClick={onDelete}><Trash2 size={18} /></button>
-    </div>
   );
 }
 

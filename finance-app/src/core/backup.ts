@@ -24,7 +24,11 @@ const goalS = z.object({
   ...base, name: z.string(), icon: z.string(), target: paise.nonnegative(), initialSaved: paise.nonnegative(), targetDate: month.nullable().optional(),
   monthlyContribution: paise.nonnegative(), priority: z.enum(['high', 'medium', 'low']), description: z.string().optional(), isEmergency: z.boolean().optional(),
 }).passthrough();
-const pmS = z.object({ ...base, name: z.string(), type: z.enum(['cash', 'upi', 'debit', 'credit', 'other']), sort: z.number() }).passthrough();
+const pmS = z.object({
+  ...base, name: z.string(), type: z.enum(['cash', 'upi', 'debit', 'credit', 'other']), sort: z.number(),
+  billingDay: z.number().int().min(1).max(31).nullable().optional(), dueDay: z.number().int().min(1).max(31).nullable().optional(),
+  creditLimit: paise.nonnegative().nullable().optional(), openingOutstanding: paise.nullable().optional(),
+}).passthrough();
 const recS = z.object({
   ...base, type: z.enum(['expense', 'income', 'transfer']), transferKind: z.enum(['savings', 'cardBill']).nullable().optional(), amount: paise.nonnegative(),
   categoryId: z.string().nullable().optional(), paymentMethodId: z.string().nullable().optional(), need, note: z.string().optional(),
@@ -32,7 +36,7 @@ const recS = z.object({
 }).passthrough();
 const settingsS = z.object({
   id: z.literal('main'), schemaVersion: z.number(), deviceId: z.string(), userName: z.string(), salary: paise.nonnegative(), currency: z.literal('INR'),
-  monthStartDay: z.number().int().min(1).max(28), theme: z.enum(['system', 'light', 'dark']), watchPct: z.number(), targetSavingsRate: z.number(), onboarded: z.boolean(),
+  monthStartDay: z.number().int().min(1).max(28), theme: z.enum(['system', 'light', 'dark']), watchPct: z.number(), targetSavingsRate: z.number(), onboarded: z.boolean(), uiScale: z.number().min(0.5).max(2).optional(),
   lastBackupAt: z.number().nullable().optional(), updatedAt: z.number(),
 }).passthrough();
 

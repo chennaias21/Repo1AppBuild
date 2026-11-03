@@ -1,7 +1,7 @@
 {
   "name": "rupee-routine",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Rupee Routine - Money Made Simple. Offline-first personal finance app (web + Android).",
   "type": "module",
   "scripts": {
@@ -9,6 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host",
     "typecheck": "tsc --noEmit",
+    "e2e": "node tests/e2e/smoke.mjs && node tests/e2e/scenario.mjs",
     "test": "vitest run",
     "cap:sync": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",

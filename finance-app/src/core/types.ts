@@ -65,6 +65,11 @@ export interface PaymentMethod extends Base {
   name: string;
   type: PaymentType;
   sort: number;
+  // Credit cards only (all optional; nothing sensitive is ever stored):
+  billingDay?: number | null; // statement date, day of month (1-28)
+  dueDay?: number | null; // payment due date, day of month (1-28)
+  creditLimit?: Paise | null;
+  openingOutstanding?: Paise | null; // amount already owed before you started using the app
 }
 
 export type Priority = 'high' | 'medium' | 'low';
@@ -106,6 +111,7 @@ export interface Settings {
   watchPct: number; // category "Watch Out" threshold, % (default 80)
   targetSavingsRate: number; // % of income considered a healthy savings rate
   onboarded: boolean;
+  uiScale?: number; // display size, 0.85 - 1.3 (1 = normal)
   lastBackupAt?: number | null;
   updatedAt: number;
 }

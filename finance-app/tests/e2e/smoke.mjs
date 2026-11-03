@@ -87,9 +87,9 @@ await step('income, savings transfer and credit-card spend + bill (no double cou
   await page.waitForTimeout(300);
   const tiles = await page.locator('.tiles').innerText();
   const norm = tiles.replace(/\s+/g, ' ');
-  assert.match(norm, /Received ₹86,000/);
-  assert.match(norm, /Saved ₹10,000/);
-  assert.match(norm, /Spent ₹5,450/); // 450 + 5,000 card spend; bill and savings excluded
+  assert.match(norm, /Income ₹86,000/);
+  assert.match(norm, /Savings ₹10,000/);
+  assert.match(norm, /Expenses ₹5,450/); // 450 + 5,000 card spend; bill and savings excluded
   await shot('04-home-active');
 });
 await step('transactions list, edit, delete and undo', async () => {
@@ -144,7 +144,7 @@ await step('goals: create a new goal', async () => {
 await step('insights: health score and monthly review', async () => {
   await page.locator('.tab', { hasText: 'Insights' }).click();
   await page.getByText('Financial health').waitFor();
-  assert.ok((await text()).includes('Monthly review'));
+  assert.ok((await text()).includes('What to do next'));
   await shot('08-insights');
 });
 await step('backup downloads a valid file; reset wipes; restore brings data back', async () => {
@@ -182,7 +182,7 @@ await step('backup downloads a valid file; reset wipes; restore brings data back
   await page.getByText('Data restored').waitFor();
   await page.locator('.tab', { hasText: 'Home' }).click();
   await page.getByText('Safe to spend today').waitFor();
-  assert.match((await page.locator('.tiles').innerText()).replace(/\s+/g, ' '), /Spent ₹5,450|Spent ₹5,500/);
+  assert.match((await page.locator('.tiles').innerText()).replace(/\s+/g, ' '), /Expenses ₹5,450|Expenses ₹5,500/);
 });
 await step('csv export then import skips duplicates', async () => {
   await page.locator('.tab', { hasText: 'Settings' }).click();

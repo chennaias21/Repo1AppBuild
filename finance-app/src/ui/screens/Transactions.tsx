@@ -5,6 +5,7 @@ import { inPeriod, dayHeading } from '../../core/dates';
 import { formatINR } from '../../core/money';
 import { Empty, Segmented } from '../components';
 import { PageHeader } from '../page';
+import { updateSettings } from '../../data/repo';
 import { useApp } from '../app';
 
 type Filter = 'all' | 'expense' | 'income' | 'transfer';
@@ -47,7 +48,7 @@ export function Transactions() {
     const c = t.categoryId ? catMap.get(t.categoryId) : undefined;
     const parent = c?.parentId ? catMap.get(c.parentId) : undefined;
     if (t.type === 'transfer') {
-      if (t.transferKind === 'cardBill') return { icon: '💳', title: 'Credit card bill', sub: [pmMap.get(t.paymentMethodId ?? '')?.name, t.note].filter(Boolean).join(' · ') || 'Transfer, not an expense' };
+      if (t.transferKind === 'cardBill') return { icon: '🧾', title: 'Card bill payment', sub: [pmMap.get(t.paymentMethodId ?? '')?.name, 'settles dues, not an expense', t.note].filter(Boolean).join(' · ') };
       const g = t.goalId ? goalMap.get(t.goalId) : undefined;
       return { icon: c?.icon ?? '🐷', title: `Saved → ${g?.name ?? c?.name ?? 'Savings'}`, sub: t.note || 'Savings transfer' };
     }
@@ -71,7 +72,7 @@ export function Transactions() {
 
   return (
     <>
-      <PageHeader title="Transactions" months={scope === 'month'} />
+      <PageHeader title="Transactions" months={scope === 'month'} right={(data.settings.uiScale ?? 1) !== 1 ? <button className="btn sm" onClick={() => updateSettings({ uiScale: 1 })}>Reset size</button> : undefined} />
       <div className="stack">
         <div className="card tight stack" style={{ gap: 10 }}>
           <div className="row">
@@ -112,6 +113,7 @@ export function Transactions() {
                         <div className="title truncate">{d.title}</div>
                         <div className="sub truncate">{d.sub}</div>
                       </div>
+                      {t.type === 'expense' && pmMap.get(t.paymentMethodId ?? '')?.type === 'credit' && <span className="tag card">💳 Card</span>}
                       {t.type === 'expense' && t.need && <span className={`tag ${t.need}`}>{t.need === 'need' ? 'Need' : 'Want'}</span>}
                       <div className={`amt ${t.type === 'income' ? 'in' : t.type === 'transfer' ? 'xfer' : ''}`}>{t.type === 'income' ? '+' : t.type === 'transfer' ? '⇄ ' : '-'}{formatINR(t.amount)}</div>
                     </button>

@@ -29,8 +29,8 @@ npm run preview        # serves it at http://localhost:4173
 
 ### Check everything works
 ```bash
-npm test               # 64 unit tests: budgets, alerts, goals, safe-to-spend, comparisons, backup, database
-npm run build && node tests/e2e/smoke.mjs   # 14 end-to-end steps in a real browser (needs Playwright)
+npm test               # 80 unit tests: budgets, alerts, goals, safe-to-spend, credit cards, trends, observations, backup, database
+npm run build && npm run e2e   # 26 browser steps in real Chromium (needs Playwright): core flows + a realistic 4-month scenario
 ```
 
 ---
@@ -46,6 +46,16 @@ npm run build && node tests/e2e/smoke.mjs   # 14 end-to-end steps in a real brow
    Android will ask to allow *“Install unknown apps”* for the app you opened it from. Allow it once, then install.
 
 The workflow runs all tests first, so a green run also means the calculations passed.
+
+### Updating the app on your phone (keeps your data)
+Version 1.1 is signed with a **fixed key**, so every future APK installs *over* the old one and **keeps your data**.
+The very first APK you installed (v1.0) was signed with a random key, so Android will refuse to install v1.1 over it. Do this **once**:
+1. In the old app: **Settings → Backup & restore → Back up now**, and save the file somewhere safe (Drive/WhatsApp).
+2. Uninstall the old Rupee Routine.
+3. Install the new `app-debug.apk`.
+4. Open it, finish the quick setup, then **Settings → Backup & restore → Choose backup file** and restore. All your data, including custom categories, comes back.
+
+From then on, just install new APKs on top. No backup is needed (but still make one regularly).
 
 ### Build it on your own computer
 You need Node 20+, **JDK 17** and **Android Studio** (it provides the Android SDK).
@@ -96,13 +106,36 @@ Restoring **replaces** everything on that device (transactions, budgets, categor
 
 ---
 
-## 4. How the app thinks (so the numbers make sense)
+## 4. What is in the app
+
+| Tab | What it gives you |
+|---|---|
+| **Home** | *Left this month* (income − expenses − savings), health score, safe-to-spend today, income / expenses / savings / budget-left cards, alerts, budget allocation and utilisation, spending by category, biggest expenses, goals, credit cards, weekly habit. |
+| **Activity** | Every transaction with search and filters. Tap to edit, delete (with Undo). |
+| **Budget** | Groups, categories and limits (planned vs actual). Add, rename, move, delete. Subcategories roll up into their category. |
+| **Goals** | Unlimited goals with progress, needed-per-month and on-track status. |
+| **Insights** | Summary, financial health, *going well / needs attention / what to do next*, budget vs actual, category analysis, 6-month trend, savings and goals, credit card liabilities, comparison with last month. |
+| **Settings** | Salary, categories & groups, **credit cards**, payment methods, recurring entries, backup & restore, CSV/Excel, display size, theme, privacy and reset. |
+
+**Quick-add (+)** lists *every* group, category and subcategory. Tap **+ New** under a group (or **Sub of …**) to create one on the spot. It warns you before saving a possible duplicate.
+
+**Credit cards** (*Settings → Credit cards*): add a card with its statement day, payment due day and optional limit. You see what you owe, the last bill, new purchases, the due date and a status (*Upcoming / Due soon / Overdue / Bill paid*). Use **Record a payment** to pay a bill.
+* A card **purchase** is an expense on the day you swipe, in its category.
+* A card **bill payment** is a transfer that settles the debt. It is never counted as spending again.
+
+**Display size** (*Settings → Appearance*): Small / Normal / Large / Extra large, with **Reset to normal** (also shown on the Activity page when changed). Pinch-zoom is turned off so a page can never get stuck zoomed.
+
+---
+
+## 5. How the app thinks (so the numbers make sense)
 
 | Term | Meaning |
 |---|---|
 | **Received** | Income entries in the budget month. |
 | **Saved** | Money moved to savings/investments (**Save** entries). |
 | **Spent** | Expenses only. Saving transfers and credit-card **bill payments are transfers**, not expenses. A card purchase counts the day you make it. |
+| **Left this month** | Income − expenses − savings. Card purchases are already inside expenses, so paying the card bill later does not reduce it again. |
+| **Credit card “you owe”** | Amount owed before using the app + card purchases − card bill payments. Shown separately from expenses. |
 | **Safe to spend today** | Remaining flexible budget ÷ days left. Fixed bills (rent, EMI) are set aside first. The daily amount stays stable through the day. |
 | **On Track / Watch Out / Overspending** | Overspending: any category or the total is over its limit. Watch Out: a category is at 80%+ (editable) or your pace will overshoot by month-end. |
 | **Goal “needed each month”** | (Target − saved) ÷ months left, counting the current month. |
@@ -112,7 +145,7 @@ Everything (salary, categories, groups, budgets, goals, payment methods, thresho
 
 ---
 
-## 5. For future development
+## 6. For future development
 
 * `src/core/` – pure TypeScript logic (no UI, no database). Money is integer paise.
 * `src/data/` – IndexedDB (Dexie) behind small repository functions. Every record has a UUID, `createdAt`/`updatedAt`, a soft-delete flag and a `deviceId`, so cloud sync or multi-device merge can be added later without changing the data model. Add schema changes as a new `version(n)` in `src/data/db.ts`.

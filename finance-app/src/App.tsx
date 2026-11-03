@@ -11,6 +11,7 @@ import { Budget } from './ui/screens/Budget';
 import { Goals } from './ui/screens/Goals';
 import { Insights } from './ui/screens/Insights';
 import { Settings } from './ui/screens/Settings';
+import { Cards } from './ui/screens/Cards';
 import { isNative } from './data/files';
 
 const TABS = [
@@ -36,6 +37,7 @@ function Shell() {
     case '/goals': screen = <Goals />; break;
     case '/insights': screen = <Insights />; break;
     case '/settings': screen = <Settings sub={sub} />; break;
+    case '/cards': screen = <Cards />; break;
     default: screen = <Home />;
   }
   return (
@@ -43,7 +45,7 @@ function Shell() {
       <aside className="sidebar" aria-label="Main navigation">
         <div className="brand"><div className="logo">₹</div><div><b>{BRAND.name}</b><small>{BRAND.tagline}</small></div></div>
         {TABS.map((t) => (
-          <button key={t.path} className={`side-item ${tab === t.path ? 'active' : ''}`} onClick={() => replace(t.path)}>
+          <button key={t.path} className={`side-item ${tab === t.path || (t.path === '/settings' && tab === '/cards') ? 'active' : ''}`} onClick={() => replace(t.path)}>
             <t.icon size={22} /><span>{t.label}</span>
           </button>
         ))}
@@ -51,7 +53,7 @@ function Shell() {
       <main className="main">{screen}</main>
       <nav className="tabbar" aria-label="Main navigation">
         {TABS.map((t) => (
-          <button key={t.path} className={`tab ${tab === t.path ? 'active' : ''}`} onClick={() => replace(t.path)} aria-current={tab === t.path ? 'page' : undefined}>
+          <button key={t.path} className={`tab ${tab === t.path || (t.path === '/settings' && tab === '/cards') ? 'active' : ''}`} onClick={() => replace(t.path)} aria-current={tab === t.path ? 'page' : undefined}>
             <span className="ico"><t.icon size={21} /></span>{'short' in t ? t.short : t.label}
           </button>
         ))}
@@ -79,6 +81,8 @@ export default function App() {
       })();
     }
   }, [theme]);
+  const scale = state?.data?.settings.uiScale ?? 1;
+  useEffect(() => { document.documentElement.style.setProperty('--ui-scale', String(scale)); }, [scale]);
   useEffect(() => { if (state?.data) setDeviceIdCache(state.data.settings.deviceId); }, [state]);
   useEffect(() => { if (!window.location.hash) replace('/home'); }, []);
 
