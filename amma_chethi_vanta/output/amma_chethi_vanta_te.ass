@@ -1,0 +1,37 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+ScaledBorderAndShadow: yes
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Sub,Noto Sans Telugu UI,52,&H00FFFFFF,&H00FFFFFF,&H00141414,&H90000000,0,0,0,0,100,100,0,0,1,2.6,1.2,2,120,120,64,1
+Style: Title,Ramaraja,160,&H00D9EEFF,&H00FFFFFF,&H00203040,&HA0000000,0,0,0,0,100,100,0,0,1,1.5,4,5,60,60,60,1
+Style: End1,Ramaraja,96,&H00D9EEFF,&H00FFFFFF,&H00203040,&HA0000000,0,0,0,0,100,100,0,0,1,1.2,3,5,60,60,60,1
+Style: End2,Ramaraja,76,&H00FFFFFF,&H00FFFFFF,&H00203040,&HA0000000,0,0,0,0,100,100,0,0,1,1.2,3,5,60,60,60,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 1,0:00:00.40,0:00:03.30,Title,,0,0,0,,{\fad(700,600)\blur1.2}అమ్మ చేతి వంట
+Dialogue: 0,0:00:03.80,0:00:06.60,Sub,NARRATOR,0,0,0,,{\fad(120,150)}రోజంతా ఆఫీసులో పని చేసి ఇంటికి వచ్చేసరికి...
+Dialogue: 0,0:00:06.80,0:00:09.40,Sub,NARRATOR,0,0,0,,{\fad(120,150)}శరీరం పూర్తిగా అలసిపోయింది.
+Dialogue: 0,0:00:11.00,0:00:14.80,Sub,NARRATOR,0,0,0,,{\fad(120,150)}ఇక రాత్రికి భోజనం కూడా మనమే తయారు చేసుకోవాలి.
+Dialogue: 0,0:00:24.40,0:00:28.20,Sub,NARRATOR,0,0,0,,{\fad(120,150)}ఒక్క పూట వంట చేయడానికే ఇంత సమయం పడుతుందా!
+Dialogue: 0,0:00:32.30,0:00:35.00,Sub,CHILD,0,0,0,,{\fad(120,150)}అమ్మా! మళ్ళీ అవే వంటలా? రోజూ ఇదేనా?
+Dialogue: 0,0:00:35.10,0:00:37.40,Sub,CHILD,0,0,0,,{\fad(120,150)}ఏదైనా స్పెషల్ చేయొచ్చుగా!
+Dialogue: 0,0:00:37.90,0:00:40.80,Sub,MOTHER,0,0,0,,{\fad(120,150)}తిను నాన్నా... ప్రేమగా చేశాను.
+Dialogue: 0,0:00:42.80,0:00:46.40,Sub,NARRATOR,0,0,0,,{\fad(120,150)}అప్పుడు అమ్మ వంట చేయడం మాత్రమే చూశాను...
+Dialogue: 0,0:00:46.60,0:00:50.20,Sub,NARRATOR,0,0,0,,{\fad(120,150)}కానీ ఆ వంటతో పాటు ఇంటి పనులన్నీ ఎలా చూసుకునేదో
+Dialogue: 0,0:00:50.30,0:00:52.90,Sub,NARRATOR,0,0,0,,{\fad(120,150)}ఒక్కసారి కూడా ఆలోచించలేదు.
+Dialogue: 0,0:00:54.80,0:00:58.20,Sub,NARRATOR,0,0,0,,{\fad(120,150)}అమ్మ చేతి వంటలో ఏదో తెలియని రుచి ఉండేది.
+Dialogue: 0,0:00:58.50,0:01:03.60,Sub,NARRATOR,0,0,0,,{\fad(120,150)}ఆ రుచి వెనుక ఎంత ప్రేమ, శ్రమ ఉండేదో ఇప్పుడు తెలుస్తోంది.
+Dialogue: 0,0:01:06.00,0:01:09.40,Sub,NARRATOR,0,0,0,,{\fad(120,150)}ఈరోజు నా చేత్తో వండుకుని తింటుంటే...
+Dialogue: 0,0:01:09.70,0:01:14.60,Sub,NARRATOR,0,0,0,,{\fad(120,150)}అమ్మ పెట్టిన ఆ మామూలు భోజనమే ఎంత ప్రత్యేకమో తెలిసింది.
+Dialogue: 0,0:01:18.00,0:01:19.40,Sub,NARRATOR,0,0,0,,{\fad(120,150)}అమ్మా...
+Dialogue: 0,0:01:19.60,0:01:22.60,Sub,NARRATOR,0,0,0,,{\fad(120,150)}నువ్వు వండింది మామూలు భోజనం కాదు.
+Dialogue: 0,0:01:23.00,0:01:26.40,Sub,NARRATOR,0,0,0,,{\fad(120,150)}నీ సమయాన్ని, నీ శ్రమను, నీ ప్రేమను
+Dialogue: 0,0:01:26.60,0:01:29.20,Sub,NARRATOR,0,0,0,,{\fad(120,150)}మాకు ప్రతిరోజూ వడ్డించావు.
+Dialogue: 1,0:01:30.60,0:01:34.40,End1,,0,0,0,,{\pos(960,470)\fad(600,500)\blur0.8}అమ్మ చేతి వంట విలువ...
+Dialogue: 1,0:01:31.10,0:01:34.40,End2,,0,0,0,,{\pos(960,600)\fad(600,500)\blur0.6}మనం వండుకున్నప్పుడే తెలుస్తుంది. {\p1\1c&H3A3AD8&\bord0\shad0}m 25 12 b 25 0 0 0 0 14 b 0 28 15 36 25 46 b 35 36 50 28 50 14 b 50 0 25 0 25 12{\p0}
